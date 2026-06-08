@@ -234,6 +234,12 @@ async function main() {
 
   try {
     const dimensions = listArg(args, 'dimensions', ['query', 'page']);
+    // Default to 'final' (GSC-confirmed, lags ~2-3 days) for accuracy. The web
+    // dashboard's default view is 'all' (includes fresh, provisional days), which
+    // is why the agent's recent-day numbers can read lower than the dashboard's.
+    // The data_state + note are echoed in the output so a reader can tell which
+    // lens produced the numbers rather than silently comparing apples to oranges.
+    const dataState = args['data-state'] || 'final';
     let rawRows, dateRangeStart, dateRangeEnd;
 
     // â”€â”€ Data source â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -264,7 +270,7 @@ async function main() {
         startDate: dateRangeStart,
         endDate: dateRangeEnd,
         dimensions,
-        dataState: args['data-state'] || 'final',
+        dataState,
         rowLimit: 25000,
       });
 
@@ -313,6 +319,10 @@ async function main() {
     const output = envelope({
       date_range_start: dateRangeStart,
       date_range_end: dateRangeEnd,
+      data_state: dataState,
+      data_state_note: dataState === 'final'
+        ? "final: GSC-confirmed data, lags ~2-3 days behind today. The dashboard's 'all' view shows higher, provisional numbers for the most recent days."
+        : "all: includes fresh but provisional data for the last ~2-3 days; figures may revise downward as GSC finalizes them.",
       total_rows: rows.length,
       persisted,
       rows,

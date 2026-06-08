@@ -10,14 +10,23 @@ const { smtpCredentials } = require("../lib/email_credentials");
 const git = require("../lib/git");
 
 const DEFAULT_TO = "{{ADMIN_EMAIL}}";
-const LEGACY_ADMIN_RECIPIENTS = new Set([
-  "admin@{{DOMAIN}}",
-  "admin@ppumbingseo.agency",
-]);
+
+// Addresses that should always be rewritten to DEFAULT_TO. Empty in the neutral
+// template (no carried-over identities); populate per-client only if you migrate
+// off a previously hardcoded address and want stragglers redirected.
+const LEGACY_ADMIN_RECIPIENTS = new Set([]);
 
 function normalizeRecipient(value) {
   const to = String(value || DEFAULT_TO).trim();
   return LEGACY_ADMIN_RECIPIENTS.has(to.toLowerCase()) ? DEFAULT_TO : to;
+}
+
+// An address still carrying an unfilled {{TOKEN}} (e.g. customize.ps1 never set
+// ADMIN_EMAIL) is not a real mailbox. Detect it so the job fails with a clear
+// reason and dead-letters, instead of handing SMTP a literal token and emitting
+// a confusing transport error.
+function hasUnfilledToken(value) {
+  return /\{\{[^}]+\}\}/.test(String(value || ""));
 }
 
 async function main() {
@@ -80,6 +89,12 @@ async function processEmailJob(db, config, job, args, dryRun) {
   if (dryRun) {
     if (args["complete-dry-run"]) completeJob(db, job, now, { dry_run: true, message });
     return { outbox_id: job.outbox_id, status: args["complete-dry-run"] ? "completed_dry_run" : "dry_run", ...message };
+  }
+
+  if (hasUnfilledToken(message.to)) {
+    const reason = `Recipient still contains an unfilled template token: ${message.to}. Set ADMIN_EMAIL / run customize.ps1.`;
+    failJob(db, job, reason);
+    return { outbox_id: job.outbox_id, status: "failed", error: reason, ...message };
   }
 
   db.exec('BEGIN IMMEDIATE TRANSACTION');

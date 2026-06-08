@@ -82,11 +82,13 @@ function processJob(db, job, obsidianRoot, dryRun) {
   }
 
   if (!dryRun) {
-    // TX 1: Mark as processing
+    // TX 1: Mark as processing. The attempt counter is owned by markJobFailed
+    // (below) so that EVERY failure path increments it — including a render
+    // failure, which returns before this transaction ever runs.
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
       db.prepare(
-        'UPDATE outbox_jobs SET status = ?, attempt_count = attempt_count + 1, last_attempt_at = ? WHERE outbox_id = ?'
+        'UPDATE outbox_jobs SET status = ?, last_attempt_at = ? WHERE outbox_id = ?'
       ).run('processing', now, job.outbox_id);
       db.exec('COMMIT');
     } catch (error) {
@@ -259,13 +261,19 @@ function assertSafeObsidianWritePath(obsidianRoot, notePath, markdown) {
 
 function markJobFailed(db, job, message) {
   const now = nowIso();
-  const dead = (job.attempt_count || 0) >= 2;
+  // Own the attempt counter here. This is the single failure path for both
+  // unrenderable jobs (entity missing → returns before the 'processing' TX) and
+  // write failures, so incrementing here guarantees a job that can never succeed
+  // climbs to dead_letter instead of looping as 'retrying' forever (the prior
+  // bug: render failures never incremented attempt_count, so dead was never true).
+  const newCount = (job.attempt_count || 0) + 1;
+  const dead = newCount >= 3;
   db.exec('BEGIN IMMEDIATE TRANSACTION');
   try {
-    db.prepare(`UPDATE outbox_jobs SET status = ?, last_attempt_at = ?, error_message = ? WHERE outbox_id = ?`)
-      .run(dead ? 'dead_letter' : 'retrying', now, message, job.outbox_id);
+    db.prepare(`UPDATE outbox_jobs SET status = ?, attempt_count = ?, last_attempt_at = ?, error_message = ? WHERE outbox_id = ?`)
+      .run(dead ? 'dead_letter' : 'retrying', newCount, now, message, job.outbox_id);
     db.prepare(`INSERT INTO events (event_id, event_type, task_id, resource_type, resource_id, old_value, new_value, source, agent_name, created_at, metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
-      .run(makeId('EVT'), dead ? 'outbox_dead_letter' : 'outbox_retry', job.entity_id || null, 'outbox', job.outbox_id, job.status, dead ? 'dead_letter' : 'retrying', 'outbox_sync', 'Obsidian Outbox Sync', now, JSON.stringify({error: message}));
+      .run(makeId('EVT'), dead ? 'outbox_dead_letter' : 'outbox_retry', job.entity_id || null, 'outbox', job.outbox_id, job.status, dead ? 'dead_letter' : 'retrying', 'outbox_sync', 'Obsidian Outbox Sync', now, JSON.stringify({error: message, attempt: newCount}));
     db.exec('COMMIT');
   } catch (e) { db.exec('ROLLBACK'); throw e; }
 }

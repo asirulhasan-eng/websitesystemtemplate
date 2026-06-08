@@ -46,7 +46,8 @@ CHECK TYPES
   --full             Run all checks (default if no specific checks chosen)
   --heartbeats       Check heartbeat freshness and stale jobs
   --locks            Check for stale/expired locks
-  --outbox           Check for stuck or failed outbox jobs
+  --outbox           Check outbox health: dead-letter jobs, jobs stuck in
+                     'processing', and drain lag (oldest undrained job age)
   --disk             Check disk space usage
   --db-health        Check database integrity and size
 
@@ -55,10 +56,15 @@ ACTIONS
   --email-on-critical  Queue retryable email notification for critical severity issues
   --auto-fix           Automatically fix issues:
                        â€¢ Release stale/expired locks
-                       â€¢ Retry stuck outbox jobs (reset to pending)
+                       â€¢ Re-queue outbox jobs orphaned in 'processing'
+                       â€¢ Time out abandoned 'running' deployments
 
 OPTIONS
   --stale-minutes    Minutes before a heartbeat is considered stale (default: 30)
+  --outbox-processing-timeout-minutes  Minutes before a 'processing' outbox job is
+                     treated as orphaned and re-queued (default: 30)
+  --outbox-lag-minutes  Oldest-undrained-job age that flags the outbox as lagging
+                     (default: 60)
   --db               SQLite database path (or CLIENT_DB_PATH env var)
   --json             JSON output (default)
   --table            Table output
@@ -190,31 +196,64 @@ module.exports = function monitorCheck() {
       }
 
       // --- OUTBOX CHECK ---
+      // The outbox workers cycle a job through pending → processing → completed |
+      // retrying | dead_letter. The old check watched for `status='pending' AND
+      // attempt_count>=3` and `status='failed'` — states the workers never write —
+      // so it silently always reported healthy. This checks the states that
+      // actually occur: dead_letter (gave up), stuck 'processing' (worker died
+      // mid-flight; never re-selected by the drainers), and drain lag (oldest
+      // undrained job age = is the mirror keeping up).
       if (checkOutbox) {
-        const pendingJobs = db.prepare("SELECT COUNT(*) as cnt FROM outbox_jobs WHERE status = 'pending'").get();
-        const stuckJobs = db.prepare(`
-          SELECT * FROM outbox_jobs WHERE status = 'pending' AND attempt_count >= 3
-        `).all();
-        const failedJobs = db.prepare("SELECT COUNT(*) as cnt FROM outbox_jobs WHERE status = 'failed'").get();
+        const processingTimeoutMinutes = numberArg(args, 'outbox-processing-timeout-minutes', 30);
+        const lagThresholdMinutes = numberArg(args, 'outbox-lag-minutes', 60);
+        const processingThreshold = new Date(nowMs - processingTimeoutMinutes * 60 * 1000).toISOString();
 
-        const severity = stuckJobs.length > 0 ? 'warning' : 'ok';
+        const undrained = db.prepare("SELECT COUNT(*) as cnt FROM outbox_jobs WHERE status IN ('pending','retrying')").get();
+        const deadLetter = db.prepare("SELECT outbox_id, job_type, attempt_count, error_message FROM outbox_jobs WHERE status = 'dead_letter'").all();
+        const stuckProcessing = db.prepare(
+          "SELECT outbox_id, job_type, last_attempt_at FROM outbox_jobs WHERE status = 'processing' AND COALESCE(last_attempt_at, created_at) < ?"
+        ).all(processingThreshold);
+        const oldest = db.prepare(
+          "SELECT MIN(created_at) as oldest FROM outbox_jobs WHERE status IN ('pending','retrying')"
+        ).get();
+        const lagMinutes = oldest && oldest.oldest
+          ? Math.round((nowMs - new Date(oldest.oldest).getTime()) / 60000)
+          : 0;
+        const lagging = lagMinutes > lagThresholdMinutes;
+
+        const severity = (deadLetter.length > 0 || stuckProcessing.length > 0 || lagging) ? 'warning' : 'ok';
         checks.push({
           check: 'outbox',
           status: severity,
-          message: `${pendingJobs.cnt} pending, ${stuckJobs.length} stuck (3+ attempts), ${failedJobs.cnt} failed`,
+          message: `${undrained.cnt} undrained, ${deadLetter.length} dead-letter, ${stuckProcessing.length} stuck-processing, oldest ${lagMinutes}m`,
           details: {
-            pending: pendingJobs.cnt,
-            stuck: stuckJobs.length,
-            failed: failedJobs.cnt,
-            stuck_jobs: stuckJobs.map(j => ({ outbox_id: j.outbox_id, job_type: j.job_type, attempts: j.attempt_count })),
+            undrained: undrained.cnt,
+            dead_letter: deadLetter.length,
+            stuck_processing: stuckProcessing.length,
+            oldest_undrained_minutes: lagMinutes,
+            lag_threshold_minutes: lagThresholdMinutes,
+            dead_letter_jobs: deadLetter.map(j => ({ outbox_id: j.outbox_id, job_type: j.job_type, attempts: j.attempt_count, error: j.error_message })),
+            stuck_processing_jobs: stuckProcessing.map(j => ({ outbox_id: j.outbox_id, job_type: j.job_type, last_attempt_at: j.last_attempt_at })),
           },
         });
 
-        // Auto-fix: retry stuck jobs
-        if (autoFix && stuckJobs.length > 0) {
-          for (const job of stuckJobs) {
-            db.prepare("UPDATE outbox_jobs SET attempt_count = 0, status = 'pending', last_attempt_at = NULL WHERE outbox_id = ?").run(job.outbox_id);
-            autoFixes.push({ type: 'outbox_retried', outbox_id: job.outbox_id, job_type: job.job_type });
+        // Auto-fix: re-queue jobs orphaned in 'processing' (a worker died between
+        // marking processing and committing the result). dead_letter is left as a
+        // visible warning — it has already exhausted its retry budget, so silently
+        // recycling it would just churn; it needs human/Hermes attention.
+        if (autoFix && stuckProcessing.length > 0) {
+          for (const job of stuckProcessing) {
+            db.prepare("UPDATE outbox_jobs SET status = 'pending', last_attempt_at = NULL WHERE outbox_id = ?").run(job.outbox_id);
+            db.prepare(`
+              INSERT INTO events (event_id, event_type, task_id, resource_type, resource_id,
+                old_value, new_value, source, agent_name, created_at, metadata_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              makeId('EVT'), 'outbox_processing_requeued', null, 'outbox', job.outbox_id,
+              'processing', 'pending', TOOL, 'monitor-check', now,
+              JSON.stringify({ reason: 'stuck_processing_auto_fix', timeout_minutes: processingTimeoutMinutes })
+            );
+            autoFixes.push({ type: 'outbox_requeued', outbox_id: job.outbox_id, job_type: job.job_type });
           }
         }
       }
