@@ -1,0 +1,334 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "{{SITE_NAME}} Process Playbook Schema",
+  "description": "Schema for YAML frontmatter in process playbook .md files. Process playbooks are human- and AI-guided operating procedures; this repository does not include an automated process execution engine.",
+  "type": "object",
+  "required": ["id", "name", "version", "trigger"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique process identifier (e.g., 'daily-workplan', 'ranking-emergency')"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable process name"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Playbook version number, increment on significant changes",
+      "minimum": 1
+    },
+    "type": {
+      "type": "string",
+      "enum": ["process", "intelligence_module"],
+      "default": "process",
+      "description": "Playbook kind. 'intelligence_module' = a report-only analysis module run by the intelligence pipeline (cron/run-intelligence.sh); it produces a report via 'v2 intelligence report' and never creates tasks."
+    },
+    "cadence": {
+      "type": "object",
+      "description": "For intelligence modules: when the orchestrator considers the module due. Rules combine with AND; evaluated by cli/lib/intelligence.js. (Standalone processes use 'trigger.schedule' instead.)",
+      "properties": {
+        "every_session": {
+          "type": "boolean",
+          "description": "Run on every planner session (morning + evening)."
+        },
+        "sessions": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["morning", "evening"] },
+          "description": "Only run on these sessions."
+        },
+        "interval_hours": {
+          "type": "integer",
+          "description": "Only run if at least this many hours have elapsed since the last successful run."
+        },
+        "weekdays": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1, "maximum": 7 },
+          "description": "Only run on these ISO weekdays (Mon=1 â€¦ Sun=7)."
+        },
+        "monthly_day": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 31,
+          "description": "Only run on this day-of-month."
+        }
+      }
+    },
+    "schedule": {
+      "type": "string",
+      "description": "Top-level schedule mirror for cataloging/search. Should match trigger.schedule."
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what this process does and when to use it"
+    },
+    "trigger": {
+      "type": "object",
+      "description": "When and how this process is triggered",
+      "properties": {
+        "schedule": {
+          "type": "string",
+          "description": "Cron expression (5-field) or 'manual' or 'event:<event_type>'"
+        },
+        "timezone": {
+          "type": "string",
+          "default": "{{TIMEZONE}}",
+          "description": "Timezone for schedule interpretation"
+        },
+        "conditions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Pre-conditions that must be true before the process runs"
+        },
+        "can_run_manually": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this process can be triggered manually outside its schedule"
+        }
+      },
+      "required": ["schedule"]
+    },
+    "guardrails": {
+      "type": "object",
+      "description": "Limits and constraints for this specific process",
+      "properties": {
+        "max_tasks_created": {
+          "type": "integer",
+          "description": "Maximum tasks AI can create in a single run",
+          "default": 15
+        },
+        "max_risk_level": {
+          "type": "string",
+          "enum": ["safe", "semi_safe", "high_risk"],
+          "default": "semi_safe",
+          "description": "Highest risk level this process can auto-approve"
+        },
+        "require_human_review_for": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Task types that must be queued for human review instead of auto-executing"
+        },
+        "max_duration_minutes": {
+          "type": "integer",
+          "description": "Maximum time this process should run before self-aborting",
+          "default": 60
+        },
+        "abort_on_error": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to abort the entire process on any step error"
+        }
+      }
+    },
+    "email_on_complete": {
+      "type": "object",
+      "description": "Email notification settings after process completion",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "to": {
+          "type": "string",
+          "default": "{{ADMIN_EMAIL}}"
+        },
+        "include_summary": {
+          "type": "boolean",
+          "default": true
+        },
+        "include_decisions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include list of decisions made during this run"
+        },
+        "include_next_12h_plan": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include AI-generated plan for the next 12 hours"
+        },
+        "on_error_only": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only send email if the process encountered errors"
+        }
+      }
+    },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Process IDs that should complete before this one runs"
+    },
+    "subprocesses": {
+      "type": "array",
+      "description": "Child processes this playbook can programmatically spawn mid-run when a condition is met. Lets a step (e.g. daily-workplan detecting a money-keyword drop) hand off to a dedicated playbook (e.g. ranking-emergency) and pass it the relevant context (keyword, URL, positions).",
+      "items": {
+        "type": "object",
+        "required": ["process_id", "trigger_condition", "params"],
+        "properties": {
+          "process_id": {
+            "type": "string",
+            "description": "ID of the child process to spawn (must match an existing playbook 'id')"
+          },
+          "trigger_condition": {
+            "type": "string",
+            "description": "Expression evaluated during this run; when true, the subprocess is spawned (e.g. 'money_keyword_drop_confirmed == true')"
+          },
+          "params": {
+            "type": "object",
+            "description": "Named parameters passed into the child process. Values may reference run variables with {{var}} templating (e.g. {keyword: '{{keyword}}', url: '{{landing_page}}'})"
+          },
+          "inherit_context": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the child process inherits the parent's gathered data/variables in addition to 'params'"
+          },
+          "blocking": {
+            "type": "boolean",
+            "default": true,
+            "description": "If true, the parent waits for the child to finish before continuing; if false, the child runs independently and the parent proceeds"
+          }
+        }
+      }
+    },
+    "async_behavior": {
+      "type": "object",
+      "description": "How this process handles long-running asynchronous work (site crawls, Cloudflare preview builds, PageSpeed runs) that can take minutes. Defines polling cadence and pause/resume so the agent does not block indefinitely or time out silently.",
+      "properties": {
+        "supports_pause_resume": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the process can checkpoint its state at an async wait, exit, and be resumed later from that marker instead of restarting"
+        },
+        "poll_interval_seconds": {
+          "type": "integer",
+          "default": 30,
+          "description": "How often to poll an in-flight async task (e.g. Cloudflare deploy status) for completion"
+        },
+        "max_wait_seconds": {
+          "type": "integer",
+          "default": 900,
+          "description": "Maximum total time to wait on a single async task before applying on_timeout (default 15 min covers slow crawls/preview builds)"
+        },
+        "on_timeout": {
+          "type": "string",
+          "enum": ["abort", "alert", "continue", "create_followup_task"],
+          "default": "alert",
+          "description": "Action when an async wait exceeds max_wait_seconds. 'create_followup_task' defers the check to a later run instead of blocking."
+        }
+      }
+    },
+    "retry_policy": {
+      "type": "object",
+      "description": "Process-level safeguard against failure loops. Bounds how often a failing step (e.g. GSC API rate limit) is retried, with backoff and an alert threshold, so the agent cannot lock itself in an infinite execution loop. Applies to steps whose on_error is 'retry'.",
+      "properties": {
+        "max_attempts": {
+          "type": "integer",
+          "default": 3,
+          "description": "Hard cap on attempts per step. Once exhausted, the step's on_error falls through to alert/skip/abort rather than retrying again."
+        },
+        "backoff_strategy": {
+          "type": "string",
+          "enum": ["none", "linear", "exponential"],
+          "default": "exponential",
+          "description": "How the delay grows between attempts. 'exponential' is recommended for rate-limited external APIs (GSC, SERP, PageSpeed)."
+        },
+        "initial_delay_seconds": {
+          "type": "integer",
+          "default": 30,
+          "description": "Delay before the first retry; subsequent delays grow per backoff_strategy"
+        },
+        "alert_after_attempts": {
+          "type": "integer",
+          "default": 2,
+          "description": "Emit an alert (email/monitor) once this many attempts have failed, before max_attempts is reached, so a human is notified of a persistent failure"
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["report", "tasks", "email", "alert"] },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "What this process produces"
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of process steps (machine-parseable)",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique step identifier within this process"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable step name"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["cli", "ai_analysis", "decision", "loop", "conditional", "email", "abort"],
+            "description": "Step type determines how the AI interprets and executes it"
+          },
+          "cli_command": {
+            "type": "string",
+            "description": "For type=cli: the v2 CLI command to run"
+          },
+          "cli_args": {
+            "type": "object",
+            "description": "For type=cli: named arguments for the command"
+          },
+          "analysis_prompt": {
+            "type": "string",
+            "description": "For type=ai_analysis: guidance on what to analyze and consider"
+          },
+          "decision_options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": { "type": "string", "description": "When to choose this option" },
+                "action": { "type": "string", "description": "What to do" },
+                "goto_step": { "type": "string", "description": "Jump to this step ID" }
+              }
+            },
+            "description": "For type=decision: possible choices and their outcomes"
+          },
+          "loop_over": {
+            "type": "string",
+            "description": "For type=loop: what to iterate over (e.g., 'opportunities', 'tasks')"
+          },
+          "loop_steps": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "For type=loop: step IDs to execute for each iteration"
+          },
+          "condition": {
+            "type": "string",
+            "description": "For type=conditional: condition to evaluate"
+          },
+          "on_error": {
+            "type": "string",
+            "enum": ["abort", "skip", "retry", "alert", "continue"],
+            "default": "continue",
+            "description": "What to do if this step fails. 'retry' is governed by the process-level 'retry_policy' (max_attempts, backoff_strategy, alert_after_attempts) â€” it is NOT an unbounded retry. Once retry_policy.max_attempts is exhausted the step is treated as a hard failure (alert, then skip or abort)."
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "description": "Maximum time for this step"
+          },
+          "save_output_as": {
+            "type": "string",
+            "description": "Variable name to store this step's output for use in later steps"
+          }
+        }
+      }
+    }
+  }
+}

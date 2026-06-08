@@ -1,0 +1,6 @@
+# Root-level failsafe: If the root is accidentally deployed, block sensitive folders
+/Agentic%20SEO/*            /404.html   404
+/Obsidian%20Agent%20Brain/* /404.html   404
+/setup/*                    /404.html   404
+/site.config.json           /404.html   404
+/.env                       /404.html   404

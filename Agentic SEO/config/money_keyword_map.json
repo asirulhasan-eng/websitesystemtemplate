@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "base_url": "https://{{DOMAIN}}",
+  "informational_negative_patterns": [
+    "\\bhow to\\b",
+    "\\bwhat is\\b",
+    "\\bwhy\\b",
+    "\\bguide\\b",
+    "\\bchecklist\\b",
+    "\\bstatistics?\\b",
+    "\\bstats\\b",
+    "\\btemplate\\b",
+    "\\bexamples?\\b",
+    "\\btips\\b",
+    "\\bstep by step\\b",
+    "\\bbenefits\\b",
+    "\\bvs\\b",
+    "\\bcomparison\\b",
+    "\\bred flags\\b",
+    "\\bbest agencies\\b"
+  ],
+  "intents": [
+    {
+      "id": "maps_gbp_service",
+      "label": "Google Maps / Google Business Profile SEO service",
+      "patterns": [
+        "\\bgoogle maps seo for {{AUDIENCE}}?\\b",
+        "\\b{{AUDIENCE}}? google maps ranking\\b",
+        "\\b{{AUDIENCE}}? google business profile seo\\b",
+        "\\bgbp seo for {{AUDIENCE}}?\\b",
+        "\\bgoogle business profile seo for {{AUDIENCE}}?\\b"
+      ],
+      "acceptable_page_types": ["service_page"],
+      "acceptable_paths": [
+        "/services/google-maps-seo-for-{{AUDIENCE}}",
+        "/services/google-business-profile-seo-for-{{AUDIENCE}}",
+        "/services/{{NICHE}}-seo-process",
+        "/services/{{NICHE}}-seo"
+      ],
+      "candidate_targets": [
+        { "path": "/services/google-maps-seo-for-{{AUDIENCE}}", "role": "proposed_dedicated_service_page", "file": "services/google-maps-seo-for-{{AUDIENCE}}.html" },
+        { "path": "/services/{{NICHE}}-seo-process#maps", "role": "existing_process_anchor" },
+        { "path": "/services/{{NICHE}}-seo-process#impact-gbp", "role": "existing_gbp_anchor" },
+        { "path": "/services/{{NICHE}}-seo", "role": "existing_core_service_page" }
+      ],
+      "primary_target": { "path": "/services/google-maps-seo-for-{{AUDIENCE}}", "file": "services/google-maps-seo-for-{{AUDIENCE}}.html" },
+      "priority_floor": 900,
+      "risk_level": "high_risk"
+    },
+    {
+      "id": "audit_service",
+      "label": "{{NICHE}} SEO audit service",
+      "patterns": [
+        "\\b{{NICHE}} full website seo audit services?\\b",
+        "\\b{{NICHE}} website seo audit\\b",
+        "\\b{{NICHE}} seo audit\\b",
+        "\\b{{AUDIENCE}}? seo audit\\b",
+        "\\bseo audit for {{AUDIENCE}}?\\b"
+      ],
+      "acceptable_page_types": ["service_page"],
+      "acceptable_paths": [
+        "/services/{{NICHE}}-seo-audit",
+        "/services/free-seo-audit",
+        "/services/{{NICHE}}-seo-foundation"
+      ],
+      "candidate_targets": [
+        { "path": "/services/{{NICHE}}-seo-audit", "role": "proposed_commercial_audit_service_page", "file": "services/{{NICHE}}-seo-audit.html" },
+        { "path": "/services/free-seo-audit", "role": "existing_audit_lead_capture_page" },
+        { "path": "/services/{{NICHE}}-seo-foundation", "role": "existing_foundation_audit_offer" }
+      ],
+      "primary_target": { "path": "/services/{{NICHE}}-seo-audit", "file": "services/{{NICHE}}-seo-audit.html" },
+      "priority_floor": 900,
+      "risk_level": "high_risk"
+    },
+    {
+      "id": "pricing_service",
+      "label": "{{NICHE}} SEO pricing service page",
+      "patterns": [
+        "\\b{{AUDIENCE}}? seo pricing\\b",
+        "\\b{{NICHE}} seo pricing\\b",
+        "\\b{{AUDIENCE}}? seo cost\\b",
+        "\\b{{NICHE}} seo cost\\b",
+        "\\b{{NICHE}} seo packages?\\b",
+        "\\b{{AUDIENCE}}? seo packages?\\b"
+      ],
+      "acceptable_page_types": ["service_page"],
+      "acceptable_paths": ["/services/pricing"],
+      "candidate_targets": [
+        { "path": "/services/pricing", "role": "existing_pricing_service_page", "file": "services/pricing.html" },
+        { "path": "/blog/{{NICHE}}-seo-pricing", "role": "supporting_blog_only" }
+      ],
+      "primary_target": { "path": "/services/pricing", "file": "services/pricing.html" },
+      "priority_floor": 900,
+      "risk_level": "high_risk"
+    },
+    {
+      "id": "lead_generation_service",
+      "label": "{{NICHE}} lead generation service",
+      "patterns": [
+        "\\b{{NICHE}} lead generation agency\\b",
+        "\\b{{AUDIENCE}}? lead generation agency\\b",
+        "\\b{{NICHE}} lead generation services?\\b",
+        "\\b{{AUDIENCE}}? lead generation services?\\b"
+      ],
+      "acceptable_page_types": ["service_page"],
+      "acceptable_paths": [
+        "/services/{{AUDIENCE}}-digital-marketing",
+        "/services/{{NICHE}}-seo",
+        "/services/google-ads-for-{{AUDIENCE}}"
+      ],
+      "candidate_targets": [
+        { "path": "/services/{{AUDIENCE}}-digital-marketing", "role": "existing_broad_digital_marketing_service_page", "file": "services/{{AUDIENCE}}-digital-marketing.html" },
+        { "path": "/services/{{NICHE}}-seo", "role": "existing_core_seo_service_page", "file": "services/{{NICHE}}-seo.html" },
+        { "path": "/services/google-ads-for-{{AUDIENCE}}", "role": "existing_paid_lead_service_page", "file": "services/google-ads-for-{{AUDIENCE}}.html" }
+      ],
+      "primary_target": { "path": "/services/{{AUDIENCE}}-digital-marketing", "file": "services/{{AUDIENCE}}-digital-marketing.html" },
+      "priority_floor": 875,
+      "risk_level": "high_risk"
+    },
+    {
+      "id": "core_seo_service",
+      "label": "Core {{NICHE}} SEO service",
+      "patterns": [
+        "\\b{{NICHE}} seo services?\\b",
+        "\\b{{AUDIENCE}}? seo services?\\b",
+        "\\bseo services for {{AUDIENCE}}?\\b",
+        "\\bseo company for {{AUDIENCE}}?\\b",
+        "\\bseo for {{NICHE}} companies\\b",
+        "\\bseo for {{NICHE}} contractors\\b",
+        "\\b{{NICHE}} contractor seo\\b"
+      ],
+      "acceptable_page_types": ["service_page", "services_index"],
+      "acceptable_paths": ["/services/{{NICHE}}-seo", "/services"],
+      "candidate_targets": [
+        { "path": "/services/{{NICHE}}-seo", "role": "existing_core_service_page", "file": "services/{{NICHE}}-seo.html" },
+        { "path": "/services", "role": "existing_services_index", "file": "services/index.html" }
+      ],
+      "primary_target": { "path": "/services/{{NICHE}}-seo", "file": "services/{{NICHE}}-seo.html" },
+      "priority_floor": 875,
+      "risk_level": "high_risk"
+    },
+    {
+      "id": "broad_agency",
+      "label": "Broad {{NICHE}} SEO agency intent",
+      "patterns": [
+        "\\b{{AUDIENCE}}? seo agency\\b",
+        "\\b{{NICHE}} seo agency\\b",
+        "\\bseo agency for {{AUDIENCE}}?\\b",
+        "\\b{{AUDIENCE}}? seo company\\b",
+        "\\b{{NICHE}} seo company\\b"
+      ],
+      "acceptable_page_types": ["home", "service_page", "services_index"],
+      "acceptable_paths": ["/", "/services/{{NICHE}}-seo", "/services"],
+      "candidate_targets": [
+        { "path": "/", "role": "existing_homepage" },
+        { "path": "/services/{{NICHE}}-seo", "role": "existing_core_service_page", "file": "services/{{NICHE}}-seo.html" }
+      ],
+      "primary_target": { "path": "/services/{{NICHE}}-seo", "file": "services/{{NICHE}}-seo.html" },
+      "priority_floor": 825,
+      "risk_level": "high_risk"
+    }
+  ]
+}

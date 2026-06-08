@@ -1,0 +1,40 @@
+{
+  "domain": "{{DOMAIN}}",
+  "base_url": "https://{{DOMAIN}}",
+  "site_name": "{{SITE_NAME}}",
+  "business": {
+    "type": "SEO Agency",
+    "niche": "{{NICHE}} companies",
+    "description": "Professional SEO services exclusively for {{NICHE}} companies",
+    "target_customer": "{{NICHE}} business owners seeking online visibility and lead generation"
+  },
+  "paths": {
+    "site_repo": "/opt/client-site",
+    "agent_repo": "/opt/client-agent",
+    "sqlite_db": "/opt/client-sqlite/seo-agent.db",
+    "obsidian_vault": "/opt/client-obsidian",
+    "logs": "/opt/client-agent/tools/out/logs"
+  },
+  "content_structure": {
+    "service_pages_dir": "services/",
+    "blog_dir": "blog/",
+    "home_page": "index.html"
+  },
+  "git": {
+    "main_branch": "main",
+    "preview_branch_prefix": "preview/",
+    "remote": "origin",
+    "user_name": "{{SITE_NAME}} Agent",
+    "user_email": "agent@{{DOMAIN}}"
+  },
+  "email": {
+    "admin": "{{ADMIN_EMAIL}}",
+    "from": "seo-agent@{{DOMAIN}}"
+  },
+  "apis": {
+    "gsc_property": "sc-domain:{{DOMAIN}}",
+    "serp_provider": "serper",
+    "location": "United States"
+  },
+  "timezone": "{{TIMEZONE}}"
+}

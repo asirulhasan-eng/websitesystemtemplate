@@ -1,0 +1,77 @@
+{
+  "_comment": "Example client config: Metro Electric Pros (Denver CO). Use as a reference when creating new client configs.",
+
+  "slug": "metro-electric",
+  "domain": "metroelectricpros.com",
+  "site_name": "Metro Electric Pros",
+  "site_description": "Denver's premier electrical contractor. Residential and commercial electrical services including panel upgrades, EV charger installation, and 24/7 emergency repairs. Licensed, bonded, and insured.",
+  "owner_name": "Sarah Chen",
+
+  "business": {
+    "type": "Electrical Contractor",
+    "niche": "electrical",
+    "audience": "homeowners and business owners in the Denver metro area",
+    "brand_voice": "Professional, safety-first, and authoritative. Position the company as the go-to electrical experts. Use clear explanations that make complex electrical topics accessible. Emphasize code compliance, safety certifications, and modern solutions like smart home wiring and EV infrastructure.",
+    "services": [
+      "Panel Upgrades",
+      "EV Charger Installation",
+      "Residential Wiring",
+      "Commercial Electrical",
+      "Emergency Electrical Repair",
+      "Lighting Installation",
+      "Smart Home Wiring",
+      "Generator Installation"
+    ],
+    "service_areas": [
+      "Denver",
+      "Aurora",
+      "Lakewood",
+      "Arvada",
+      "Westminster",
+      "Centennial",
+      "Littleton"
+    ],
+    "phone": "(720) 555-0342",
+    "address": "7200 E Colfax Ave, Unit 8",
+    "city": "Denver",
+    "state": "CO",
+    "primary_color": "#F59E0B"
+  },
+
+  "paths": {
+    "agent_root": "/opt/metro-electric-agent",
+    "site_root": "/opt/metro-electric-site",
+    "obsidian_root": "/opt/metro-electric-obsidian",
+    "db_path": "/opt/metro-electric-sqlite/seo-agent.db",
+    "logs": "/opt/metro-electric-agent/tools/out/logs"
+  },
+
+  "git": {
+    "main_branch": "main",
+    "preview_branch_prefix": "preview/",
+    "remote": "origin",
+    "user_name": "SEO Agent",
+    "user_email": "agent@metroelectricpros.com"
+  },
+
+  "email": {
+    "admin": "sarah@metroelectricpros.com",
+    "from": "seo-agent@metroelectricpros.com",
+    "from_name": "Metro Electric SEO Agent"
+  },
+
+  "apis": {
+    "gsc_property": "sc-domain:metroelectricpros.com",
+    "serp_provider": "serper",
+    "location": "Denver, Colorado, United States"
+  },
+
+  "cloudflare": {
+    "project_name": "metro-electric",
+    "production_branch": "main"
+  },
+
+  "timezone": "America/Denver",
+  "timezone_abbr": "MT",
+  "template": "local-business"
+}

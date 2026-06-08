@@ -1,0 +1,9 @@
+{
+  "description": "Keywords/domains/topics that must never generate SEO tasks because their impressions are known fake/noise or the user has explicitly blocked them.",
+  "blocked_terms": [
+    {
+      "term": "switch.monster",
+      "reason": "User confirmed these impressions are fake and this topic is a no-go for {{SITE_NAME}} task generation. Do not create, recommend, execute, or prioritize tasks containing this term."
+    }
+  ]
+}

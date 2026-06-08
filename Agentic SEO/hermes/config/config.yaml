@@ -1,0 +1,71 @@
+# ~/.hermes/config.yaml
+# {{SITE_NAME}} Hermes Agent Configuration â€” v2 AI-Brain Architecture
+# ==================================================================
+# The agent now uses v2 CLI tools for all data operations and follows
+# process playbooks for decision-making. No more deterministic scoring,
+# classification, or routing â€” the AI makes all strategic decisions.
+
+# === Model Provider ===
+model:
+  provider: openrouter
+  default_model: nous-hermes
+  # base_url: https://openrouter.ai/api/v1
+
+# === Auxiliary Models ===
+auxiliary:
+  vision_model: null
+  compression_model: null
+  approval_model: null
+
+# === Approval System ===
+# Full autonomy â€” AI makes all decisions with guardrails
+# See /opt/client-agent/config/guardrails.json for limits
+approvals:
+  mode: "off"
+
+# === Terminal Backend ===
+terminal:
+  backend: local
+  shell: /bin/bash
+  timeout: 600                  # 10 minute timeout (processes can be long)
+
+# === Delegation ===
+delegation:
+  max_concurrent_children: 3    # Allow more parallelism for v2
+  max_spawn_depth: 1
+  default_context: |
+    Project: {{SITE_NAME}} Agent v2 (AI-Brain Architecture)
+    Repo: /opt/client-agent
+    CLI: node /opt/client-agent/cli/bin/v2.js <command> [options]
+    DB: /opt/client-sqlite/seo-agent.db
+    Site: /opt/client-site
+    Rules: 
+      - SQLite is source of truth
+      - Use v2 CLI tools for ALL data operations
+      - Read process playbooks at /opt/client-agent/processes/
+      - Read guardrails at /opt/client-agent/config/guardrails.json
+      - All output in JSON (use --json flag)
+      - Never hardcode scoring or classification â€” make AI judgments
+      - Opt-out approval: execute safe/semi/reversible-high-risk automatically; owner stops/modifies via Telegram
+      - Irreversible/destructive task types â†’ 'v2 task approve request --task <id>' and wait for Telegram 'approve <id>'
+      - Send the plan email (workplan template) at the start of each session (8AM & 8PM {{TIMEZONE_ABBR}})
+
+# === Memory ===
+memory:
+  external_provider: null
+
+# === Tools ===
+tools:
+  enabled:
+    - terminal
+    - read_file
+    - patch
+    - web_search
+    - session_search
+    - memory
+    - skill_manage
+    - cron
+    - delegate_task
+  disabled:
+    - browser
+    - todo

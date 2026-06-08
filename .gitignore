@@ -1,0 +1,54 @@
+# =============================================================================
+# Root .gitignore — Website Autopilot System
+# =============================================================================
+
+# ---- Secrets & credentials (NEVER commit these) ----
+.env
+*.env
+!*.env.example
+server.cfg
+id_rsa
+id_rsa.pub
+*.ppk
+*.pem
+*.key
+
+# ---- Connection folders (contain live keys) ----
+# Individual connection/ dirs inside sub-projects have their own .gitignore.
+# The root connection/ is also sensitive:
+connection/id_rsa
+connection/key.ppk
+Agentic SEO/connection/id_rsa
+Agentic SEO/connection/key.ppk
+
+# ---- Node ----
+node_modules/
+npm-debug.log*
+
+# ---- SQLite ----
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ---- Logs ----
+*.log
+cron/logs/
+Agentic SEO/cron/logs/
+
+# ---- Provisioner output (per-client copies) ----
+provision/sites/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ---- Scan scratch files ----
+C:/Users/

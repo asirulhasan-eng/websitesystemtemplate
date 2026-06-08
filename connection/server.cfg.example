@@ -1,0 +1,10 @@
+# =============================================================================
+# server.cfg.example — Template for server connection settings
+# =============================================================================
+# 1. Copy this file:  copy server.cfg.example server.cfg
+# 2. Edit server.cfg with your actual server IP and username.
+# 3. server.cfg is gitignored — safe to store real values there.
+# =============================================================================
+
+SERVER_HOST=YOUR_SERVER_IP
+SERVER_USER=root

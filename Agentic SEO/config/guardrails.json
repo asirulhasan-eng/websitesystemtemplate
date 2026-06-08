@@ -1,0 +1,119 @@
+{
+  "autonomy_level": "opt_out_autonomous",
+  "description": "Negative-consent model. Each session the AI plans the next 12 hours, emails a reviewable plan, and executes all safe, semi-safe, and reversible high-risk work automatically unless the owner stops or modifies a specific item via Telegram. Only irreversible/destructive task types in 'require_explicit_approval' need a positive go-ahead.",
+
+  "review_model": {
+    "type": "opt_out",
+    "channel": "telegram",
+    "auto_execute": "Everything listed in the emailed plan runs automatically during the session window unless the owner intervenes via Telegram.",
+    "owner_controls": [
+      "stop <TASK_ID> â€” cancel a planned or running item",
+      "change <TASK_ID> to <instruction> â€” modify an item before it runs",
+      "approve <TASK_ID> â€” green-light an item in require_explicit_approval",
+      "pause â€” halt all autonomous execution until resumed"
+    ],
+    "plan_email": "Sent at the start of each session (8:00 AM and 8:00 PM {{TIMEZONE_ABBR}}), listing everything that will run in the next 12 hours."
+  },
+
+  "auto_approve_up_to_risk_level": "high_risk",
+
+  "require_explicit_approval": [
+    "delete_page",
+    "domain_change",
+    "ssl_change",
+    "dns_change",
+    "robots_disallow_all",
+    "sitemap_structure_change"
+  ],
+  "require_explicit_approval_note": "Irreversible or destructive. These NEVER auto-run under the opt-out model â€” they are listed under 'needs_explicit_go' in the plan email and require an explicit 'approve <TASK_ID>' via Telegram (high-risk pipeline Phase 1). Reversible high-impact changes (homepage_edit, navigation_change, redirect_setup, new_service_page, schema_removal) ARE auto-approved: the pipelines publish them straight to production (main), the owner reviews the live site daily before search engines index, and deploy-rollback reverts anything unwanted. There is NO preview/human-merge gate â€” do not plan work that depends on one.",
+
+  "execution_routing": {
+    "note": "Two consumer lanes execute approved work; the planner assigns risk_level/task_type so each task lands in a lane that can actually finish it. NEVER create work that has no finishing executor (that is what caused empty preview branches + zombie 'preview_validated' tasks).",
+    "deterministic_ops": {
+      "lane": "general_operational",
+      "deploys": "straight to production via safe-fix (safe and semi_safe both â†’ safe-fix --production)",
+      "handles": ["internal_link_opportunity", "internal_linking", "missing_title", "missing_meta_description", "missing_canonical", "missing_image_alt", "duplicate_faqpage_schema", "protect_ranking_gain", "service_architecture_review", "ranking_followup", "ranking_recovery"],
+      "handles_note": "ranking_followup is self-scheduled by the executor after a ranking-affecting deploy (deferred ~14d via scheduled_for); it re-checks SERP positions and enqueues ranking_recovery + an alert on a drop. The planner does not need to create these.",
+      "risk_guidance": "Assign these risk_level=safe (or semi_safe). Both auto-deploy to production with no gate."
+    },
+    "hermes_content": {
+      "lane": "blog_content",
+      "deploys": "straight to production (main) via a fresh Hermes authoring/refresh session",
+      "handles": ["new_blog_post", "content_refresh", "new_service_page (service_page_draft_needed)", "service_page_gap + money_page_refresh (edit_refresh_needed â€” rewrites/fixes an EXISTING page in place)"],
+      "risk_guidance": "Any task that REWRITES or AUTHORS page copy is a content task â€” route it by task_type to this lane. Do NOT mark page-rewrite work as a generic high_risk ops task; the ops safe executor has no content handler and the high-risk pipeline will mark it 'blocked'."
+    },
+    "explicit_approval": {
+      "applies_to": "require_explicit_approval types only",
+      "flow": "high-risk Phase 1 â†’ waiting_for_approval â†’ owner 'approve <id>' via Telegram"
+    }
+  },
+
+  "keyword_strategy": {
+    "homepage_canonical_money_terms": {
+      "decision_date": "2026-06-05",
+      "owner_decision": true,
+      "target_url": "https://{{DOMAIN}}/",
+      "keywords": ["{{NICHE}} seo", "{{AUDIENCE}} seo", "{{NICHE}} seo agency", "{{AUDIENCE}} seo agency", "{{NICHE}} seo services", "seo for {{AUDIENCE}}"],
+      "rule": "The HOMEPAGE is the canonical ranking target for these head money terms. Do NOT create or push dedicated /services/* pages for them â€” that cannibalizes the homepage. Support the homepage instead: (1) risk=safe internal_link_opportunity tasks linking these anchors from topically-relevant blogs to the homepage, and (2) supporting blog posts (new_blog_post) that link up to the homepage. The keyword registry already maps all six to the homepage (page_type=home)."
+    }
+  },
+
+  "explicit_approval_queue": {
+    "enabled": true,
+    "task_status": "waiting_for_approval",
+    "mechanism": "high-risk pipeline Phase 1 (v2 task approve request)",
+    "description": "Only require_explicit_approval task types are held here. They appear under 'needs_explicit_go' in the plan email and proceed only when the owner approves via Telegram. All other work proceeds automatically."
+  },
+
+  "work_plan": {
+    "sessions": [
+      { "name": "morning", "schedule_utc": "0 2 * * *",  "schedule_bdt": "8:00 AM", "window": "08:00-20:00 {{TIMEZONE_ABBR}}" },
+      { "name": "evening", "schedule_utc": "0 14 * * *", "schedule_bdt": "8:00 PM", "window": "20:00-08:00 {{TIMEZONE_ABBR}}" }
+    ],
+    "timezone": "{{TIMEZONE}}",
+    "email_to": "{{ADMIN_EMAIL}}",
+    "email_template": "workplan",
+    "email_sections": [
+      "system_health",
+      "planned_actions_by_lane",
+      "needs_explicit_go",
+      "ranking_alerts",
+      "notes"
+    ]
+  },
+
+  "max_changes_per_day": {
+    "blog_posts_published": 20,
+    "service_pages_modified": 1,
+    "technical_fixes": 10,
+    "internal_linking_changes": 20,
+    "meta_tag_changes": 10
+  },
+
+  "safety_limits": {
+    "max_tasks_created_per_run": 15,
+    "max_files_modified_per_task": 5,
+    "max_pages_deleted_per_day": 0,
+    "max_redirects_per_day": 2,
+    "stale_lock_threshold_minutes": 120,
+    "stuck_task_threshold_hours": 48
+  },
+
+  "monitoring": {
+    "heartbeat_stale_after_minutes": 90,
+    "outbox_backlog_warning": 50,
+    "outbox_backlog_critical": 100,
+    "disk_usage_warning_percent": 80,
+    "disk_usage_critical_percent": 95
+  },
+
+  "content_quality": {
+    "min_blog_word_count": 800,
+    "min_service_page_word_count": 500,
+    "max_keyword_density_percent": 3.0,
+    "require_meta_description": true,
+    "require_h1": true,
+    "require_canonical": true,
+    "require_schema": true
+  }
+}

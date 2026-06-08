@@ -1,0 +1,24 @@
+[Unit]
+Description=Hermes Agent Messaging Gateway ({{SITE_NAME}})
+Documentation=https://github.com/NousResearch/hermes-agent
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root
+ExecStart=/usr/local/lib/hermes-agent/venv/bin/hermes gateway
+Restart=always
+RestartSec=10
+Environment=HOME=/root
+
+# Logging
+StandardOutput=append:/var/log/hermes-gateway.log
+StandardError=append:/var/log/hermes-gateway.log
+
+# Security hardening
+NoNewPrivileges=false
+ProtectSystem=false
+
+[Install]
+WantedBy=multi-user.target

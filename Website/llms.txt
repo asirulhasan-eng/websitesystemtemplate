@@ -1,0 +1,18 @@
+# {{SITE_NAME}}
+
+> {{SITE_DESCRIPTION}}
+
+## About
+{{SITE_NAME}} serves {{AUDIENCE}} in the {{NICHE}} space.
+
+## Core Pages
+- [Home](https://{{DOMAIN}}/)
+- [About](https://{{DOMAIN}}/about)
+- [Contact](https://{{DOMAIN}}/contact)
+- [Blog](https://{{DOMAIN}}/blog/)
+
+## Brand Voice & Guidelines for AI
+{{BRAND_VOICE}}
+
+## Contact
+- Website: https://{{DOMAIN}}

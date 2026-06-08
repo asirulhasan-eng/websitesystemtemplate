@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://website-autopilot-system/bootstrap.schema.json",
+  "title": "Bootstrap Configuration",
+  "description": "MINIMAL bootstrap config for the Website Autopilot System. Only fields a human MUST provide (cannot be derived from the website or computed from the slug). Hermes reads the website and fills everything else via AI judgment.",
+
+  "type": "object",
+
+  "required": [
+    "slug",
+    "domain",
+    "owner_name",
+    "email",
+    "timezone",
+    "timezone_abbr"
+  ],
+
+  "properties": {
+
+    "_comment": {
+      "type": "string",
+      "description": "Human-readable note about this bootstrap config."
+    },
+
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 2,
+      "maxLength": 48,
+      "description": "Structural namespace. Lowercase alphanumeric + hyphens. Drives folder names (/opt/{slug}-agent), env prefix ({SLUG}_), Cloudflare project name, and all path derivations."
+    },
+
+    "domain": {
+      "type": "string",
+      "pattern": "^(?!https?://)([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$",
+      "description": "Bare domain name (no protocol). Example: 'acmeplumbing.com'. Used to derive gsc_property, email defaults, and base_url."
+    },
+
+    "owner_name": {
+      "type": "string",
+      "minLength": 2,
+      "description": "Business owner or primary contact name."
+    },
+
+    "email": {
+      "type": "object",
+      "required": ["admin"],
+      "properties": {
+        "admin": {
+          "type": "string",
+          "format": "email",
+          "description": "Owner's email for notifications and admin alerts. REQUIRED."
+        },
+        "from": {
+          "type": "string",
+          "format": "email",
+          "description": "Outbound 'from' address. Default: 'seo-agent@{domain}'."
+        },
+        "from_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name for outbound emails. Default: '{site_name} SEO Agent'."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "timezone": {
+      "type": "string",
+      "pattern": "^[A-Za-z]+/[A-Za-z_]+(/[A-Za-z_]+)?$",
+      "description": "IANA timezone. Example: 'America/Chicago'."
+    },
+
+    "timezone_abbr": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,5}$",
+      "description": "Short timezone abbreviation. Example: 'CT', 'ET', 'PT'."
+    },
+
+    "server": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string",
+          "description": "VPS IP address for provisioning. Example: '192.168.1.100'."
+        },
+        "ssh_user": {
+          "type": "string",
+          "default": "root",
+          "description": "SSH user for server access. Default: 'root'."
+        },
+        "ssh_key_path": {
+          "type": "string",
+          "default": "./connection/id_rsa",
+          "description": "Path to SSH private key. Default: './connection/id_rsa'."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "cloudflare": {
+      "type": "object",
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Cloudflare Pages project name. Default: slug value."
+        },
+        "production_branch": {
+          "type": "string",
+          "minLength": 1,
+          "default": "main",
+          "description": "Branch that triggers production deployment. Default: 'main'."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "apis": {
+      "type": "object",
+      "properties": {
+        "serp_provider": {
+          "type": "string",
+          "enum": ["serper", "serpapi", "valueserp", "brightdata"],
+          "default": "serper",
+          "description": "SERP API provider. Default: 'serper'."
+        },
+        "location": {
+          "type": "string",
+          "minLength": 2,
+          "default": "United States",
+          "description": "Geographic location for SERP queries. Default: 'United States'."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "template": {
+      "type": "string",
+      "default": "local-business",
+      "description": "Website template to apply. Default: 'local-business'."
+    }
+  },
+
+  "additionalProperties": false,
+
+  "_meta": {
+    "not_in_bootstrap": {
+      "description": "These fields are NOT part of the bootstrap config. They are filled automatically by the bootstrap-to-config.ps1 script or by Hermes via AI analysis.",
+      "auto_derived": [
+        "site_name          -- extracted from website by analyze-website.ps1",
+        "site_description   -- extracted from website by analyze-website.ps1",
+        "paths.*            -- derived from slug: /opt/{slug}-agent, /opt/{slug}-site, etc.",
+        "git.*              -- standard defaults (main branch, origin remote, 'SEO Agent')",
+        "apis.gsc_property  -- derived from domain: sc-domain:{domain}"
+      ],
+      "hermes_fills_via_ai_required": [
+        "business.type         -- AI reads website, determines business type",
+        "business.niche        -- AI extracts market niche from content",
+        "business.audience     -- AI identifies target audience",
+        "business.brand_voice  -- AI characterizes writing style"
+      ],
+      "hermes_fills_via_ai_optional": [
+        "_note: this template does NOT generate a website (Flow A / Architecture Decision #2),",
+        "_note: so the following are OPTIONAL. Add them to site.config.json only with REAL",
+        "_note: values pulled from the imported site; never leave __HERMES_FILL__.",
+        "business.services      -- AI reads service pages",
+        "business.service_areas -- AI extracts geographic areas",
+        "business.phone         -- AI reads contact page",
+        "business.address       -- AI reads contact page",
+        "business.city          -- AI reads contact page",
+        "business.state         -- AI reads contact page",
+        "business.primary_color -- AI extracts from CSS/brand analysis"
+      ]
+    }
+  }
+}

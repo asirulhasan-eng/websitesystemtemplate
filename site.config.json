@@ -1,0 +1,68 @@
+{
+  "_comment": "PER-CLIENT PROFILE. This repo is a neutral template: business identity lives as {{TOKENS}} and the namespace slug is 'client'. Fill every value below, then run setup/customize.ps1 to propagate it across the engine, website, and brain. See SETUP.md.",
+
+  "slug": "client",
+  "_slug_help": "Structural namespace used in folder names, env-var prefix (CLIENT_), and /opt/client-* paths. Leave as 'client' unless you want a different stem; if you change it, customize.ps1 renames folders/paths/env accordingly.",
+
+  "domain": "example.com",
+  "site_name": "Example SEO",
+  "site_description": "Professional SEO services for example businesses.",
+  "owner_name": "Jane Owner",
+
+  "business": {
+    "type": "SEO Agency",
+    "niche": "roofing",
+    "audience": "roofers",
+    "brand_voice": "Expert, straightforward, ROI-focused. Speak directly to the business owner and tie every recommendation to tangible outcomes (calls, booked jobs, revenue)."
+  },
+
+  "paths": {
+    "agent_root": "/opt/client-agent",
+    "site_root": "/opt/client-site",
+    "obsidian_root": "/opt/client-obsidian",
+    "db_path": "/opt/client-sqlite/seo-agent.db",
+    "logs": "/opt/client-agent/tools/out/logs"
+  },
+
+  "git": {
+    "main_branch": "main",
+    "preview_branch_prefix": "preview/",
+    "remote": "origin",
+    "user_name": "SEO Agent",
+    "user_email": "agent@example.com"
+  },
+
+  "email": {
+    "admin": "owner@example.com",
+    "from": "seo-agent@example.com",
+    "from_name": "SEO Agent"
+  },
+
+  "apis": {
+    "gsc_property": "sc-domain:example.com",
+    "serp_provider": "serper",
+    "location": "United States"
+  },
+
+  "cloudflare": {
+    "project_name": "example-seo",
+    "production_branch": "main"
+  },
+
+  "timezone": "America/New_York",
+  "timezone_abbr": "ET",
+
+  "_tokens": {
+    "_comment": "Map of template placeholders -> the config field customize.ps1 fills them from. Do not edit; this documents what gets replaced.",
+    "{{DOMAIN}}": "domain",
+    "{{SITE_NAME}}": "site_name",
+    "{{SITE_DESCRIPTION}}": "site_description",
+    "{{OWNER_NAME}}": "owner_name",
+    "{{NICHE}}": "business.niche",
+    "{{AUDIENCE}}": "business.audience",
+    "{{BRAND_VOICE}}": "business.brand_voice",
+    "{{ADMIN_EMAIL}}": "email.admin",
+    "{{TIMEZONE}}": "timezone",
+    "{{TIMEZONE_ABBR}}": "timezone_abbr"
+  }
+}

@@ -1,0 +1,298 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://website-autopilot-system/client-config.schema.json",
+  "title": "Client Configuration",
+  "description": "Per-client configuration for the Website Autopilot System. This is the single source of truth for provisioning a new site.",
+  "type": "object",
+  "required": [
+    "slug",
+    "domain",
+    "site_name",
+    "site_description",
+    "owner_name",
+    "business",
+    "paths",
+    "git",
+    "email",
+    "apis",
+    "cloudflare",
+    "timezone",
+    "timezone_abbr"
+  ],
+  "properties": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 2,
+      "maxLength": 48,
+      "description": "Structural namespace slug. Lowercase alphanumeric with hyphens only. Used in folder names, env-var prefix, and /opt paths."
+    },
+    "domain": {
+      "type": "string",
+      "pattern": "^(?!https?://)([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$",
+      "description": "Bare domain name (no protocol prefix). Example: acmeplumbing.com"
+    },
+    "site_name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120,
+      "description": "Human-readable site/business name."
+    },
+    "site_description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 300,
+      "description": "Site meta description. Used in <meta description> and Open Graph."
+    },
+    "owner_name": {
+      "type": "string",
+      "minLength": 2,
+      "description": "Business owner or primary contact name."
+    },
+    "business": {
+      "type": "object",
+      "required": [
+        "type",
+        "niche",
+        "audience",
+        "brand_voice",
+        "services",
+        "service_areas",
+        "phone",
+        "address",
+        "city",
+        "state",
+        "primary_color"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Business type. Example: 'Plumbing Company', 'Electrical Contractor'."
+        },
+        "niche": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Market niche keyword. Example: 'plumbing', 'electrical'."
+        },
+        "audience": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Target audience. Example: 'homeowners in Austin TX', 'property managers'."
+        },
+        "brand_voice": {
+          "type": "string",
+          "minLength": 10,
+          "description": "AI brand-voice guidance. Tells the agent how to write for this brand."
+        },
+        "services": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 2 },
+          "minItems": 1,
+          "description": "List of services offered. Each becomes a service page."
+        },
+        "service_areas": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 2 },
+          "minItems": 1,
+          "description": "Geographic service areas. Each becomes an area page."
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 7,
+          "description": "Business phone number. Example: '(512) 555-0199'."
+        },
+        "address": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Street address. Example: '123 Main Street'."
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "description": "City name. Example: 'Austin'."
+        },
+        "state": {
+          "type": "string",
+          "minLength": 2,
+          "description": "State name or abbreviation. Example: 'TX' or 'Texas'."
+        },
+        "primary_color": {
+          "type": "string",
+          "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+          "default": "#4F46E5",
+          "description": "Primary brand color as hex. Example: '#4F46E5'."
+        }
+      },
+      "additionalProperties": true
+    },
+    "paths": {
+      "type": "object",
+      "required": [
+        "agent_root",
+        "site_root",
+        "obsidian_root",
+        "db_path",
+        "logs"
+      ],
+      "properties": {
+        "agent_root": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "Linux path to the Agentic SEO engine on the server."
+        },
+        "site_root": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "Linux path to the Website directory on the server."
+        },
+        "obsidian_root": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "Linux path to the Obsidian Agent Brain vault."
+        },
+        "db_path": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "Linux path to the SQLite database."
+        },
+        "logs": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "Linux path to the logs directory."
+        }
+      },
+      "additionalProperties": true
+    },
+    "git": {
+      "type": "object",
+      "required": [
+        "main_branch",
+        "remote",
+        "user_name",
+        "user_email"
+      ],
+      "properties": {
+        "main_branch": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary Git branch name. Usually 'main'."
+        },
+        "remote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Git remote name. Usually 'origin'."
+        },
+        "user_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Git commit author name."
+        },
+        "user_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Git commit author email."
+        }
+      },
+      "additionalProperties": true
+    },
+    "email": {
+      "type": "object",
+      "required": [
+        "admin",
+        "from",
+        "from_name"
+      ],
+      "properties": {
+        "admin": {
+          "type": "string",
+          "format": "email",
+          "description": "Admin notification email address."
+        },
+        "from": {
+          "type": "string",
+          "format": "email",
+          "description": "Outbound email 'from' address."
+        },
+        "from_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name for outbound emails."
+        }
+      },
+      "additionalProperties": true
+    },
+    "apis": {
+      "type": "object",
+      "required": [
+        "gsc_property",
+        "serp_provider",
+        "location"
+      ],
+      "properties": {
+        "gsc_property": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Google Search Console property. Example: 'sc-domain:acmeplumbing.com'."
+        },
+        "serp_provider": {
+          "type": "string",
+          "enum": ["serper", "serpapi", "valueserp", "brightdata"],
+          "description": "SERP API provider name."
+        },
+        "location": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Geographic location for SERP queries. Example: 'Austin, Texas, United States'."
+        }
+      },
+      "additionalProperties": true
+    },
+    "cloudflare": {
+      "type": "object",
+      "required": [
+        "project_name",
+        "production_branch"
+      ],
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Cloudflare Pages project name. Must be lowercase with hyphens."
+        },
+        "production_branch": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Branch that triggers production deployment."
+        }
+      },
+      "additionalProperties": true
+    },
+    "timezone": {
+      "type": "string",
+      "pattern": "^[A-Za-z]+/[A-Za-z_]+$",
+      "description": "IANA timezone. Example: 'America/Chicago'."
+    },
+    "timezone_abbr": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,5}$",
+      "description": "Timezone abbreviation. Example: 'CT', 'ET', 'PT'."
+    },
+    "template": {
+      "type": "string",
+      "default": "local-business",
+      "description": "Which website template to apply. Default: 'local-business'."
+    },
+    "_comment": {
+      "type": "string"
+    },
+    "_slug_help": {
+      "type": "string"
+    },
+    "_tokens": {
+      "type": "object",
+      "description": "Documentation-only map of template tokens to config fields."
+    }
+  },
+  "additionalProperties": true
+}

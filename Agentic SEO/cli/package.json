@@ -1,0 +1,18 @@
+{
+  "name": "client-v2",
+  "version": "0.1.0",
+  "description": "AI-brain CLI tools for {{SITE_NAME}} â€” pure data utilities with no decision logic",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "bin": {
+    "v2": "./bin/v2.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:verbose": "node --test --test-reporter spec test/*.test.js"
+  }
+}

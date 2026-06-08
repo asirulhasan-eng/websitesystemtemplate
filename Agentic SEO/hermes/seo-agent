@@ -1,0 +1,22 @@
+#!/bin/bash
+# {{SITE_NAME}} Agent CLI Wrapper (v2)
+# ==================================
+# Hermes calls this instead of remembering node tool paths.
+# Install: ln -sf /opt/client-agent/seo-agent /usr/local/bin/seo-agent
+#
+# Usage: seo-agent <command> [args...]
+
+set -e
+
+# Change directory to agent root if it exists
+if [ -d "/opt/client-agent" ]; then
+  cd "/opt/client-agent"
+fi
+
+# Load .env if dotenv is available
+if [ -f .env ]; then
+  export $(grep -v '^#' .env | xargs -d '\n' 2>/dev/null || true)
+fi
+
+# Forward all arguments to the v2 unified CLI
+node cli/bin/v2.js "$@"

@@ -1,0 +1,73 @@
+{
+  "_comment": "Example client config: Acme Plumbing (Austin TX). Use as a reference when creating new client configs.",
+
+  "slug": "acme-plumbing",
+  "domain": "acmeplumbing.com",
+  "site_name": "Acme Plumbing",
+  "site_description": "Austin's trusted plumbing experts. 24/7 emergency service, drain cleaning, water heater repair, and full bathroom remodeling. Licensed, insured, and family-owned since 2009.",
+  "owner_name": "Mike Reynolds",
+
+  "business": {
+    "type": "Plumbing Company",
+    "niche": "plumbing",
+    "audience": "homeowners and property managers in Austin TX",
+    "brand_voice": "Friendly, reliable, and no-nonsense. Speak like a trusted neighbor who happens to be a master plumber. Use plain language, avoid jargon, and always emphasize fast response times, transparent pricing, and quality workmanship. End every piece with a clear call to action.",
+    "services": [
+      "Emergency Plumbing",
+      "Drain Cleaning",
+      "Water Heater Repair",
+      "Pipe Repair",
+      "Bathroom Remodeling",
+      "Sewer Line Service"
+    ],
+    "service_areas": [
+      "Austin",
+      "Round Rock",
+      "Cedar Park",
+      "Georgetown",
+      "Pflugerville"
+    ],
+    "phone": "(512) 555-0199",
+    "address": "4820 Industrial Blvd, Suite 12",
+    "city": "Austin",
+    "state": "TX",
+    "primary_color": "#1E40AF"
+  },
+
+  "paths": {
+    "agent_root": "/opt/acme-plumbing-agent",
+    "site_root": "/opt/acme-plumbing-site",
+    "obsidian_root": "/opt/acme-plumbing-obsidian",
+    "db_path": "/opt/acme-plumbing-sqlite/seo-agent.db",
+    "logs": "/opt/acme-plumbing-agent/tools/out/logs"
+  },
+
+  "git": {
+    "main_branch": "main",
+    "preview_branch_prefix": "preview/",
+    "remote": "origin",
+    "user_name": "SEO Agent",
+    "user_email": "agent@acmeplumbing.com"
+  },
+
+  "email": {
+    "admin": "mike@acmeplumbing.com",
+    "from": "seo-agent@acmeplumbing.com",
+    "from_name": "Acme Plumbing SEO Agent"
+  },
+
+  "apis": {
+    "gsc_property": "sc-domain:acmeplumbing.com",
+    "serp_provider": "serper",
+    "location": "Austin, Texas, United States"
+  },
+
+  "cloudflare": {
+    "project_name": "acme-plumbing",
+    "production_branch": "main"
+  },
+
+  "timezone": "America/Chicago",
+  "timezone_abbr": "CT",
+  "template": "local-business"
+}

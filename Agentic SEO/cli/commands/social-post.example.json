@@ -1,0 +1,39 @@
+{
+  "_comment": "Sample spec for `v2 social post --spec`. One blog → many infographics. Platform cadence is configurable: 'each' = one post per infographic (unique per-platform captions); 'once' = one post per blog (batch 0 only). Defaults: facebook/instagram/pinterest=each; linkedin/twitter/reddit/youtube=once. Override per-spec with the optional `cadence` map below, or globally via SOCIAL_PER_INFOGRAPHIC / SOCIAL_PER_BLOG env. Every post links back to blog_url.",
+  "blog_url": "https://smallbusinessseo.services/blog/small-business-seo-pricing",
+  "channels": ["facebook", "instagram", "pinterest", "linkedin", "x", "reddit"],
+  "cadence": {
+    "_comment": "Optional. Reclassify any platform. Here reddit stays once-per-blog (default) but could be set to 'each'. Remove this block to use defaults/env.",
+    "reddit": "once"
+  },
+  "infographics": [
+    {
+      "image_url": "https://smallbusinessseo.services/assets/images/blog/seo-pricing-scope.png",
+      "captions": {
+        "facebook": "Before you compare SEO prices, compare what is actually included. A one-time SEO foundation covers an audit, technical fixes, and Google Business Profile cleanup — monthly support is different work. Full breakdown: https://smallbusinessseo.services/blog/small-business-seo-pricing #SmallBusinessSEO #LocalSEO #SEOPricing",
+        "instagram": "What should small business SEO actually cost? Start with scope, not a monthly number. Swipe-worthy breakdown of one-time vs monthly work in the post. Read it (link in caption): https://smallbusinessseo.services/blog/small-business-seo-pricing #SmallBusinessSEO #LocalSEO #SEOPricing #SmallBusinessMarketing",
+        "pinterest": "Small business SEO pricing explained: one-time foundation vs monthly support. #SEO #LocalSEO"
+      }
+    },
+    {
+      "image_url": "https://smallbusinessseo.services/assets/images/blog/seo-pricing-questions.png",
+      "captions": {
+        "facebook": "5 questions to ask before you pay for SEO — so you never compare vague packages side by side again. Full checklist on the blog: https://smallbusinessseo.services/blog/small-business-seo-pricing #SmallBusinessSEO #SEOTips",
+        "instagram": "Save this before you hire an SEO: the 5 questions that reveal what you're really paying for. Full guide linked: https://smallbusinessseo.services/blog/small-business-seo-pricing #SEOTips #SmallBusinessSEO #LocalSEO",
+        "pinterest": "5 questions to ask before paying for SEO. #SEOTips #SmallBusiness"
+      }
+    }
+  ],
+  "linkedin": {
+    "image_url": "https://smallbusinessseo.services/assets/images/blog/seo-pricing-scope.png",
+    "caption": "SEO pricing gets clearer when you start with scope, not a monthly number. Our latest guide breaks down one-time foundation work, ongoing monthly support, and why bigger markets and service areas cost more — so you can budget the first 90 days with confidence. Read it: https://smallbusinessseo.services/blog/small-business-seo-pricing"
+  },
+  "x": {
+    "image_url": "https://smallbusinessseo.services/assets/images/blog/seo-pricing-scope.png",
+    "caption": "SEO pricing gets clearer when you start with scope, not a monthly number. One-time foundation vs monthly support, explained. https://smallbusinessseo.services/blog/small-business-seo-pricing"
+  },
+  "reddit": {
+    "image_url": "https://smallbusinessseo.services/assets/images/blog/seo-pricing-scope.png",
+    "caption": "We broke down what small business SEO actually costs — one-time foundation vs monthly support, and why bigger service areas cost more. Full write-up: https://smallbusinessseo.services/blog/small-business-seo-pricing"
+  }
+}

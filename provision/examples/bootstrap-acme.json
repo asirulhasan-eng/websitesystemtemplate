@@ -1,0 +1,23 @@
+{
+  "_comment": "MINIMAL bootstrap config for Acme Plumbing. Only human-required fields. Hermes fills business identity, niche, services, etc. via AI analysis of the website.",
+
+  "slug": "acme-plumbing",
+  "domain": "acmeplumbing.com",
+  "owner_name": "Mike Reynolds",
+
+  "email": {
+    "admin": "mike@acmeplumbing.com"
+  },
+
+  "server": {
+    "ip": "192.168.1.100",
+    "ssh_user": "root"
+  },
+
+  "cloudflare": {
+    "project_name": "acme-plumbing"
+  },
+
+  "timezone": "America/Chicago",
+  "timezone_abbr": "CT"
+}

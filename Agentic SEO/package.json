@@ -1,0 +1,37 @@
+{
+  "name": "client-agent",
+  "version": "2.0.0",
+  "description": "AI-brain-driven SEO agent for {{SITE_NAME}}.agency â€” CLI data tools, process playbooks, and Hermes integration",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "bin": {
+    "v2": "./cli/bin/v2.js"
+  },
+  "scripts": {
+    "v2": "node cli/bin/v2.js",
+    "gsc": "node cli/bin/v2.js gsc-fetch",
+    "serp": "node cli/bin/v2.js serp-check",
+    "tasks": "node cli/bin/v2.js task list",
+    "snapshot": "node cli/bin/v2.js db snapshot",
+    "health": "node cli/bin/v2.js monitor-check",
+    "speed": "node cli/bin/v2.js speed-audit",
+    "backup": "node cli/bin/v2.js backup create",
+    "crawl": "node cli/bin/v2.js crawl",
+    "daily": "bash cron/run-daily-workplan.sh",
+    "monitor": "bash cron/run-monitor.sh",
+    "outbox": "bash cron/run-outbox.sh",
+    "install-cron": "bash cron/install-crons.sh",
+    "test": "node --test cli/../test/*.test.js"
+  },
+  "keywords": [
+    "seo",
+    "agent",
+    "{{NICHE}}",
+    "sqlite",
+    "ai-brain",
+    "hermes"
+  ]
+}

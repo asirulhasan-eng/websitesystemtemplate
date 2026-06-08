@@ -1,0 +1,2293 @@
+{
+  "internal": {
+    "blog": [
+      {
+        "slug": "/blog/google-maps-paid-review-prompts-{{AUDIENCE}}",
+        "title": "Google Maps Paid Reviews: What {{AUDIENCE}} Should Do",
+        "topics": [
+          "Google Maps paid reviews",
+          "Google review incentives",
+          "{{AUDIENCE}} review requests",
+          "Google Business Profile reviews",
+          "review compliance for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Google Maps paid review prompts for {{AUDIENCE}}",
+          "clean Google review request process",
+          "Google review compliance for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/google-may-2026-core-update-{{NICHE}}-rankings",
+        "title": "What Google's May 2026 Core Update Means for {{NICHE}} Companies' Rankings",
+        "topics": [
+          "Google May 2026 core update",
+          "{{NICHE}} company rankings",
+          "core update {{NICHE}} SEO",
+          "local SEO for {{AUDIENCE}}",
+          "Google Business Profile rankings"
+        ],
+        "anchors": [
+          "Google May 2026 core update for {{AUDIENCE}}",
+          "{{NICHE}} rankings after a core update",
+          "core update triage for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-agency-vs-diy",
+        "title": "{{NICHE}} SEO Agency vs DIY: What {{NICHE}} Owners Should Know",
+        "topics": [
+          "{{NICHE}} seo agency",
+          "DIY SEO for {{AUDIENCE}}",
+          "SEO agency comparison",
+          "{{NICHE}} SEO cost"
+        ],
+        "anchors": [
+          "{{NICHE}} SEO agency vs DIY",
+          "when to hire a {{NICHE}} SEO agency",
+          "DIY {{NICHE}} SEO tradeoffs"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-services-whats-included",
+        "title": "Professional {{NICHE}} SEO Services: What Is Included",
+        "topics": [
+          "{{NICHE}} seo services",
+          "professional {{NICHE}} SEO services",
+          "{{AUDIENCE}} SEO deliverables",
+          "{{NICHE}} SEO pricing",
+          "local SEO for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "what {{NICHE}} SEO services include",
+          "professional {{NICHE}} SEO services",
+          "{{NICHE}} SEO deliverables",
+          "{{AUDIENCE}} SEO service checklist"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-lead-generation-statistics",
+        "title": "{{NICHE}} Lead Generation Statistics: 82+ Call, Form, and Booking Benchmarks for 2026",
+        "topics": [
+          "{{NICHE}} lead generation statistics",
+          "{{NICHE}} cost per lead benchmarks",
+          "{{NICHE}} call booking rate",
+          "{{NICHE}} LSA benchmarks",
+          "{{AUDIENCE}} speed to lead"
+        ],
+        "anchors": [
+          "{{NICHE}} lead generation statistics",
+          "{{NICHE}} lead generation benchmarks",
+          "{{NICHE}} call and booking benchmarks",
+          "{{NICHE}} cost per lead benchmarks"
+        ]
+      },
+      {
+        "slug": "/blog/emergency-{{NICHE}}-water-damage-statistics",
+        "title": "Emergency {{NICHE}} & Water Damage Statistics: 81+ Demand and Cost Benchmarks for 2026",
+        "topics": [
+          "emergency {{NICHE}} water damage statistics",
+          "emergency {{AUDIENCE}} cost benchmarks",
+          "water damage claim statistics",
+          "burst pipe water damage costs",
+          "{{NICHE}} leak statistics"
+        ],
+        "anchors": [
+          "emergency {{NICHE}} water damage statistics",
+          "emergency {{AUDIENCE}} cost benchmarks",
+          "water damage claim data",
+          "leak and burst pipe statistics"
+        ]
+      },
+      {
+        "slug": "local-services-ads-statistics-{{AUDIENCE}}.html",
+        "title": "Local Services Ads Statistics for {{AUDIENCE}}: 77+ Cost, Call, and Booking Benchmarks in 2026",
+        "topics": [
+          "local services ads statistics {{AUDIENCE}}",
+          "{{AUDIENCE}} lsa cost per lead",
+          "google local services ads benchmarks",
+          "{{NICHE}} lead booking rate",
+          "google guaranteed {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "local services ads statistics for {{AUDIENCE}}",
+          "77+ local services ads benchmarks for {{AUDIENCE}}",
+          "{{AUDIENCE}} LSA cost and booking benchmarks"
+        ]
+      },
+      {
+        "slug": "/blog/near-me-search-statistics-local-service-businesses",
+        "title": "Near Me Search Statistics: 76+ Local Service Discovery Benchmarks for 2026",
+        "topics": [
+          "near me search statistics",
+          "local service discovery benchmarks",
+          "Google Maps statistics",
+          "local review statistics",
+          "{{NICHE}} SEO benchmarks"
+        ],
+        "anchors": [
+          "near me search statistics",
+          "local service discovery benchmarks",
+          "near me search benchmarks for {{AUDIENCE}}",
+          "local search statistics for service businesses"
+        ]
+      },
+      {
+        "slug": "/blog/online-review-statistics-home-service-companies",
+        "title": "Online Review Statistics: 79+ Trust and Conversion Benchmarks for Home Service Companies in 2026",
+        "topics": [
+          "online review statistics home services",
+          "home service review benchmarks",
+          "review trust statistics",
+          "Google reviews for {{AUDIENCE}}",
+          "contractor reputation management"
+        ],
+        "anchors": [
+          "online review statistics for home services",
+          "home service review benchmarks",
+          "review trust and conversion data",
+          "online review benchmarks for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/google-business-profile-statistics-local-service-businesses",
+        "title": "Google Business Profile Statistics: 72+ Local Service Business Benchmarks for 2026",
+        "topics": [
+          "Google Business Profile statistics",
+          "local service business benchmarks",
+          "GBP calls and review benchmarks",
+          "Google Business Profile for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Google Business Profile statistics",
+          "GBP benchmarks for local service businesses",
+          "Google Business Profile call and review benchmarks",
+          "Google Business Profile scorecard for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/small-business-seo-statistics",
+        "title": "Small Business SEO Statistics (2026): 75+ Data Points",
+        "topics": [
+          "small business SEO statistics",
+          "local SEO statistics",
+          "Google Business Profile statistics",
+          "review statistics for small business",
+          "SEO ROI statistics"
+        ],
+        "anchors": [
+          "small business SEO statistics",
+          "2026 local SEO statistics for small businesses",
+          "SEO statistics for service businesses",
+          "review and local search statistics"
+        ]
+      },
+      {
+        "slug": "/blog/miami-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Miami {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "miami {{NICHE}} seo",
+          "miami {{AUDIENCE}} seo",
+          "miami local pack seo",
+          "{{NICHE}} Google Business Profile Miami",
+          "Miami-Dade {{NICHE}} service areas"
+        ],
+        "anchors": [
+          "Miami {{NICHE}} SEO local pack teardown",
+          "Miami local pack fixes for {{AUDIENCE}}",
+          "Miami-Dade {{NICHE}} SEO service-area proof",
+          "what Miami {{AUDIENCE}} should fix first in Google Maps"
+        ]
+      },
+      {
+        "slug": "/blog/hialeah-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Hialeah {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "hialeah {{NICHE}} seo",
+          "Hialeah {{AUDIENCE}} local SEO",
+          "Hialeah {{NICHE}} Local Pack",
+          "{{AUDIENCE}} Google Business Profile Hialeah",
+          "{{NICHE}} SEO local pack teardown"
+        ],
+        "anchors": [
+          "Hialeah {{NICHE}} SEO",
+          "Hialeah {{NICHE}} Local Pack teardown",
+          "local pack fixes for Hialeah {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/dallas-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Dallas {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "dallas {{NICHE}} seo",
+          "Dallas {{AUDIENCE}} local pack",
+          "Dallas Google Maps SEO for {{AUDIENCE}}",
+          "{{NICHE}} company service area SEO",
+          "Google Business Profile for Dallas {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Dallas {{NICHE}} SEO local pack teardown",
+          "Dallas Google Maps SEO for {{AUDIENCE}}",
+          "what Dallas {{AUDIENCE}} should fix first in local SEO"
+        ]
+      },
+      {
+        "slug": "/blog/colorado-springs-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Colorado Springs {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "colorado springs {{NICHE}} seo",
+          "Colorado Springs {{AUDIENCE}} local pack",
+          "Google Business Profile for {{AUDIENCE}}",
+          "{{AUDIENCE}} reviews and service area SEO",
+          "Colorado Springs local SEO for {{NICHE}} companies"
+        ],
+        "anchors": [
+          "Colorado Springs {{NICHE}} SEO",
+          "Colorado Springs {{AUDIENCE}} local pack teardown",
+          "local-pack SEO fixes for Colorado Springs {{AUDIENCE}}",
+          "Google Business Profile fixes for Colorado Springs {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/google-business-profile-access-{{AUDIENCE}}-user-roles-agency-handoff",
+        "title": "Google Business Profile Access for {{AUDIENCE}}: Safe User Roles, Agency Handoffs, and Owner Protection",
+        "topics": [
+          "Google Business Profile access for {{AUDIENCE}}",
+          "GBP owner and manager roles",
+          "agency handoff for {{NICHE}} SEO",
+          "Google Business Profile password protection",
+          "{{AUDIENCE}} GBP user audit"
+        ],
+        "anchors": [
+          "Google Business Profile access for {{AUDIENCE}}",
+          "safe GBP user roles for {{AUDIENCE}}",
+          "agency handoff checklist for a {{NICHE}} company GBP",
+          "protect Google Business Profile ownership"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-page-builder-google-docs-addon-for-{{AUDIENCE}}",
+        "title": "{{NICHE}} SEO Page Builder for Google Docs: How {{AUDIENCE}} Can Draft Better Service Pages Faster",
+        "topics": [
+          "Google Docs add-on for {{AUDIENCE}}",
+          "{{NICHE}} SEO page builder",
+          "service page drafting workflow",
+          "local SEO content template for {{AUDIENCE}}",
+          "Google Workspace Marketplace {{NICHE}} SEO"
+        ],
+        "anchors": [
+          "{{NICHE}} SEO Page Builder for Google Docs",
+          "Google Docs add-on for {{NICHE}} service pages",
+          "draft better {{NICHE}} service pages faster",
+          "{{AUDIENCE}} local SEO draft workflow"
+        ]
+      },
+      {
+        "slug": "/blog/wordpress-websites-{{AUDIENCE}}-maintenance-security-lead-conversion",
+        "title": "WordPress Websites for {{AUDIENCE}}: Maintenance, Security, and Lead Conversion Checklist",
+        "topics": [
+          "wordpress websites for {{AUDIENCE}}",
+          "WordPress maintenance for {{NICHE}} websites",
+          "{{NICHE}} website security checklist",
+          "{{AUDIENCE}} website lead conversion",
+          "WordPress plugins for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "WordPress websites for {{AUDIENCE}}",
+          "{{AUDIENCE}} WordPress maintenance checklist",
+          "WordPress website checklist for {{NICHE}} companies",
+          "{{NICHE}} website security and conversion checklist"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-page-builder-google-docs-addon-for-{{AUDIENCE}}",
+        "title": "{{NICHE}} SEO Page Builder for Google Docs: How {{AUDIENCE}} Can Draft Better Service Pages Faster",
+        "topics": [
+          "Google Docs add-on for {{AUDIENCE}}",
+          "{{NICHE}} SEO page builder",
+          "service page drafting workflow",
+          "local SEO content template for {{AUDIENCE}}",
+          "Google Workspace Marketplace {{NICHE}} SEO"
+        ],
+        "anchors": [
+          "{{NICHE}} SEO Page Builder for Google Docs",
+          "Google Docs add-on for {{NICHE}} service pages",
+          "draft better {{NICHE}} service pages faster",
+          "{{AUDIENCE}} local SEO draft workflow"
+        ]
+      },
+      {
+        "slug": "/blog/digital-marketing-pricing-models-{{AUDIENCE}}-contract-traps",
+        "title": "Digital Marketing Pricing Models for {{AUDIENCE}}",
+        "topics": [
+          "digital marketing pricing models for {{AUDIENCE}}",
+          "{{NICHE}} marketing retainers",
+          "pay-per-lead for {{AUDIENCE}}",
+          "PPC management fees for {{AUDIENCE}}",
+          "marketing contract traps"
+        ],
+        "anchors": [
+          "digital marketing pricing models for {{AUDIENCE}}",
+          "{{NICHE}} marketing pricing models",
+          "retainer vs PPC vs pay-per-lead for {{AUDIENCE}}",
+          "marketing contract traps for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-page-builder-google-docs-addon-for-{{AUDIENCE}}",
+        "title": "{{NICHE}} SEO Page Builder for Google Docs: How {{AUDIENCE}} Can Draft Better Service Pages Faster",
+        "topics": [
+          "Google Docs add-on for {{AUDIENCE}}",
+          "{{NICHE}} SEO page builder",
+          "service page drafting workflow",
+          "local SEO content template for {{AUDIENCE}}",
+          "Google Workspace Marketplace {{NICHE}} SEO"
+        ],
+        "anchors": [
+          "{{NICHE}} SEO Page Builder for Google Docs",
+          "Google Docs add-on for {{NICHE}} service pages",
+          "draft better {{NICHE}} service pages faster",
+          "{{AUDIENCE}} local SEO draft workflow"
+        ]
+      },
+      {
+        "slug": "/blog/9-benefits-of-hiring-a-digital-marketing-agency-for-your-business-growth-what-{{AUDIENCE}}-need-to-know",
+        "title": "9 Benefits of Hiring a Digital Marketing Agency for Your Business Growth: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "digital marketing agency for {{AUDIENCE}}",
+          "benefits of hiring a marketing agency",
+          "{{NICHE}} SEO and PPC strategy",
+          "call tracking for {{NICHE}} marketing",
+          "{{AUDIENCE}} marketing agency ROI"
+        ],
+        "anchors": [
+          "benefits of hiring a digital marketing agency for {{AUDIENCE}}",
+          "{{AUDIENCE}} marketing agency benefits",
+          "when {{AUDIENCE}} should hire a marketing agency",
+          "digital marketing agency for {{NICHE}} business growth"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-page-builder-google-docs-addon-for-{{AUDIENCE}}",
+        "title": "{{NICHE}} SEO Page Builder for Google Docs: How {{AUDIENCE}} Can Draft Better Service Pages Faster",
+        "topics": [
+          "Google Docs add-on for {{AUDIENCE}}",
+          "{{NICHE}} SEO page builder",
+          "service page drafting workflow",
+          "local SEO content template for {{AUDIENCE}}",
+          "Google Workspace Marketplace {{NICHE}} SEO"
+        ],
+        "anchors": [
+          "{{NICHE}} SEO Page Builder for Google Docs",
+          "Google Docs add-on for {{NICHE}} service pages",
+          "draft better {{NICHE}} service pages faster",
+          "{{AUDIENCE}} local SEO draft workflow"
+        ]
+      },
+      {
+        "slug": "/blog/the-importance-of-online-reputation-management-for-your-businesses-what-{{AUDIENCE}}-need-to-know",
+        "title": "Online Reputation Management for {{AUDIENCE}}: What Owners Need to Know",
+        "topics": [
+          "online reputation management for {{AUDIENCE}}",
+          "{{AUDIENCE}} review management",
+          "Google Business Profile reviews",
+          "{{NICHE}} company local SEO reviews",
+          "bad review response for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "online reputation management for {{AUDIENCE}}",
+          "{{AUDIENCE}} review management guide",
+          "how {{AUDIENCE}} should manage reviews",
+          "Google reviews for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/12-benefits-of-ppc-advertising-in-2026-what-{{AUDIENCE}}-need-to-know",
+        "title": "12 Benefits of PPC Advertising in 2026: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "PPC advertising for {{AUDIENCE}}",
+          "Google Ads for {{NICHE}} companies",
+          "{{AUDIENCE}} PPC lead tracking",
+          "paid search and local SEO for {{AUDIENCE}}",
+          "{{NICHE}} marketing ROI"
+        ],
+        "anchors": [
+          "PPC benefits for {{AUDIENCE}}",
+          "Google Ads benefits for {{NICHE}} companies",
+          "how {{AUDIENCE}} should measure PPC",
+          "paid search for {{NICHE}} leads"
+        ]
+      },
+      {
+        "slug": "/blog/how-much-does-social-media-marketing-cost-in-2026-what-{{AUDIENCE}}-need-to-know",
+        "title": "Social Media Marketing Cost in 2026 for {{AUDIENCE}}",
+        "topics": [
+          "social media marketing cost for {{AUDIENCE}}",
+          "{{AUDIENCE}} social media budget",
+          "2026 social media pricing",
+          "{{NICHE}} marketing budget",
+          "social media vs SEO for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "social media marketing cost for {{AUDIENCE}}",
+          "2026 {{AUDIENCE}} social media budget",
+          "how much {{AUDIENCE}} should spend on social media",
+          "social media vs SEO for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-seo-page-builder-google-docs-addon-for-{{AUDIENCE}}",
+        "title": "{{NICHE}} SEO Page Builder for Google Docs: How {{AUDIENCE}} Can Draft Better Service Pages Faster",
+        "topics": [
+          "Google Docs add-on for {{AUDIENCE}}",
+          "{{NICHE}} SEO page builder",
+          "service page drafting workflow",
+          "local SEO content template for {{AUDIENCE}}",
+          "Google Workspace Marketplace {{NICHE}} SEO"
+        ],
+        "anchors": [
+          "{{NICHE}} SEO Page Builder for Google Docs",
+          "Google Docs add-on for {{NICHE}} service pages",
+          "draft better {{NICHE}} service pages faster",
+          "{{AUDIENCE}} local SEO draft workflow"
+        ]
+      },
+      {
+        "slug": "/blog/image-seo-what-{{AUDIENCE}}-need-to-know",
+        "title": "Image SEO?: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "image SEO for {{AUDIENCE}}",
+          "{{NICHE}} image alt text",
+          "{{AUDIENCE}} service page images",
+          "image compression for {{NICHE}} websites",
+          "Google Images for {{NICHE}} businesses"
+        ],
+        "anchors": [
+          "image SEO for {{AUDIENCE}}",
+          "{{NICHE}} image SEO guide",
+          "how {{AUDIENCE}} should optimize website images",
+          "alt text for {{AUDIENCE}} job photos"
+        ]
+      },
+      {
+        "slug": "/blog/local-seo-what-{{AUDIENCE}}-need-to-know",
+        "title": "Local SEO for {{AUDIENCE}}: What Owners Need to Know",
+        "topics": [
+          "local SEO for {{AUDIENCE}}",
+          "{{AUDIENCE}} Google Business Profile",
+          "{{NICHE}} service area SEO",
+          "{{NICHE}} reviews and citations",
+          "local {{NICHE}} calls"
+        ],
+        "anchors": [
+          "local SEO for {{AUDIENCE}}",
+          "{{NICHE}} local SEO guide",
+          "how {{AUDIENCE}} should fix local SEO",
+          "Google Business Profile for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/on-page-seo-what-{{AUDIENCE}}-need-to-know",
+        "title": "On-Page SEO for {{AUDIENCE}}: What Owners Need to Know",
+        "topics": [
+          "on-page SEO for {{AUDIENCE}}",
+          "{{NICHE}} service page SEO",
+          "{{AUDIENCE}} title tags",
+          "{{NICHE}} website internal links",
+          "{{AUDIENCE}} conversion tracking"
+        ],
+        "anchors": [
+          "on-page SEO for {{AUDIENCE}}",
+          "{{AUDIENCE}} service page SEO checklist",
+          "how {{AUDIENCE}} should optimize service pages"
+        ]
+      },
+      {
+        "slug": "/blog/digital-marketing-what-{{AUDIENCE}}-need-to-know",
+        "title": "Digital Marketing for {{AUDIENCE}}: What Owners Need to Know",
+        "topics": [
+          "digital marketing for {{AUDIENCE}}",
+          "{{AUDIENCE}} marketing strategy",
+          "Google Business Profile for {{AUDIENCE}}",
+          "{{NICHE}} SEO and Google Ads",
+          "{{NICHE}} marketing tracking"
+        ],
+        "anchors": [
+          "digital marketing for {{AUDIENCE}}",
+          "{{AUDIENCE}} digital marketing plan",
+          "how {{AUDIENCE}} should prioritize marketing",
+          "{{NICHE}} marketing strategy"
+        ]
+      },
+      {
+        "slug": "/blog/why-is-my-website-traffic-dropping-what-{{AUDIENCE}}-need-to-know",
+        "title": "Why Is My Website Traffic Dropping?: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "why is my website traffic dropping for {{AUDIENCE}}",
+          "{{NICHE}} website traffic drop",
+          "Google Search Console traffic drop",
+          "{{AUDIENCE}} SEO recovery",
+          "lost {{NICHE}} calls"
+        ],
+        "anchors": [
+          "why your {{NICHE}} website traffic is dropping",
+          "{{AUDIENCE}} traffic drop diagnostic",
+          "how {{AUDIENCE}} diagnose lost website traffic"
+        ]
+      },
+      {
+        "slug": "/blog/conversion-rate-optimization-what-{{AUDIENCE}}-need-to-know",
+        "title": "Conversion Rate Optimization: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "conversion rate optimization for {{AUDIENCE}}",
+          "{{NICHE}} website CRO",
+          "{{AUDIENCE}} lead conversion optimization",
+          "call tracking and booking optimization",
+          "website leaks for {{NICHE}} companies"
+        ],
+        "anchors": [
+          "conversion rate optimization for {{AUDIENCE}}",
+          "{{NICHE}} website CRO checklist",
+          "how {{AUDIENCE}} turn more visitors into calls",
+          "{{AUDIENCE}} conversion optimization guide"
+        ]
+      },
+      {
+        "slug": "/blog/conversion-rate-what-{{AUDIENCE}}-need-to-know",
+        "title": "Conversion Rate: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "conversion rate for {{AUDIENCE}}",
+          "{{NICHE}} website conversion rate",
+          "{{AUDIENCE}} lead conversion",
+          "website conversion optimization for {{AUDIENCE}}",
+          "booked job tracking"
+        ],
+        "anchors": [
+          "conversion rate for {{AUDIENCE}}",
+          "{{NICHE}} website conversion rate",
+          "how {{AUDIENCE}} turn visitors into booked jobs",
+          "{{AUDIENCE}} conversion rate guide"
+        ]
+      },
+      {
+        "slug": "/blog/core-web-vitals-what-{{AUDIENCE}}-need-to-know",
+        "title": "Core Web Vitals: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "core web vitals for {{AUDIENCE}}",
+          "{{NICHE}} website speed",
+          "PageSpeed Insights for {{AUDIENCE}}",
+          "{{AUDIENCE}} technical SEO",
+          "mobile site speed calls"
+        ],
+        "anchors": [
+          "Core Web Vitals for {{AUDIENCE}}",
+          "{{NICHE}} website speed guide",
+          "how {{AUDIENCE}} should fix Core Web Vitals",
+          "PageSpeed Insights for {{NICHE}} websites"
+        ]
+      },
+      {
+        "slug": "/blog/a-long-tail-keyword-what-{{AUDIENCE}}-need-to-know",
+        "title": "What Is a Long-Tail Keyword? Guide for {{AUDIENCE}}",
+        "topics": [
+          "long-tail keyword for {{AUDIENCE}}",
+          "{{NICHE}} keyword strategy",
+          "service area keywords",
+          "{{AUDIENCE}} SEO keywords"
+        ],
+        "anchors": [
+          "long-tail keywords for {{AUDIENCE}}",
+          "{{NICHE}} keyword map",
+          "how {{AUDIENCE}} use long-tail keywords"
+        ]
+      },
+      {
+        "slug": "/blog/10-benefits-of-a-responsive-website-what-{{AUDIENCE}}-need-to-know",
+        "title": "10 Benefits of a Responsive Website: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "10 benefits of a responsive website for {{AUDIENCE}}",
+          "responsive website for {{AUDIENCE}}",
+          "{{NICHE}} website mobile design",
+          "{{AUDIENCE}} website conversion",
+          "mobile-friendly {{NICHE}} website"
+        ],
+        "anchors": [
+          "10 responsive website benefits for {{AUDIENCE}}",
+          "responsive website benefits for {{NICHE}} companies",
+          "mobile-friendly {{NICHE}} website checklist"
+        ]
+      },
+      {
+        "slug": "/blog/a-social-media-management-what-{{AUDIENCE}}-need-to-know",
+        "title": "Social Media Management for {{AUDIENCE}}: What to Know",
+        "topics": [
+          "social media management for {{AUDIENCE}}",
+          "{{AUDIENCE}} social media marketing",
+          "{{NICHE}} social media content",
+          "social media ROI for {{AUDIENCE}}",
+          "{{NICHE}} company Facebook posts"
+        ],
+        "anchors": [
+          "social media management for {{AUDIENCE}}",
+          "{{AUDIENCE}} social media management guide",
+          "what {{AUDIENCE}} should post on social media"
+        ]
+      },
+      {
+        "slug": "/blog/thumbtack-partners-with-openai-to-bring-home-service-hiring-directly-into-chatgpt-what-{{AUDIENCE}}-need-to-know",
+        "title": "Thumbtack Partners with OpenAI to Bring Home Service Hiring Directly into ChatGPT: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "thumbtack openai chatgpt {{AUDIENCE}}",
+          "thumbtack partners with openai home services",
+          "chatgpt home service hiring {{AUDIENCE}}",
+          "ai search for {{AUDIENCE}}",
+          "thumbtack {{NICHE}} leads"
+        ],
+        "anchors": [
+          "Thumbtack and OpenAI for {{AUDIENCE}}",
+          "ChatGPT home service hiring for {{AUDIENCE}}",
+          "what Thumbtack in ChatGPT means for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/google-tests-removal-of-call-button-from-organic-listings-what-it-means-for-{{NICHE}}-businesses",
+        "title": "Google Call Button Test: What {{AUDIENCE}} Should Do",
+        "topics": [
+          "Google call button test",
+          "Google Business Profile call button",
+          "organic local listings",
+          "{{AUDIENCE}} call tracking",
+          "local SEO for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Google call button test for {{AUDIENCE}}",
+          "what {{AUDIENCE}} should do if Google hides call buttons",
+          "protect {{NICHE}} calls from Google layout changes"
+        ]
+      },
+      {
+        "slug": "/blog/keyword-research-checklist-the-complete-guide-for-{{NICHE}}-hvac-businesses",
+        "title": "Keyword Research Checklist: The Complete Guide for {{NICHE}} & HVAC Businesses",
+        "topics": [
+          "keyword research checklist {{NICHE}} HVAC businesses",
+          "{{NICHE}} keyword research",
+          "HVAC keyword research",
+          "service area keyword mapping",
+          "{{AUDIENCE}} SEO keywords"
+        ],
+        "anchors": [
+          "keyword research checklist for {{NICHE}} and HVAC businesses",
+          "{{NICHE}} keyword research checklist",
+          "how to map {{NICHE}} SEO keywords to pages"
+        ]
+      },
+      {
+        "slug": "/blog/how-to-get-{{NICHE}}-leads",
+        "title": "How to Get {{NICHE}} Leads: 9 Owner-First Moves",
+        "topics": [
+          "how to get {{NICHE}} leads",
+          "{{NICHE}} lead generation",
+          "{{AUDIENCE}} lead generation",
+          "get more {{NICHE}} leads",
+          "{{NICHE}} leads from Google Business Profile",
+          "{{NICHE}} SEO leads"
+        ],
+        "anchors": [
+          "how to get {{NICHE}} leads",
+          "{{NICHE}} lead generation guide",
+          "get more {{NICHE}} leads",
+          "{{AUDIENCE}} owner lead system"
+        ]
+      },
+      {
+        "slug": "/blog/how-to-grow-your-{{NICHE}}-business-in-2026",
+        "title": "How to Grow Your {{NICHE}} Business in 2026?",
+        "topics": [
+          "how to grow your {{NICHE}} business in 2026",
+          "{{NICHE}} business growth",
+          "{{AUDIENCE}} marketing plan",
+          "{{NICHE}} lead generation",
+          "{{NICHE}} SEO growth plan"
+        ],
+        "anchors": [
+          "how to grow your {{NICHE}} business in 2026",
+          "{{NICHE}} business growth plan",
+          "grow your {{NICHE}} company with SEO and tracking"
+        ]
+      },
+      {
+        "slug": "/blog/the-complete-seo-checklist-for-{{NICHE}}-hvac-businesses",
+        "title": "The Complete SEO Checklist for {{NICHE}} & HVAC Businesses",
+        "topics": [
+          "complete SEO checklist for {{NICHE}} HVAC businesses",
+          "{{NICHE}} SEO checklist",
+          "HVAC SEO checklist",
+          "local SEO checklist for contractors",
+          "{{AUDIENCE}} SEO tasks"
+        ],
+        "anchors": [
+          "complete SEO checklist for {{NICHE}} and HVAC businesses",
+          "{{NICHE}} SEO checklist",
+          "SEO checklist for contractors"
+        ]
+      },
+      {
+        "slug": "/blog/how-to-set-up-optimize-your-google-business-profile-for-hvac-businesses-step-by-step-guide-what-{{AUDIENCE}}-need-to-know",
+        "title": "Google Business Profile for {{AUDIENCE}}: Setup Guide",
+        "topics": [
+          "google business profile for {{AUDIENCE}}",
+          "google maps seo for {{AUDIENCE}}",
+          "{{AUDIENCE}} business profile setup",
+          "GBP optimization {{NICHE}} company",
+          "{{AUDIENCE}} service area profile"
+        ],
+        "anchors": [
+          "Google Business Profile for {{AUDIENCE}}",
+          "{{AUDIENCE}} Google Business Profile setup",
+          "optimize your {{NICHE}} company profile",
+          "GBP setup guide for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/how-to-set-up-optimize-your-google-business-profile-for-{{AUDIENCE}}-step-by-step-guide",
+        "title": "Google Business Profile for {{AUDIENCE}}: Setup Guide",
+        "topics": [
+          "google business profile for {{AUDIENCE}}",
+          "gbp setup {{AUDIENCE}}",
+          "google maps seo",
+          "{{AUDIENCE}} business profile",
+          "local seo for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Google Business Profile setup guide for {{AUDIENCE}}",
+          "how {{AUDIENCE}} should optimize Google Business Profile",
+          "{{AUDIENCE}} GBP setup checklist"
+        ]
+      },
+      {
+        "slug": "/blog/mastering-google-ads-for-{{AUDIENCE}}-boost-your-business-online",
+        "title": "Mastering Google Ads for {{AUDIENCE}}: Boost Your Business Online",
+        "topics": [
+          "google ads for {{AUDIENCE}}",
+          "{{NICHE}} google ads",
+          "{{AUDIENCE}} ppc campaign setup",
+          "google ads negative keywords {{AUDIENCE}}",
+          "{{NICHE}} ads call tracking"
+        ],
+        "anchors": [
+          "Google Ads for {{AUDIENCE}}",
+          "mastering Google Ads for {{AUDIENCE}}",
+          "{{NICHE}} Google Ads setup guide",
+          "how {{AUDIENCE}} should run Google Ads"
+        ]
+      },
+      {
+        "slug": "/blog/ppc-marketing-for-{{AUDIENCE}}-2026-guide-to-maximizing-leads-and-roi",
+        "title": "PPC Marketing for {{AUDIENCE}} 2026: Guide to Maximizing Leads and ROI",
+        "topics": [
+          "ppc marketing for {{AUDIENCE}}",
+          "{{AUDIENCE}} PPC 2026",
+          "Google Ads for {{AUDIENCE}}",
+          "{{NICHE}} PPC ROI",
+          "{{AUDIENCE}} lead quality",
+          "cost per booked job"
+        ],
+        "anchors": [
+          "PPC marketing for {{AUDIENCE}}",
+          "{{AUDIENCE}} PPC ROI guide",
+          "Google Ads guide for {{AUDIENCE}}",
+          "how {{AUDIENCE}} maximize PPC leads and ROI"
+        ]
+      },
+      {
+        "slug": "/blog/the-complete-digital-marketing-checklist-for-{{NICHE}}-hvac-businesses",
+        "title": "The Complete Digital Marketing Checklist for {{NICHE}} & HVAC Businesses",
+        "topics": [
+          "digital marketing checklist for {{NICHE}} HVAC businesses",
+          "{{NICHE}} marketing checklist",
+          "HVAC digital marketing checklist",
+          "{{AUDIENCE}} marketing plan",
+          "Google Business Profile checklist {{AUDIENCE}}",
+          "{{NICHE}} lead tracking checklist"
+        ],
+        "anchors": [
+          "complete digital marketing checklist for {{NICHE}} and HVAC businesses",
+          "{{NICHE}} digital marketing checklist",
+          "marketing checklist for {{AUDIENCE}} and HVAC companies",
+          "checklist for tracking {{NICHE}} leads"
+        ]
+      },
+      {
+        "slug": "/blog/ppc-optimization-for-{{AUDIENCE}}",
+        "title": "PPC Optimization for {{AUDIENCE}}: Lower Cost Per Lead Without Losing Emergency Calls",
+        "topics": [
+          "PPC optimization for {{AUDIENCE}}",
+          "{{AUDIENCE}} PPC campaign optimization",
+          "reduce {{NICHE}} PPC cost per lead",
+          "Google Ads for {{AUDIENCE}} optimization",
+          "{{NICHE}} PPC negative keywords",
+          "cost per booked job {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "PPC optimization for {{AUDIENCE}}",
+          "optimize Google Ads for {{AUDIENCE}}",
+          "reduce wasted {{NICHE}} PPC spend",
+          "lower cost per booked job from PPC"
+        ]
+      },
+      {
+        "slug": "/blog/the-complete-schema-markup-guide-for-local-business-what-{{AUDIENCE}}-need-to-know",
+        "title": "The Complete Schema Markup Guide for Local Business: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "schema markup guide local business {{AUDIENCE}}",
+          "LocalBusiness schema {{AUDIENCE}}",
+          "{{AUDIENCE}} schema",
+          "structured data for {{NICHE}} websites",
+          "FAQ schema {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "schema markup guide for {{AUDIENCE}}",
+          "LocalBusiness schema for {{AUDIENCE}}",
+          "structured data for {{NICHE}} websites"
+        ]
+      },
+      {
+        "slug": "/blog/topical-authority-what-{{AUDIENCE}}-need-to-know",
+        "title": "Topical Authority for {{AUDIENCE}}: What to Fix First",
+        "topics": [
+          "topical authority for {{AUDIENCE}}",
+          "{{NICHE}} SEO content strategy",
+          "{{AUDIENCE}} service page clusters",
+          "internal linking for {{NICHE}} websites",
+          "{{AUDIENCE}} SEO topical authority"
+        ],
+        "anchors": [
+          "topical authority for {{AUDIENCE}}",
+          "building topical authority for {{NICHE}} companies",
+          "how {{AUDIENCE}} build topical authority"
+        ]
+      },
+      {
+        "slug": "/blog/cheap-marketing-services-{{AUDIENCE}}-hidden-costs-red-flags",
+        "title": "Cheap Marketing Services for {{AUDIENCE}}: Hidden Costs, Red Flags, and Safer Alternatives",
+        "topics": [
+          "cheap marketing services for {{AUDIENCE}}",
+          "cheap {{AUDIENCE}} marketing",
+          "affordable {{NICHE}} marketing red flags",
+          "{{AUDIENCE}} marketing budget",
+          "low cost SEO for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "cheap marketing services for {{AUDIENCE}}",
+          "cheap {{AUDIENCE}} marketing red flags",
+          "safer {{NICHE}} marketing budget"
+        ]
+      },
+      {
+        "slug": "/blog/minneapolis-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Minneapolis {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "minneapolis {{NICHE}} seo",
+          "Minneapolis {{AUDIENCE}} local SEO",
+          "Minneapolis {{NICHE}} Local Pack",
+          "{{AUDIENCE}} Google Business Profile Minneapolis",
+          "{{NICHE}} SEO local pack teardown"
+        ],
+        "anchors": [
+          "Minneapolis {{NICHE}} SEO",
+          "Minneapolis {{NICHE}} Local Pack teardown",
+          "local pack fixes for Minneapolis {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/advanced-local-seo-for-{{AUDIENCE}}",
+        "title": "Advanced Local SEO for {{AUDIENCE}}: Beyond the Basic GBP Checklist",
+        "topics": [
+          "advanced local SEO tips for {{AUDIENCE}}",
+          "advanced local SEO for {{AUDIENCE}}",
+          "{{AUDIENCE}} map pack diagnostics",
+          "{{NICHE}} service area architecture",
+          "GBP tuning for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "advanced local SEO for {{AUDIENCE}}",
+          "advanced local SEO tips for {{AUDIENCE}}",
+          "monthly Map Pack diagnostic for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/why-{{NICHE}}-business-not-ranking-google",
+        "title": "Why Your {{NICHE}} Business Is Not Ranking on Google: A {{AUDIENCE}} SEO Diagnostic Checklist",
+        "topics": [
+          "{{NICHE}} business not ranking on Google",
+          "{{AUDIENCE}} SEO diagnostic checklist",
+          "why {{NICHE}} company is not showing on Google Maps",
+          "{{NICHE}} SEO audit checklist",
+          "{{AUDIENCE}} ranking problems"
+        ],
+        "anchors": [
+          "why your {{NICHE}} business is not ranking on Google",
+          "{{AUDIENCE}} SEO diagnostic checklist",
+          "diagnose {{AUDIENCE}} ranking problems",
+          "why your {{NICHE}} company is not showing on Google"
+        ]
+      },
+      {
+        "slug": "/blog/lead-tracking-for-{{AUDIENCE}}",
+        "title": "Lead Tracking for {{AUDIENCE}}: How to Track Calls, Forms, Chats, and Booked Jobs",
+        "topics": [
+          "lead tracking for {{AUDIENCE}}",
+          "{{AUDIENCE}} lead tracking",
+          "call tracking vs lead tracking",
+          "closed-loop lead tracking",
+          "cost per booked job"
+        ],
+        "anchors": [
+          "lead tracking for {{AUDIENCE}}",
+          "our {{AUDIENCE}} lead tracking guide",
+          "how to track calls, forms, chats, and booked jobs"
+        ]
+      },
+      {
+        "slug": "/blog/local-seo-call-attribution",
+        "title": "Local SEO Call Attribution: How {{AUDIENCE}} Track Calls Without Hurting NAP Consistency",
+        "topics": [
+          "local seo call attribution",
+          "switch.monster local seo call attribution",
+          "local number tracking",
+          "DNI local SEO",
+          "call tracking NAP consistency"
+        ],
+        "anchors": [
+          "local SEO call attribution",
+          "track calls without hurting NAP consistency",
+          "how {{AUDIENCE}} track calls safely"
+        ]
+      },
+      {
+        "slug": "/blog/switch-monster-vs-callscaler",
+        "title": "Switch.monster vs CallScaler: Best Budget Call Tracking for {{AUDIENCE}}?",
+        "topics": [
+          "switch.monster vs callscaler",
+          "switch.monster or callscaler",
+          "callscaler vs switch.monster",
+          "switch.monster compared to callscaler",
+          "switch.monster callscaler alternative"
+        ],
+        "anchors": [
+          "Switch.monster vs CallScaler",
+          "Switch.monster or CallScaler",
+          "CallScaler vs Switch.monster",
+          "Switch.monster compared to CallScaler",
+          "Switch.monster CallScaler alternative"
+        ]
+      },
+      {
+        "slug": "/blog/switch-monster-vs-whatconverts",
+        "title": "Switch.monster vs WhatConverts: Call Tracking or Full Lead Attribution?",
+        "topics": [
+          "switch.monster vs whatconverts",
+          "switch.monster or whatconverts",
+          "whatconverts vs switch.monster",
+          "WhatConverts alternative for {{AUDIENCE}}",
+          "lead attribution for {{AUDIENCE}}",
+          "bring your own carrier call tracking",
+          "whatconverts pricing"
+        ],
+        "anchors": [
+          "Switch.monster vs WhatConverts",
+          "Switch.monster or WhatConverts",
+          "WhatConverts vs Switch.monster",
+          "WhatConverts alternatives for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/best-lsa-bidding-strategy",
+        "title": "Best LSA Bidding Strategy for {{AUDIENCE}} in 2026",
+        "topics": [
+          "best lsa bidding strategy",
+          "google local services ads bidding options",
+          "lsa automated vs manual bidding",
+          "google guaranteed bid strategy",
+          "{{NICHE}} cost per lead"
+        ],
+        "anchors": [
+          "best LSA bidding strategy",
+          "LSA bidding strategies",
+          "Google Guaranteed bidding strategy",
+          "local services ads bidding strategy"
+        ]
+      },
+      {
+        "slug": "/blog/switch-monster-call-tracking-{{AUDIENCE}}",
+        "title": "Switch.monster vs CallRail vs Competitors: Which Call Tracking is Best for {{AUDIENCE}} in 2026?",
+        "topics": [
+          "switch.monster call tracking for {{AUDIENCE}}",
+          "switch.monster lead tracking for {{AUDIENCE}}",
+          "switch.monster vs callrail",
+          "switch.monster cost comparison",
+          "twilio call tracking",
+          "callrail alternatives",
+          "whatconverts vs callrail",
+          "calltrackingmetrics vs callrail",
+          "callscaler vs callrail"
+        ],
+        "anchors": [
+          "Switch.monster vs CallRail",
+          "our Switch.monster vs CallRail comparison",
+          "which call tracking is best for {{AUDIENCE}}",
+          "our comparative guide to {{AUDIENCE}} call tracking"
+        ]
+      },
+      {
+        "slug": "/blog/ai-search-optimization-{{AUDIENCE}}",
+        "title": "AI Search Optimization for {{AUDIENCE}}: How to Get Found by ChatGPT and Google AI Mode",
+        "topics": [
+          "ai search optimization {{AUDIENCE}}",
+          "aeo for {{AUDIENCE}}",
+          "chatgpt recommendations local businesses",
+          "schema for ai search",
+          "google ai mode {{AUDIENCE}}",
+          "entity seo for {{AUDIENCE}}",
+          "llm citation consistency",
+          "ai booking agents"
+        ],
+        "anchors": [
+          "how {{AUDIENCE}} get found by ChatGPT",
+          "AI search optimization for {{AUDIENCE}}",
+          "how to optimize your {{NICHE}} website for AI search",
+          "our {{AUDIENCE}} AI search optimization guide"
+        ]
+      },
+      {
+        "slug": "/blog/how-much-does-ppc-cost-for-{{AUDIENCE}}-in-2026",
+        "title": "How Much Does PPC Cost for {{AUDIENCE}} in 2026?",
+        "topics": [
+          "ppc cost {{AUDIENCE}}",
+          "ppc management cost",
+          "ppc agency pricing",
+          "ppc management agency",
+          "ppc cost per click {{NICHE}}",
+          "google ads cost {{NICHE}}",
+          "ppc budget {{AUDIENCE}}",
+          "ppc management usa",
+          "ppc agency near me",
+          "{{NICHE}} ppc cost per lead"
+        ],
+        "anchors": [
+          "how much PPC costs for {{AUDIENCE}}",
+          "the real cost of PPC for {{NICHE}} companies",
+          "PPC cost breakdown for {{AUDIENCE}}",
+          "our PPC cost guide for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/how-much-does-an-seo-campaign-cost-for-{{AUDIENCE}}-in-2026",
+        "title": "How Much Does an SEO Campaign Cost for {{AUDIENCE}} in 2026?",
+        "topics": [
+          "seo campaign cost {{AUDIENCE}}",
+          "seo cost {{NICHE}} company",
+          "how much does seo cost for {{AUDIENCE}}",
+          "{{NICHE}} seo pricing",
+          "seo budget {{NICHE}}",
+          "seo roi {{AUDIENCE}}",
+          "seo agency cost {{NICHE}}",
+          "seo investment {{NICHE}} company"
+        ],
+        "anchors": [
+          "what SEO actually costs for {{AUDIENCE}}",
+          "our SEO campaign cost breakdown",
+          "SEO pricing guide for {{NICHE}} companies",
+          "how much {{AUDIENCE}} pay for SEO"
+        ]
+      },
+      {
+        "slug": "/blog/benefits-of-local-seo-for-{{AUDIENCE}}-why-its-the-best-investment-youll-make-in-2026",
+        "title": "Benefits of Local SEO for {{AUDIENCE}}: Why It's the Best Investment You'll Make in 2026",
+        "topics": [
+          "benefits of local seo for {{AUDIENCE}}",
+          "local seo benefits {{NICHE}}",
+          "why local seo matters {{AUDIENCE}}",
+          "local seo for {{NICHE}} companies benefits",
+          "local seo roi {{AUDIENCE}}",
+          "is local seo worth it {{NICHE}}",
+          "how does local seo help {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "the 7 benefits of local SEO for {{AUDIENCE}}",
+          "why local SEO is the best investment for {{AUDIENCE}}",
+          "local SEO benefits guide for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/19-best-digital-marketing-tips-for-{{AUDIENCE}}-2026",
+        "title": "19 Best Digital Marketing Tips for {{AUDIENCE}} (2026)",
+        "topics": [
+          "digital marketing tips {{AUDIENCE}}",
+          "{{AUDIENCE}} digital marketing",
+          "digital marketing for {{NICHE}} companies",
+          "{{AUDIENCE}} marketing tips",
+          "{{AUDIENCE}} online marketing",
+          "digital marketing {{NICHE}} business",
+          "best marketing tips {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "19 digital marketing tips for {{AUDIENCE}}",
+          "our digital marketing tips guide",
+          "the complete digital marketing checklist for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-marketing-guide",
+        "title": "{{NICHE}} Marketing Guide: Every Channel Ranked by ROI (2026)",
+        "topics": [
+          "{{NICHE}} marketing",
+          "{{NICHE}} company marketing",
+          "marketing for {{AUDIENCE}}",
+          "{{NICHE}} marketing guide",
+          "{{NICHE}} marketing channels",
+          "{{AUDIENCE}} marketing strategies",
+          "{{NICHE}} marketing ROI",
+          "{{AUDIENCE}} advertising"
+        ],
+        "anchors": [
+          "our complete {{NICHE}} marketing guide",
+          "{{NICHE}} marketing channel rankings",
+          "{{NICHE}} marketing guide",
+          "every channel ranked by ROI",
+          "marketing guide for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/how-to-do-seo-for-{{AUDIENCE}}",
+        "title": "How to Do SEO for {{AUDIENCE}}: The Complete Step-by-Step Guide (2026)",
+        "topics": [
+          "how to do seo for {{AUDIENCE}}",
+          "{{AUDIENCE}} seo guide",
+          "seo for {{NICHE}} companies guide",
+          "{{AUDIENCE}} seo step by step",
+          "local seo for {{AUDIENCE}}",
+          "{{NICHE}} seo tutorial",
+          "seo for {{NICHE}} company",
+          "how to do seo for a {{NICHE}} company"
+        ],
+        "anchors": [
+          "the complete step-by-step {{AUDIENCE}} SEO guide",
+          "how to do SEO for your {{NICHE}} company",
+          "our 5-step {{AUDIENCE}} SEO guide",
+          "step-by-step {{AUDIENCE}} SEO tutorial"
+        ]
+      },
+      {
+        "slug": "/blog/{{AUDIENCE}}-site-communication-the-tech-stack-that-prevents-lost-leads",
+        "title": "{{AUDIENCE}} Site Communication: The Tech Stack That Prevents Lost Leads",
+        "topics": [
+          "{{AUDIENCE}} site communication",
+          "{{AUDIENCE}} website lead capture",
+          "switch monster call tracking {{AUDIENCE}}",
+          "{{NICHE}} website tech stack",
+          "{{AUDIENCE}} CRM integration",
+          "webchat {{NICHE}} website",
+          "{{AUDIENCE}} missed calls lost revenue",
+          "after hours {{AUDIENCE}} lead capture",
+          "speed to lead {{NICHE}}"
+        ],
+        "anchors": [
+          "the tech stack that prevents lost leads",
+          "how to build a lead-capture communication stack for {{AUDIENCE}}",
+          "5-layer {{AUDIENCE}} communication stack"
+        ]
+      },
+      {
+        "slug": "/blog/google-local-service-ads-for-{{NICHE}}-everything-you-need-to-know",
+        "title": "Google Local Service Ads for {{NICHE}}: Everything You Need to Know",
+        "topics": [
+          "google local service ads {{NICHE}}",
+          "LSA for {{AUDIENCE}}",
+          "google guaranteed {{AUDIENCE}}",
+          "local service ads cost per lead",
+          "LSA vs google ads {{AUDIENCE}}",
+          "LSA ranking factors",
+          "google verified badge {{AUDIENCE}}",
+          "pay per lead {{NICHE}} ads"
+        ],
+        "anchors": [
+          "everything you need to know about Google Local Service Ads for {{NICHE}}",
+          "how Local Service Ads work for {{AUDIENCE}}",
+          "the complete {{NICHE}} LSA guide"
+        ]
+      },
+      {
+        "slug": "/blog/7-emerging-marketing-trends-in-2026-for-{{NICHE}}-service-businesses",
+        "title": "7 Emerging Marketing Trends in 2026 for {{NICHE}} Service Businesses",
+        "topics": [
+          "{{NICHE}} marketing trends 2026",
+          "AI lead capture {{AUDIENCE}}",
+          "short-form video {{NICHE}}",
+          "zero-click search {{AUDIENCE}}",
+          "automated reviews {{NICHE}}",
+          "speed-to-lead automation",
+          "AI content creation {{NICHE}}",
+          "hyper-local marketing {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "7 emerging marketing trends for {{NICHE}} companies",
+          "the marketing trends reshaping {{NICHE}} in 2026",
+          "the 2026 {{NICHE}} marketing trends you should know about"
+        ]
+      },
+      {
+        "slug": "/blog/7-marketing-strategies-{{NICHE}}-companies-usually-miss-and-why-they-shouldnt",
+        "title": "7 Marketing Strategies {{NICHE}} Companies Usually Miss (And Why They Shouldn't)",
+        "topics": [
+          "{{AUDIENCE}} marketing strategies",
+          "{{NICHE}} marketing mistakes",
+          "referral program {{AUDIENCE}}",
+          "direct mail {{NICHE}}",
+          "video marketing {{AUDIENCE}}",
+          "marketing attribution {{NICHE}}",
+          "review response strategy",
+          "community partnerships {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "7 marketing strategies most {{NICHE}} companies miss",
+          "overlooked {{AUDIENCE}} marketing strategies",
+          "the marketing strategies {{AUDIENCE}} should stop ignoring"
+        ]
+      },
+      {
+        "slug": "/blog/ai-tools-local-business-seo-more-calls",
+        "title": "7 Best AI Tools for Local Business SEO That Get More Calls",
+        "topics": [
+          "ai local seo tools",
+          "local seo software",
+          "google business profile ai",
+          "ai review replies",
+          "ai visibility",
+          "local seo automation",
+          "more calls"
+        ],
+        "anchors": [
+          "the best AI tools for local business SEO",
+          "AI local SEO tools that help get more calls",
+          "our guide to AI tools for local SEO"
+        ]
+      },
+      {
+        "slug": "/blog/google-alerts-{{NICHE}}-reputation",
+        "title": "Google Alerts for {{NICHE}} Reputation: Setup Guide",
+        "topics": [
+          "google alerts",
+          "online reputation monitoring",
+          "{{NICHE}} reputation",
+          "review monitoring",
+          "brand mentions",
+          "competitor alerts",
+          "google business profile notifications"
+        ],
+        "anchors": [
+          "how to set up Google Alerts for {{NICHE}} reputation",
+          "the {{AUDIENCE}} Google Alerts setup guide",
+          "monitor your {{NICHE}} company's online reputation"
+        ]
+      },
+      {
+        "slug": "/blog/7-photos-every-{{NICHE}}-company-should-have-on-their-google-business-profile",
+        "title": "7 Photos Every {{NICHE}} Company Should Have on Their Google Business Profile",
+        "topics": [
+          "google business profile photos",
+          "gbp photos",
+          "{{NICHE}} photos",
+          "real photos",
+          "stock photos",
+          "before and after photos",
+          "{{AUDIENCE}} truck photo",
+          "photo refresh",
+          "google maps photos"
+        ],
+        "anchors": [
+          "our guide to the 7 essential Google Business Profile photos",
+          "why stock photos kill your {{NICHE}} conversions",
+          "the 7 photos every {{AUDIENCE}} needs on Google"
+        ]
+      },
+      {
+        "slug": "how-to-respond-to-a-negative-google-review-templates-included",
+        "title": "How to Respond to a Negative Google Review (Templates Included)",
+        "topics": [
+          "negative review response",
+          "bad google review",
+          "review response template",
+          "negative review template",
+          "fake review removal",
+          "online reputation management",
+          "google review response",
+          "{{AUDIENCE}} review management",
+          "review recovery",
+          "1 star review"
+        ],
+        "anchors": [
+          "how to respond to a negative Google review",
+          "our negative review response templates for {{AUDIENCE}}",
+          "the 5-step framework for handling bad reviews"
+        ]
+      },
+      {
+        "slug": "/blog/{{AUDIENCE}}-guide-measuring-marketing-roi",
+        "title": "The {{AUDIENCE}}'s Guide to Measuring Marketing ROI",
+        "topics": [
+          "marketing roi",
+          "{{AUDIENCE}} marketing roi",
+          "cost per booked job",
+          "qualified lead rate",
+          "answer rate",
+          "booking rate",
+          "close rate",
+          "gross profit roi",
+          "marketing attribution"
+        ],
+        "anchors": [
+          "how to measure marketing ROI for {{AUDIENCE}}",
+          "the {{AUDIENCE}} marketing ROI guide",
+          "which marketing numbers actually matter"
+        ]
+      },
+      {
+        "slug": "what-wed-do-if-we-started-a-{{NICHE}}-company-tomorrow-the-first-90-days-of-marketing",
+        "title": "What We'd Do If We Started a {{NICHE}} Company Tomorrow: The First 90 Days of Marketing",
+        "topics": [
+          "{{NICHE}} startup marketing",
+          "90 day marketing plan",
+          "new {{NICHE}} company",
+          "marketing budget {{AUDIENCE}}",
+          "startup {{AUDIENCE}}",
+          "first 90 days",
+          "{{NICHE}} company marketing plan",
+          "speed to lead",
+          "LSA {{AUDIENCE}}",
+          "marketing playbook"
+        ],
+        "anchors": [
+          "our 90-day marketing playbook for new {{NICHE}} companies",
+          "the startup {{NICHE}} marketing guide",
+          "what we would do if we started a {{NICHE}} company tomorrow"
+        ]
+      },
+      {
+        "slug": "city-pages-{{NICHE}}-companies",
+        "title": "The Complete Guide to City Pages for {{NICHE}} Companies: When They Work, When They Don't",
+        "topics": [
+          "city pages",
+          "location pages",
+          "service area pages",
+          "multi-location seo",
+          "local landing pages",
+          "city page seo",
+          "doorway pages",
+          "thin content"
+        ],
+        "anchors": [
+          "our complete guide to city pages for {{NICHE}} companies",
+          "when city pages work and when they backfire",
+          "the city page framework that ranks"
+        ]
+      },
+      {
+        "slug": "seo-vs-ppc-{{NICHE}}.html",
+        "title": "{{NICHE}} SEO vs PPC: Which Gets More Calls in 2026?",
+        "topics": [
+          "seo vs ppc",
+          "google ads",
+          "paid ads",
+          "cost per click",
+          "organic vs paid",
+          "ppc",
+          "pay per click",
+          "adwords"
+        ],
+        "anchors": [
+          "SEO vs PPC comparison for {{AUDIENCE}}",
+          "how SEO compares to Google Ads for {{NICHE}} companies",
+          "our deep-dive on organic search vs paid advertising"
+        ]
+      },
+      {
+        "slug": "frequently-asked-ppc-questions-for-{{AUDIENCE}}-data-driven-answers-2026",
+        "title": "Frequently Asked PPC Questions for {{AUDIENCE}}: Data-Driven Answers (2026)",
+        "topics": [
+          "ppc faq {{AUDIENCE}}",
+          "ppc cost {{AUDIENCE}}",
+          "google ads {{NICHE}} cost",
+          "{{NICHE}} ppc budget",
+          "cost per click {{NICHE}}",
+          "{{NICHE}} cost per lead",
+          "{{NICHE}} roas",
+          "ppc vs seo {{NICHE}}",
+          "performance max {{NICHE}}",
+          "negative keywords {{NICHE}}",
+          "{{NICHE}} ppc mistakes"
+        ],
+        "anchors": [
+          "our data-driven {{NICHE}} PPC FAQ",
+          "frequently asked PPC questions for {{AUDIENCE}}",
+          "the complete {{NICHE}} PPC cost breakdown"
+        ]
+      },
+      {
+        "slug": "{{NICHE}}-seo-pricing.html",
+        "title": "{{NICHE}} SEO Pricing Explained: What's Reasonable, What's a Rip-Off",
+        "topics": [
+          "seo pricing",
+          "seo cost",
+          "how much does seo cost",
+          "pricing tiers",
+          "seo packages",
+          "monthly retainer",
+          "agency pricing",
+          "rip-off"
+        ],
+        "anchors": [
+          "our full {{NICHE}} SEO pricing guide",
+          "what fair SEO pricing looks like for {{AUDIENCE}}",
+          "the complete breakdown of {{NICHE}} SEO costs"
+        ]
+      },
+      {
+        "slug": "hiring-seo-agency-questions.html",
+        "title": "Questions to Ask Before Hiring a {{NICHE}} SEO Agency (2026)",
+        "topics": [
+          "hiring seo agency",
+          "questions to ask",
+          "vetting agencies",
+          "agency red flags",
+          "choosing an agency",
+          "seo contract"
+        ],
+        "anchors": [
+          "questions you should ask before hiring any SEO agency",
+          "our guide to vetting {{NICHE}} SEO agencies",
+          "the critical questions {{AUDIENCE}} must ask before signing"
+        ]
+      },
+      {
+        "slug": "seo-agency-vs-in-house-{{AUDIENCE}}.html",
+        "title": "Should {{AUDIENCE}} Hire an SEO Agency or Do It In-House? (2026 Data)",
+        "topics": [
+          "agency vs in-house",
+          "in-house seo",
+          "hiring seo specialist",
+          "diy seo",
+          "seo team",
+          "hybrid model",
+          "outsource seo"
+        ],
+        "anchors": [
+          "the agency vs in-house SEO comparison",
+          "whether to hire in-house or outsource SEO",
+          "our data-driven breakdown of agency vs in-house SEO costs"
+        ]
+      },
+      {
+        "slug": "how-much-should-a-{{NICHE}}-company-spend-on-seo.html",
+        "title": "How Much Should a {{NICHE}} Company Spend on SEO in 2026?",
+        "topics": [
+          "seo budget",
+          "seo spend",
+          "marketing budget",
+          "how much to spend",
+          "one-time setup",
+          "$700 setup",
+          "budget allocation"
+        ],
+        "anchors": [
+          "how much {{NICHE}} companies should actually spend on SEO",
+          "our budget planning guide for {{NICHE}} SEO",
+          "the smart approach to {{NICHE}} SEO budgeting"
+        ]
+      },
+      {
+        "slug": "google-maps-seo-for-{{AUDIENCE}}.html",
+        "title": "Google Maps SEO for {{AUDIENCE}}: How to Dominate the Local 3-Pack",
+        "topics": [
+          "google maps",
+          "local 3-pack",
+          "map pack",
+          "local seo",
+          "google business profile",
+          "gbp",
+          "citations",
+          "reviews",
+          "nap consistency",
+          "local search"
+        ],
+        "anchors": [
+          "our Google Maps SEO guide for {{AUDIENCE}}",
+          "how to dominate the Google Maps 3-Pack",
+          "the step-by-step guide to ranking in the Local Pack"
+        ]
+      },
+      {
+        "slug": "google-reviews-{{NICHE}}-seo.html",
+        "title": "Google Reviews for {{AUDIENCE}}: The 5-Star System That Gets You Into the Map Pack",
+        "topics": [
+          "google reviews",
+          "5 star reviews",
+          "review velocity",
+          "review strategy",
+          "getting reviews",
+          "map pack reviews",
+          "review management",
+          "star rating",
+          "qr code reviews",
+          "text message reviews"
+        ],
+        "anchors": [
+          "our guide to building a {{AUDIENCE}} review system",
+          "how reviews affect Map Pack rankings",
+          "the 5-star system for {{AUDIENCE}} Google reviews"
+        ]
+      },
+      {
+        "slug": "{{NICHE}}-website-keyword-strategy.html",
+        "title": "{{NICHE}} Website Keywords: The Exact Strategy That Gets Your Service Pages Ranked",
+        "topics": [
+          "keyword strategy",
+          "{{NICHE}} keywords",
+          "service pages",
+          "city pages",
+          "location pages",
+          "on-page seo",
+          "keyword research",
+          "emergency keywords",
+          "keyword intent",
+          "keyword conversion",
+          "page structure"
+        ],
+        "anchors": [
+          "our {{NICHE}} keyword strategy guide",
+          "how to choose the right keywords for your {{NICHE}} website",
+          "the complete on-page SEO checklist for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "{{AUDIENCE}}-nap-citations-top-50-directories.html",
+        "title": "{{AUDIENCE}} NAP Citations: Top 50 Directories That Actually Move the Needle",
+        "topics": [
+          "nap citations",
+          "local citations",
+          "{{AUDIENCE}} directories",
+          "business directories",
+          "nap consistency",
+          "citation building",
+          "service area business",
+          "local seo citations"
+        ],
+        "anchors": [
+          "our {{AUDIENCE}} NAP citation directory list",
+          "the top citation sources for {{AUDIENCE}}",
+          "how to prioritize {{AUDIENCE}} directory listings"
+        ]
+      },
+      {
+        "slug": "best-seo-for-{{AUDIENCE}}.html",
+        "title": "Best SEO for {{AUDIENCE}}: The 2026 Ranked Buyer Guide",
+        "topics": [
+          "best seo for {{AUDIENCE}}",
+          "{{AUDIENCE}} seo companies",
+          "{{NICHE}} seo agency",
+          "seo providers",
+          "seo services for {{AUDIENCE}}",
+          "local seo for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "our ranked guide to the best SEO for {{AUDIENCE}}",
+          "the 2026 {{AUDIENCE}} SEO provider comparison",
+          "how to choose the best SEO company for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "how-to-get-more-5-star-reviews-{{NICHE}}.html",
+        "title": "How to Get More 5-Star Reviews for Your {{NICHE}} Business",
+        "topics": [
+          "5 star reviews",
+          "google reviews",
+          "review collection",
+          "review system",
+          "review automation",
+          "reputation management",
+          "review templates",
+          "SMS review request"
+        ],
+        "anchors": [
+          "our guide to getting more 5-star reviews",
+          "how to build a review collection system for {{AUDIENCE}}",
+          "the complete {{AUDIENCE}} review strategy"
+        ]
+      },
+      {
+        "slug": "multi-location-{{NICHE}}-seo.html",
+        "title": "Multi-Location {{NICHE}} Company SEO: How to Rank in 5 Cities at Once",
+        "topics": [
+          "multi-location seo",
+          "multiple cities",
+          "city pages",
+          "service area pages",
+          "hub and spoke",
+          "multi-city seo",
+          "local seo multiple locations",
+          "rank in multiple cities"
+        ],
+        "anchors": [
+          "our multi-location {{NICHE}} SEO guide",
+          "how to rank in multiple cities as a {{AUDIENCE}}",
+          "the complete playbook for multi-city {{NICHE}} SEO"
+        ]
+      },
+      {
+        "slug": "gbp-suspended-recovery-{{AUDIENCE}}.html",
+        "title": "Google Business Profile Suspended? Recovery Guide for {{AUDIENCE}}",
+        "topics": [
+          "gbp suspended",
+          "google business profile suspended",
+          "gbp suspension",
+          "gbp appeal",
+          "reinstatement",
+          "suspended listing",
+          "deceptive content",
+          "profile disabled",
+          "gbp recovery"
+        ],
+        "anchors": [
+          "our GBP suspension recovery guide for {{AUDIENCE}}",
+          "how to recover a suspended Google Business Profile",
+          "the complete guide to GBP reinstatement"
+        ]
+      },
+      {
+        "slug": "{{AUDIENCE}}-website-not-getting-calls.html",
+        "title": "Why Your {{AUDIENCE}} Website Isn't Getting Calls (And How to Fix It)",
+        "topics": [
+          "website not getting calls",
+          "website conversion",
+          "website not converting",
+          "no calls from website",
+          "{{AUDIENCE}} website leads",
+          "conversion killers",
+          "website optimization",
+          "click to call",
+          "page speed",
+          "trust signals",
+          "mobile optimization"
+        ],
+        "anchors": [
+          "why your {{AUDIENCE}} website is not getting calls",
+          "the 7 conversion killers costing {{AUDIENCE}} websites calls",
+          "our guide to fixing {{AUDIENCE}} website conversion problems"
+        ]
+      },
+      {
+        "slug": "{{NICHE}}-website-anatomy-that-converts.html",
+        "title": "The Anatomy of a {{NICHE}} Website That Actually Converts: What Every Page Needs",
+        "topics": [
+          "website anatomy",
+          "{{NICHE}} website pages",
+          "website structure",
+          "essential pages",
+          "conversion elements",
+          "website conversion rate",
+          "{{NICHE}} web design",
+          "high converting website",
+          "website pages needed",
+          "{{NICHE}} website checklist"
+        ],
+        "anchors": [
+          "the anatomy of a high-converting {{NICHE}} website",
+          "what every page on a {{NICHE}} website needs",
+          "our guide to {{NICHE}} website conversion elements"
+        ]
+      },
+      {
+        "slug": "schema-markup-for-{{AUDIENCE}}.html",
+        "title": "5 Schema Markup Types Every {{AUDIENCE}} Website Should Have (And How to Add Them)",
+        "topics": [
+          "schema markup",
+          "structured data",
+          "json-ld",
+          "localbusiness schema",
+          "rich results",
+          "rich snippets",
+          "faq schema",
+          "service schema",
+          "aggregate rating",
+          "technical seo"
+        ],
+        "anchors": [
+          "the 5 essential schema types for {{AUDIENCE}} websites",
+          "our guide to adding schema markup for {{AUDIENCE}}",
+          "how to implement structured data on your {{NICHE}} site"
+        ]
+      },
+      {
+        "slug": "technical-seo-checklist-{{NICHE}}-websites.html",
+        "title": "The Technical SEO Checklist for {{NICHE}} Websites: 15 Things Your Developer Missed",
+        "topics": [
+          "technical seo",
+          "seo checklist",
+          "developer mistakes",
+          "core web vitals",
+          "crawlability",
+          "page speed",
+          "mobile optimization",
+          "robots.txt",
+          "xml sitemap",
+          "canonical tags",
+          "ssl https",
+          "click to call",
+          "image optimization"
+        ],
+        "anchors": [
+          "the 15-point technical SEO checklist for {{AUDIENCE}} websites",
+          "technical SEO issues your developer probably missed",
+          "our complete technical SEO checklist for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "{{NICHE}}-seo-audit-process.html",
+        "title": "What a {{NICHE}} SEO Audit Actually Looks Like: Inside Our Process, Step by Step",
+        "topics": [
+          "seo audit",
+          "{{NICHE}} audit",
+          "audit process",
+          "website audit",
+          "technical audit",
+          "site health",
+          "audit checklist",
+          "seo review",
+          "audit deliverable"
+        ],
+        "anchors": [
+          "our step-by-step {{NICHE}} SEO audit process",
+          "what a real {{NICHE}} SEO audit looks like",
+          "inside our 7-layer audit framework for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "how-we-build-service-pages-that-rank.html",
+        "title": "How We Build Service Pages That Rank: The Exact Process Behind a Page That Gets Calls",
+        "topics": [
+          "service pages",
+          "service page seo",
+          "service page build process",
+          "{{NICHE}} service pages",
+          "keyword intent",
+          "competitor gap analysis",
+          "trust signals",
+          "call tracking",
+          "page architecture",
+          "local signals",
+          "service page ranking"
+        ],
+        "anchors": [
+          "how we build service pages that rank",
+          "the exact process behind a ranking service page",
+          "our 7-step service page build process for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "call-tracking-for-{{AUDIENCE}}.html",
+        "title": "Call Tracking for {{AUDIENCE}}: How to Know Exactly Where Every Lead Comes From",
+        "topics": [
+          "call tracking",
+          "lead attribution",
+          "marketing roi",
+          "phone tracking",
+          "dynamic number insertion",
+          "DNI",
+          "CallRail",
+          "call recording",
+          "lead source",
+          "marketing attribution"
+        ],
+        "anchors": [
+          "our guide to call tracking for {{NICHE}} companies",
+          "how to track where every {{NICHE}} lead comes from",
+          "the complete call tracking setup guide for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "{{NICHE}}-seo-statistics.html",
+        "title": "{{NICHE}} SEO Statistics (2026): 75+ Data Points on Google Maps, Calls, Reviews, AI Search, and Local Rankings",
+        "topics": [
+          "{{NICHE}} seo statistics",
+          "{{NICHE}} industry data",
+          "local seo statistics",
+          "google maps statistics",
+          "review statistics",
+          "ai search statistics",
+          "zero click search",
+          "{{NICHE}} lead conversion",
+          "mobile search statistics",
+          "local ranking factors"
+        ],
+        "anchors": [
+          "our 75+ {{NICHE}} SEO statistics roundup",
+          "the definitive {{NICHE}} SEO data resource",
+          "2026 {{NICHE}} industry statistics and benchmarks"
+        ]
+      },
+      {
+        "slug": "local-seo-for-{{AUDIENCE}}-statistics.html",
+        "title": "Local SEO for {{AUDIENCE}} Statistics (2026): 80+ Benchmarks on Google Maps, Reviews, Service Areas, and Calls",
+        "topics": [
+          "local seo for {{AUDIENCE}} statistics",
+          "{{NICHE}} local seo benchmarks",
+          "local seo statistics",
+          "{{NICHE}} statistics 2026"
+        ],
+        "anchors": [
+          "our 80+ local SEO benchmarks for {{AUDIENCE}}",
+          "local SEO statistics for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/gbp-description-that-ranks",
+        "title": "How to Write a Google Business Profile Description That Actually Helps You Rank",
+        "topics": [
+          "gbp description",
+          "google business profile description",
+          "gbp optimization",
+          "business description",
+          "local seo description",
+          "gbp ranking",
+          "profile description"
+        ],
+        "anchors": [
+          "how to write a ranking GBP description",
+          "the 750-character GBP description framework",
+          "our guide to writing a GBP description that ranks"
+        ]
+      },
+      {
+        "slug": "/blog/google-ai-overviews-{{NICHE}}-seo",
+        "title": "What Google's AI Overviews Mean for {{NICHE}} Companies in 2026 (And What to Do About It)",
+        "topics": [
+          "ai overviews",
+          "AI search",
+          "zero click search",
+          "SGE",
+          "search generative experience",
+          "google ai",
+          "ai seo",
+          "ai impact on seo",
+          "future of seo"
+        ],
+        "anchors": [
+          "how AI Overviews affect {{AUDIENCE}} SEO",
+          "our guide to AI-proofing your {{NICHE}} SEO strategy",
+          "what Google AI Overviews mean for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/google-io-2026-ai-agents-what-{{AUDIENCE}}-need-to-know",
+        "title": "Google I/O 2026: The Rise of AI Agents: What {{AUDIENCE}} Need to Know",
+        "topics": [
+          "Google I/O 2026",
+          "AI Mode",
+          "AI Overviews",
+          "agentic search",
+          "information agents",
+          "agentic booking",
+          "conversational search",
+          "{{NICHE}} AI search",
+          "Google Search AI"
+        ],
+        "anchors": [
+          "Google I/O 2026 AI agents for {{AUDIENCE}}",
+          "what {{AUDIENCE}} need to know about AI agents",
+          "agentic search and {{NICHE}} leads",
+          "Google AI Mode and {{NICHE}} SEO"
+        ]
+      },
+      {
+        "slug": "/blog/gbp-post-10-minute-template",
+        "title": "The 10-Minute GBP Post Template: What to Write Every Week (With Examples)",
+        "topics": [
+          "gbp posts",
+          "google business profile posts",
+          "google posts",
+          "gbp update",
+          "gbp offer",
+          "posting frequency",
+          "gbp posting strategy"
+        ],
+        "anchors": [
+          "our 10-minute GBP post template",
+          "what to post on Google Business Profile",
+          "the weekly GBP posting strategy for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/seasonal-marketing-calendar-for-{{NICHE}}-companies",
+        "title": "Seasonal Marketing Calendar for {{NICHE}} Companies: What to Promote, When, and How",
+        "topics": [
+          "seasonal marketing",
+          "marketing calendar",
+          "{{NICHE}} marketing calendar",
+          "off-season marketing",
+          "peak season marketing",
+          "speed to lead",
+          "seasonal {{NICHE}} ads"
+        ],
+        "anchors": [
+          "our seasonal marketing calendar for {{AUDIENCE}}",
+          "what to promote each season as a {{AUDIENCE}}",
+          "the 12-month {{NICHE}} marketing calendar"
+        ]
+      },
+      {
+        "slug": "/blog/why-most-{{NICHE}}-websites-fail-mobile-test",
+        "title": "Why Most {{NICHE}} Websites Fail the Mobile Test (And What a Good One Looks Like)",
+        "topics": [
+          "mobile test",
+          "mobile {{NICHE}} website",
+          "mobile website design",
+          "load speeds",
+          "conversion killers",
+          "sticky call button",
+          "mobile responsive framework",
+          "website builder"
+        ],
+        "anchors": [
+          "why most {{NICHE}} websites fail the mobile test",
+          "the 5-second mobile emergency test",
+          "what a high-converting mobile {{NICHE}} site actually looks like"
+        ]
+      },
+      {
+        "slug": "/blog/google-search-console-report-guide",
+        "title": "How to Read Your Google Search Console Report Without an SEO Degree",
+        "topics": [
+          "google search console",
+          "GSC",
+          "search console report",
+          "clicks",
+          "impressions",
+          "CTR",
+          "average position",
+          "SEO reporting",
+          "performance report",
+          "page indexing"
+        ],
+        "anchors": [
+          "our plain-English GSC report guide",
+          "how to read your Search Console report",
+          "the 5-minute GSC check-up for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/local-backlinks-for-{{AUDIENCE}}-without-begging",
+        "title": "How {{NICHE}} Companies Get Local Backlinks Without Begging",
+        "topics": [
+          "local backlinks",
+          "backlinks for {{AUDIENCE}}",
+          "{{AUDIENCE}} link building",
+          "local link building",
+          "supplier links",
+          "chamber links",
+          "sponsorship links",
+          "local SEO backlinks",
+          "{{NICHE}} backlinks"
+        ],
+        "anchors": [
+          "how {{AUDIENCE}} can earn local backlinks without begging",
+          "our local backlink strategy for {{NICHE}} companies",
+          "the no-begging guide to {{AUDIENCE}} backlinks"
+        ]
+      },
+      {
+        "slug": "/blog/{{NICHE}}-website-about-page",
+        "title": "Your {{NICHE}} Website's About Page: Why It Matters More Than You Think",
+        "topics": [
+          "about page",
+          "about us page",
+          "{{NICHE}} website about page",
+          "website trust signals",
+          "{{AUDIENCE}} website conversion",
+          "real photos",
+          "service area proof",
+          "credentials"
+        ],
+        "anchors": [
+          "why your {{NICHE}} About page matters",
+          "how to write a {{NICHE}} About page that earns trust",
+          "the {{NICHE}} website About page trust checklist"
+        ]
+      },
+      {
+        "slug": "/blog/lsa-vs-seo-for-{{AUDIENCE}}",
+        "title": "LSA vs SEO for {{AUDIENCE}}: Which Gets More Calls in 2026?",
+        "topics": [
+          "LSA vs SEO for {{AUDIENCE}}",
+          "google local services ads vs seo",
+          "{{NICHE}} cost per lead",
+          "LSA pricing",
+          "Local Services Ads ranking",
+          "Google Guaranteed {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "LSA vs SEO for {{AUDIENCE}}",
+          "our comparison of LSA and SEO",
+          "whether LSA or SEO gets more calls"
+        ]
+      },
+      {
+        "slug": "/blog/why-your-google-guaranteed-ranking-dropped",
+        "title": "Why Your Google Guaranteed LSA Ranking Dropped",
+        "topics": [
+          "why your google guaranteed ranking dropped",
+          "google local services ads ranking factors",
+          "lsa ranking drop",
+          "google guaranteed ranking factors",
+          "local services ads ranking dropped",
+          "how to rank higher on local services ads",
+          "why is my lsa ad not showing",
+          "google local services ads automated credit"
+        ],
+        "anchors": [
+          "why your Google Guaranteed ranking dropped",
+          "reasons your LSA ranking dropped",
+          "our Google Guaranteed rank recovery playbook",
+          "why your Local Services Ads ranking dropped"
+        ]
+      },
+      {
+        "slug": "/blog/switch-monster-vs-callrail",
+        "title": "Switch.monster vs CallRail for {{AUDIENCE}}: Number Ownership vs Plug-and-Play Tracking",
+        "topics": [
+          "switch.monster vs callrail",
+          "callrail vs switch.monster",
+          "switch.monster or callrail",
+          "switch.monster compared to callrail",
+          "CallRail alternative for {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Switch.monster vs CallRail for {{AUDIENCE}}",
+          "Switch.monster vs CallRail comparison",
+          "Switch.monster or CallRail",
+          "CallRail alternative for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/answer-engine-optimization-{{AUDIENCE}}-ai-service-pages",
+        "title": "Answer Engine Optimization for {{AUDIENCE}}: Service Pages for AI Answers",
+        "topics": [
+          "answer engine optimization for {{AUDIENCE}}",
+          "AI-ready {{NICHE}} service pages",
+          "AEO for {{AUDIENCE}} service pages",
+          "FAQ schema for {{AUDIENCE}}",
+          "structured data for {{NICHE}} service pages"
+        ],
+        "anchors": [
+          "answer engine optimization for {{AUDIENCE}}",
+          "AI-ready {{NICHE}} service pages",
+          "structure service pages for AI answers",
+          "AEO service page guide for {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/riverside-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Riverside {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "riverside {{NICHE}} seo",
+          "Riverside Local Pack SEO",
+          "{{NICHE}} Google Business Profile",
+          "{{AUDIENCE}} review strategy",
+          "local SEO repair plan"
+        ],
+        "anchors": [
+          "Riverside {{NICHE}} SEO",
+          "Riverside Local Pack teardown",
+          "{{NICHE}} SEO repair plan",
+          "Google Business Profile fixes for Riverside {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/knoxville-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Knoxville {{NICHE}} SEO Local Pack Teardown",
+        "topics": [
+          "knoxville {{NICHE}} seo",
+          "Knoxville {{AUDIENCE}} SEO",
+          "Knoxville local pack teardown",
+          "{{NICHE}} local SEO Knoxville",
+          "Google Business Profile for Knoxville {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Knoxville {{NICHE}} SEO local pack teardown",
+          "Knoxville {{AUDIENCE}} SEO fix order",
+          "local pack fixes for Knoxville {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/las-vegas-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Las Vegas {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "las vegas {{NICHE}} seo",
+          "Las Vegas {{AUDIENCE}} local SEO",
+          "Las Vegas {{NICHE}} Local Pack",
+          "{{AUDIENCE}} Google Business Profile Las Vegas",
+          "{{NICHE}} SEO local pack teardown"
+        ],
+        "anchors": [
+          "Las Vegas {{NICHE}} SEO",
+          "Las Vegas {{NICHE}} Local Pack teardown",
+          "local pack fixes for Las Vegas {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "/blog/san-diego-{{NICHE}}-seo-local-pack-teardown",
+        "title": "San Diego {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "san diego {{NICHE}} seo",
+          "San Diego {{AUDIENCE}} local pack",
+          "{{NICHE}} Google Business Profile San Diego",
+          "local SEO for San Diego {{AUDIENCE}}",
+          "{{AUDIENCE}} map pack teardown"
+        ],
+        "anchors": [
+          "San Diego {{NICHE}} SEO",
+          "San Diego {{AUDIENCE}} local pack teardown",
+          "what {{AUDIENCE}} should fix first in the local pack"
+        ]
+      },
+      {
+        "slug": "/blog/los-angeles-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Los Angeles {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "los angeles {{NICHE}} seo",
+          "local pack teardown",
+          "Google Business Profile for {{AUDIENCE}}",
+          "LA map pack SEO",
+          "{{AUDIENCE}} local SEO"
+        ],
+        "anchors": [
+          "Los Angeles {{NICHE}} SEO local pack teardown",
+          "LA map pack SEO for {{AUDIENCE}}",
+          "what to fix first in local {{NICHE}} SEO",
+          "Google local pack teardown for {{NICHE}} companies"
+        ]
+      },
+      {
+        "slug": "/blog/atlanta-{{NICHE}}-seo-local-pack-teardown",
+        "title": "Atlanta {{NICHE}} SEO Local Pack Teardown: What to Fix First in 2026",
+        "topics": [
+          "atlanta {{NICHE}} seo",
+          "Atlanta {{AUDIENCE}} local pack",
+          "Atlanta Google Maps SEO for {{AUDIENCE}}",
+          "{{NICHE}} company service area SEO",
+          "Google Business Profile for Atlanta {{AUDIENCE}}"
+        ],
+        "anchors": [
+          "Atlanta {{NICHE}} SEO local pack teardown",
+          "Atlanta Google Maps SEO for {{AUDIENCE}}",
+          "what Atlanta {{AUDIENCE}} should fix first in local SEO"
+        ]
+      }
+    ],
+    "pages": [
+      {
+        "slug": "/services/local-seo-for-{{AUDIENCE}}",
+        "title": "Google Maps SEO for {{AUDIENCE}} | Local SEO Service",
+        "topics": [
+          "google maps seo for {{AUDIENCE}}",
+          "local seo for {{AUDIENCE}}",
+          "Google Business Profile optimization",
+          "{{AUDIENCE}} reviews",
+          "service area SEO",
+          "call attribution"
+        ],
+        "anchors": [
+          "Google Maps SEO for {{AUDIENCE}}",
+          "local SEO service for {{AUDIENCE}}",
+          "fix Google Business Profile visibility",
+          "{{AUDIENCE}} map pack SEO"
+        ]
+      },
+      {
+        "slug": "../pages/what-we-offer.html",
+        "title": "What We Offer â€” {{SITE_NAME}}.agency",
+        "topics": [
+          "process",
+          "onboarding",
+          "how we work",
+          "our approach",
+          "methodology",
+          "what we offer",
+          "services overview"
+        ],
+        "anchors": [
+          "see what we offer",
+          "our full service overview for {{NICHE}} SEO"
+        ]
+      },
+      {
+        "slug": "../pages/how-we-do-it.html",
+        "title": "How We Do It â€” {{SITE_NAME}}.agency",
+        "topics": [
+          "services",
+          "technical seo",
+          "gbp optimization",
+          "service area pages",
+          "on-page seo",
+          "call tracking",
+          "how we do it"
+        ],
+        "anchors": [
+          "how we do {{NICHE}} SEO",
+          "see how our {{NICHE}} SEO process works"
+        ]
+      },
+      {
+        "slug": "../pages/free-seo-audit.html",
+        "title": "Free SEO Audit â€” {{SITE_NAME}}.agency",
+        "topics": [
+          "free audit",
+          "seo audit",
+          "leak check",
+          "site review"
+        ],
+        "anchors": [
+          "get a free SEO audit",
+          "run a free SEO leak check"
+        ]
+      },
+      {
+        "slug": "../pages/about.html",
+        "title": "About Us â€” {{SITE_NAME}}.agency",
+        "topics": [
+          "about us",
+          "our team",
+          "who we are",
+          "{{NICHE}}-only agency"
+        ],
+        "anchors": [
+          "learn more about our team",
+          "why we only work with {{AUDIENCE}}"
+        ]
+      },
+      {
+        "slug": "../pages/contact.html",
+        "title": "Contact â€” {{SITE_NAME}}.agency",
+        "topics": [
+          "contact",
+          "get in touch",
+          "reach us"
+        ],
+        "anchors": [
+          "get in touch with us",
+          "contact our team"
+        ]
+      }
+    ]
+  },
+  "_usage_notes": "This registry is a lookup table for the blog production skill. During writing (Phase 4b), the agent scans each section's text for topic keywords that match entries here and inserts natural, contextual internal links. Update this file every time a new blog post or service page is published."
+}
