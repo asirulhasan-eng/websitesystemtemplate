@@ -219,6 +219,30 @@ Brief: Comprehensive data aggregation covering market size, revenue, workforce, 
 
 ---
 
+## After Publish: Social Distribution
+
+Once the post is **approved and live** (in `blog/index.html` + `sitemap.xml`, with
+its infographics reachable at public image URLs), distribute it to social.
+
+Follow the `social-distribution` process (`processes/social-distribution.md`):
+write a **unique caption per platform per infographic** (never copy-paste FB↔IG or
+reuse a caption across infographics), build the spec from
+`cli/commands/social-post.example.json`, then:
+
+```bash
+V2="/opt/client-agent/cli/bin/v2.js"
+node $V2 social post --spec ./post-spec.json --dry-run --json   # validate: read warnings + cadence
+node $V2 social post --spec ./post-spec.json --json             # enqueue
+node $V2 social status --json                                   # confirm queued
+```
+
+Treat any "identical/reused caption" warning as a fail and rewrite. Do **not** run
+`v2 social send` manually — the drip cron (`*/15 * * * * v2 social send`) drains the
+pipeline at a jittered ~90 ± 11 min cadence. Skip this entirely for preview-only
+or unapproved drafts.
+
+---
+
 ## Notes for v2
 - This process is the **router** â€” it picks the production line and delegates the full writing workflow to the production skill on the site server.
 - CLI tools are data-only; AI makes all content decisions. See `hermes/skills/client/system-rules/SKILL.md`.

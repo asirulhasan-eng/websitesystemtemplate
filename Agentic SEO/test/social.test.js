@@ -194,6 +194,25 @@ test("save/load queue round-trips with next_pickup_at", () => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
+test("captionDuplicationWarnings flags copy-paste and reuse", () => {
+  const spec = sampleSpec(2);
+  // identical FB + IG in batch 0
+  spec.infographics[0].captions.facebook = "SAME";
+  spec.infographics[0].captions.instagram = "SAME";
+  // pinterest reused across both infographics
+  spec.infographics[0].captions.pinterest = "REUSED";
+  spec.infographics[1].captions.pinterest = "REUSED";
+  const { items } = social.expandSpec(spec);
+  const warns = social.captionDuplicationWarnings(items);
+  assert.ok(warns.some((w) => /identical caption on facebook \+ instagram/i.test(w)));
+  assert.ok(warns.some((w) => /pinterest: the same caption is reused/i.test(w)));
+});
+
+test("captionDuplicationWarnings is empty for fully-unique captions", () => {
+  const { items } = social.expandSpec(sampleSpec(3));
+  assert.deepStrictEqual(social.captionDuplicationWarnings(items), []);
+});
+
 test("isWebpUrl detects webp", () => {
   assert.strictEqual(social.isWebpUrl("https://x/y.webp"), true);
   assert.strictEqual(social.isWebpUrl("https://x/y.webp?v=2"), true);

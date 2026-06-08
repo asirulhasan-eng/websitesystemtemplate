@@ -159,6 +159,8 @@ module.exports = async function socialPost() {
         `${webpImages.length} image(s) are .webp — some platform APIs reject webp. Provide PNG/JPG mirrors if posts fail.`
       );
     }
+    // Advisory: captions should be unique per platform / per infographic.
+    warnings.push(...social.captionDuplicationWarnings(items));
 
     // Summarise what will be posted, per batch.
     const plan = items.map((it) => ({

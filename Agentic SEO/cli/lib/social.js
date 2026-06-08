@@ -770,6 +770,55 @@ function isWebpUrl(url) {
   return /\.webp(\?|#|$)/i.test(String(url || ""));
 }
 
+/**
+ * Advisory: detect copy-pasted captions. Each platform should get a UNIQUE,
+ * platform-optimised caption. Returns human-readable warnings (non-fatal) for:
+ *   - two platforms in the same batch sharing an identical caption, and
+ *   - an "each" platform reusing the same caption across infographics.
+ */
+function captionDuplicationWarnings(items) {
+  const warnings = [];
+  const norm = (s) => String(s || "").trim();
+
+  // (a) identical captions across platforms within the same batch.
+  for (const item of items) {
+    const seen = new Map(); // caption -> [platforms]
+    for (const [p, entry] of Object.entries(item.platforms)) {
+      const c = norm(entry.caption);
+      if (!c) continue;
+      if (!seen.has(c)) seen.set(c, []);
+      seen.get(c).push(p);
+    }
+    for (const [, platforms] of seen) {
+      if (platforms.length > 1) {
+        warnings.push(
+          `Batch ${item.batch_index}: identical caption on ${platforms.sort().join(" + ")} — write a unique caption per platform.`
+        );
+      }
+    }
+  }
+
+  // (b) same platform reusing one caption across multiple infographics.
+  const byPlatform = {};
+  for (const item of items) {
+    for (const [p, entry] of Object.entries(item.platforms)) {
+      const c = norm(entry.caption);
+      if (!c) continue;
+      (byPlatform[p] ||= []).push(c);
+    }
+  }
+  for (const [p, caps] of Object.entries(byPlatform)) {
+    const uniq = new Set(caps);
+    if (caps.length > 1 && uniq.size < caps.length) {
+      warnings.push(
+        `${p}: the same caption is reused across infographics — each infographic should get its own caption.`
+      );
+    }
+  }
+
+  return warnings;
+}
+
 module.exports = {
   CANONICAL_PLATFORMS,
   EACH_PLATFORMS,
@@ -802,4 +851,5 @@ module.exports = {
   buildWebhookPayload,
   postToWebhook,
   isWebpUrl,
+  captionDuplicationWarnings,
 };
