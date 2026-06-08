@@ -46,7 +46,7 @@ const COMPOUND_PREFIXES = new Set([
   'gsc', 'serp', 'keyword', 'report', 'site',
   'outbox', 'semantic', 'sitemap', 'index', 'link',
   'manual', 'security', 'backup', 'brain', 'intelligence',
-  'content', 'campaign', 'news', 'social',
+  'content', 'campaign', 'news', 'social', 'notify',
 ]);
 
 function main() {
@@ -208,6 +208,7 @@ Infrastructure:
   v2 deploy wait             Wait for deployment
   v2 email send              Send email notification
   v2 email check             Check inbox for replies
+  v2 notify telegram         Push a Telegram message to the owner
   v2 heartbeat               Manage heartbeats
   v2 monitor-check           Run system health checks
   v2 manual-actions-check    Normalize GSC manual-action checks

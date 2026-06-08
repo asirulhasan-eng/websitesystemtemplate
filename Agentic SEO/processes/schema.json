@@ -153,6 +153,40 @@
         }
       }
     },
+    "notify_on_complete": {
+      "type": "object",
+      "description": "Non-email notification settings after process completion (e.g. Telegram via 'v2 notify telegram'). Used by the self-evaluation auditor to avoid 4 emails/day.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["telegram"],
+          "description": "Notification channel. Currently 'telegram' (bot->owner)."
+        },
+        "to": {
+          "type": "string",
+          "default": "{{TELEGRAM_CHAT_ID}}",
+          "description": "Destination chat id (defaults to env TELEGRAM_CHAT_ID)"
+        },
+        "include_grade": {
+          "type": "boolean",
+          "default": true
+        },
+        "include_findings": {
+          "type": "boolean",
+          "default": true
+        },
+        "verbosity": {
+          "type": "string",
+          "enum": ["full", "grade_aware", "alert_only"],
+          "default": "grade_aware",
+          "description": "grade_aware: A/B one-line, C+ full report, D/F escalation. alert_only: notify only on poor grades."
+        }
+      }
+    },
     "depends_on": {
       "type": "array",
       "items": { "type": "string" },

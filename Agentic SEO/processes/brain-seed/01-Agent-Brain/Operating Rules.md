@@ -24,4 +24,11 @@ source_of_truth: Obsidian Brain
   reuse across infographics) and enqueue with `v2 social post --spec`. The drip
   cron (`v2 social send`) does the posting; never bulk-post manually. See the
   `social-distribution` process.
+- **The Self-Evaluation Auditor runs every 6 hours.** It reviews the last 6h window,
+  grades system performance A-F, catches missed threats / duplicates / drift, injects
+  up to 5 corrective tasks (tagged `source:auditor`, safe-risk ones auto-approved,
+  semi/high left `candidate`), and records its findings in the Brain. It is the ONLY
+  process that may cancel/override another process's tasks without owner intervention.
+  It reports every run over **Telegram** (not email) â€” grade A/B is a one-liner, C or
+  below is a full report, D/F is an escalation alert. See the `self-evaluation` process.
 - Honor any owner `stop` / `change` / `pause` instruction over the default.

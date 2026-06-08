@@ -71,6 +71,15 @@ V2_CRONS=$(cat <<'CRONTAB'
 # no-op gate skips Hermes when nothing happened.
 0 */2 * * * /usr/bin/env bash /opt/client-agent/cron/run-feedback.sh >> /opt/client-agent/cron/logs/feedback.log 2>&1
 
+# â”€â”€ SELF-EVALUATION AUDITOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Every 6h (05/11/17/23 UTC): retrospective self-audit. Reconstructs the last 6h,
+# grades the system A-F, catches missed threats/duplicates/drift, injects up to 5
+# corrective tasks (safe-only auto-approve), records brain notes, and NOTIFIES THE
+# OWNER OVER TELEGRAM (not email). Independent â€” runs even if other jobs failed.
+# Odd hours avoid Hermes concurrency with intelligence/workplan. See
+# processes/self-evaluation.md.
+0 5,11,17,23 * * * /usr/bin/env bash /opt/client-agent/cron/run-auditor.sh >> /opt/client-agent/cron/logs/auditor.log 2>&1
+
 # â”€â”€ CONSUMERS (execute ready/approved tasks; one task per tick) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Ops Pipeline â€” Every 7 minutes: next ready general_operational task
 */7 * * * * /usr/bin/env bash /opt/client-agent/cron/run-ops-pipeline.sh >> /opt/client-agent/cron/logs/ops-pipeline.log 2>&1
@@ -139,6 +148,7 @@ echo "  08:00 AM {{TIMEZONE_ABBR}} â€” Work Plan: Morning  â€” PRODUCE
 echo "  08:00 PM {{TIMEZONE_ABBR}} â€” Work Plan: Evening  â€” PRODUCER, enqueue-only (Hermes)"
 echo "  11:02 AM {{TIMEZONE_ABBR}} â€” Industry Radar      â€” PRODUCER, newsâ†’blog topics, enqueue-only (Hermes, every 2 days)"
 echo "  Every 2 hours â€” Feedback Analyst   â€” writes feedback brief (Hermes, gated)"
+echo "  Every 6 hours â€” Self-Eval Auditor  â€” grades A-F, injects fixes, Telegram report (Hermes)"
 echo "  Every 7 min   â€” Ops Pipeline       â€” executes ready general tasks"
 echo "  Every 19 min  â€” Blog Pipeline      â€” executes ready blog drafts"
 echo "  Every 15 min  â€” Health Monitor (direct CLI)"

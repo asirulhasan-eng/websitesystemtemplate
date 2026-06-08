@@ -239,6 +239,7 @@ These live on the server, not in this repo. Edit them after running `deploy-herm
 |---|---|---|
 | LLM API key (e.g. `OPENROUTER_API_KEY`) | Your model provider key | [openrouter.ai/keys](https://openrouter.ai/keys) or your provider's dashboard |
 | `TELEGRAM_BOT_TOKEN` | Bot token for Hermes Gateway (optional) | [@BotFather](https://t.me/BotFather) on Telegram → `/newbot` |
+| `TELEGRAM_CHAT_ID` | Owner chat id for bot→owner notifications (e.g. the Self-Evaluation Auditor's 6-hour report). Optional. | Message your bot once, then open `https://api.telegram.org/bot<TOKEN>/getUpdates` and copy `result[].message.chat.id` |
 
 **Also configure:** `~/.hermes/config.yaml`
 - `model.provider` — e.g. `openrouter`
