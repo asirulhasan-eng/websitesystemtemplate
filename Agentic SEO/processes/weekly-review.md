@@ -188,6 +188,11 @@ v2 db query --sql "SELECT * FROM tasks WHERE status = 'completed' AND updated_at
 
 Look at the bigger picture:
 
+0. **Are we on track against the Monthly Roadmap?**
+   - Recall the current month's roadmap DECISION note: `v2 brain recall --query "monthly roadmap" --markdown` (written by the first-Monday Monthly Roadmap run; see `processes/monthly-roadmap.md`).
+   - For each of its focus areas: on track / behind / abandoned — and why.
+   - If no roadmap note exists for the current month, flag that in the weekly report (the monthly-roadmap cron may have failed).
+
 1. **Are we working on the right things?**
    - Review the tasks that were completed vs. the tasks that are still open
    - Are money keyword tasks getting priority over nice-to-have tasks?

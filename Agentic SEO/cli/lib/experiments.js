@@ -42,6 +42,8 @@ const LEVER_FOR_TYPE = {
   duplicate_faqpage_schema: "schema",
   internal_link_opportunity: "internal_links",
   internal_linking: "internal_links",
+  cwv_fix: "performance",
+  page_speed_fix: "performance",
   new_blog_post: "content",
   content_refresh: "content",
   blog_content_refresh: "content",

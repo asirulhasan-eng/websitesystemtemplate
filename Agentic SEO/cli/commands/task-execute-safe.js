@@ -561,6 +561,15 @@ function planTask(siteRoot, task, metadata) {
       };
     }
     actions.push(...linkActions);
+  } else if (issueType === "cwv_fix" || issueType === "page_speed_fix") {
+    const cwvActions = cwvFixActions(targetFile, html);
+    if (!cwvActions.length) {
+      return {
+        actions,
+        reason: "No applicable CWV fix: below-the-fold images are already lazy-loaded and the <head> has no render-blocking external scripts.",
+      };
+    }
+    actions.push(...cwvActions);
   } else {
     return { actions, reason: `Task type ${issueType || "unknown"} is not a deterministic safe edit.` };
   }
@@ -783,6 +792,67 @@ function internalLinkActions(targetFile, html, evidence) {
   if (!applied.length || nextHtml === html) return [];
   const summary = applied.map((s) => `"${s.anchor_text}" â†’ ${s.to_url}`).join(", ");
   return [writeAction(targetFile, html, nextHtml, `Add ${applied.length} internal link(s): ${summary}`)];
+}
+
+// Deterministic Core Web Vitals fixes (cwv_fix / page_speed_fix). Exactly two
+// reversible transforms, chained into ONE write action (same pattern as
+// internalLinkActions so a later transform never clobbers an earlier one):
+//   1. loading="lazy" + decoding="async" on below-the-fold <img> tags. Anything
+//      before the first <h2> (header/logo/hero) is a potential LCP element and is
+//      never touched — lazy-loading the LCP image makes LCP worse, not better.
+//   2. `defer` on render-blocking external <head> scripts (skips async/defer/
+//      module; inline and JSON-LD scripts have no src and are never matched).
+// Anything beyond these (image re-encoding, critical CSS, third-party scripts)
+// is NOT a deterministic safe edit and must go through a planner/Hermes task.
+function cwvFixActions(targetFile, html) {
+  const summaries = [];
+  let nextHtml = html;
+
+  const lazy = lazyLoadBelowFoldImages(nextHtml);
+  if (lazy.count > 0) {
+    nextHtml = lazy.html;
+    summaries.push(`lazy-load ${lazy.count} below-the-fold image(s)`);
+  }
+
+  const deferred = deferRenderBlockingHeadScripts(nextHtml);
+  if (deferred.count > 0) {
+    nextHtml = deferred.html;
+    summaries.push(`defer ${deferred.count} render-blocking head script(s)`);
+  }
+
+  if (nextHtml === html) return [];
+  return [writeAction(targetFile, html, nextHtml, `CWV fix: ${summaries.join("; ")}.`)];
+}
+
+function lazyLoadBelowFoldImages(html) {
+  // The first <h2> is the fold marker: everything above it (header, hero) stays
+  // eager. A page with no <h2> has no safe marker, so no image is touched.
+  const fold = html.search(/<h2[\s>]/i);
+  if (fold === -1) return { html, count: 0 };
+  let count = 0;
+  const tail = html.slice(fold).replace(/<img\b[^>]*>/gi, (tag) => {
+    if (/\sloading\s*=/i.test(tag)) return tag; // author already decided
+    if (/\sfetchpriority\s*=\s*["']?high/i.test(tag)) return tag; // explicit LCP hint
+    count += 1;
+    let next = tag;
+    if (!/\sdecoding\s*=/i.test(next)) next = next.replace(/^<img\b/i, '<img decoding="async"');
+    return next.replace(/^<img\b/i, '<img loading="lazy"');
+  });
+  return { html: html.slice(0, fold) + tail, count };
+}
+
+function deferRenderBlockingHeadScripts(html) {
+  const headClose = html.search(/<\/head>/i);
+  if (headClose === -1) return { html, count: 0 };
+  let count = 0;
+  const head = html.slice(0, headClose).replace(/<script\b[^>]*>/gi, (tag) => {
+    if (!/\ssrc\s*=/i.test(tag)) return tag; // inline / JSON-LD: not render-blocking fetches
+    if (/\s(?:defer|async)\b/i.test(tag)) return tag; // already non-blocking
+    if (/\stype\s*=\s*["']?module/i.test(tag)) return tag; // modules defer by default
+    count += 1;
+    return tag.replace(/^<script\b/i, "<script defer");
+  });
+  return { html: head + html.slice(headClose), count };
 }
 
 // Accept a few shapes the planner might emit: evidence.links[], a single

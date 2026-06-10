@@ -829,3 +829,66 @@ test('safe executor schedules a ranking follow-up after a ranking-affecting depl
   const next = parseSingleJson(runCli(['task', 'next', '--db', dbPath, '--lane', 'general_operational', '--json']).stdout);
   assert.strictEqual(next.task, null, 'deferred follow-up must not be immediately pickable');
 });
+
+test('safe executor applies deterministic CWV fixes (lazy below-fold images, defer head scripts)', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-cwv-'));
+  const dbPath = path.join(tempDir, 'seo-agent.db');
+  const outPath = path.join(tempDir, 'execution.json');
+  const brainVault = makeBrainVault();
+  const siteRoot = makeGitRepo('client-cwv-site-');
+  fs.mkdirSync(path.join(siteRoot, 'services'), { recursive: true });
+  // Hero img above the first <h2> must stay eager; the two below it get lazy-loaded.
+  // The plain head script gets defer; the JSON-LD, already-deferred, and module
+  // scripts must be left alone.
+  fs.writeFileSync(path.join(siteRoot, 'services', 'slow.html'), [
+    '<!doctype html><html><head><title>Slow Page</title>',
+    '<script src="/js/main.js"></script>',
+    '<script src="/js/ok.js" defer></script>',
+    '<script type="module" src="/js/mod.js"></script>',
+    '<script type="application/ld+json">{"@context":"https://schema.org"}</script>',
+    '</head><body>',
+    '<h1>Slow Service</h1><img src="hero.webp" alt="hero">',
+    '<h2>Details</h2><img src="a.webp" alt="a"><img src="b.webp" alt="b" loading="eager">',
+    '<h2>More</h2><img src="c.webp" alt="c">',
+    '</body></html>',
+  ].join('\n'));
+  runGit(siteRoot, ['add', 'services/slow.html']);
+  runGit(siteRoot, ['commit', '-m', 'add cwv fixture']);
+
+  const db = openStateDb(dbPath);
+  const now = '2026-06-07T00:00:00.000Z';
+  db.prepare(`
+    INSERT INTO tasks (task_id, title, status, risk_level, priority_score, source,
+      target_url, target_file, target_keyword, approval_required, created_at, updated_at, metadata_json)
+    VALUES ('TSK-CWV', 'CWV fix: slow service page', 'approved', 'safe', 700, 'workplan',
+      'https://{{DOMAIN}}/services/slow', 'services/slow.html', 'slow service', 0, ?, ?, ?)
+  `).run(now, now, JSON.stringify({ task_type: 'cwv_fix', evidence: { type: 'cwv_fix', keywords: ['slow service'] } }));
+  db.close();
+
+  // Routing: cwv_fix is a deterministic ops type, dispatched to the safe executor.
+  const next = parseSingleJson(runCli(['task', 'next', '--db', dbPath, '--lane', 'general_operational', '--json']).stdout);
+  assert.strictEqual(next.task.task_id, 'TSK-CWV');
+  assert.strictEqual(next.task.dispatch, 'safe-fix');
+
+  const result = runCli([
+    'safe-fix', '--task', 'TSK-CWV', '--db', dbPath, '--site-root', siteRoot,
+    '--brain-vault', brainVault, '--apply', '--commit', '--out', outPath, '--json',
+  ], { env: { ...process.env, SEO_AGENT_TIMEZONE: 'UTC' } });
+  assert.strictEqual(result.status, 0, result.stderr || result.stdout);
+  const parsed = parseSingleJson(result.stdout);
+  assert.strictEqual(parsed.status, 'executed');
+
+  const html = fs.readFileSync(path.join(siteRoot, 'services', 'slow.html'), 'utf8');
+  // Render-blocking head script deferred; the others untouched.
+  assert.match(html, /<script defer src="\/js\/main\.js"><\/script>/);
+  assert.match(html, /<script src="\/js\/ok\.js" defer><\/script>/);
+  assert.match(html, /<script type="module" src="\/js\/mod\.js"><\/script>/);
+  // Hero (above first <h2>) untouched; below-fold imgs lazy; explicit loading= respected.
+  assert.match(html, /<img src="hero\.webp" alt="hero">/);
+  assert.match(html, /<img loading="lazy" decoding="async" src="a\.webp" alt="a">/);
+  assert.match(html, /<img src="b\.webp" alt="b" loading="eager">/);
+  assert.match(html, /<img loading="lazy" decoding="async" src="c\.webp" alt="c">/);
+
+  // A ranking-affecting deploy: a follow-up was scheduled to measure the outcome.
+  assert.ok(Array.isArray(parsed.followups) && parsed.followups[0].created, 'cwv_fix should open a measurement window');
+});

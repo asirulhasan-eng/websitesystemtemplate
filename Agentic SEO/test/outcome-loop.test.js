@@ -79,6 +79,14 @@ test("decideRemediation refreshes content levers and rolls back metadata/link le
   assert.strictEqual(decideRemediation(leverForType("ranking_recovery"), CFG), "none");
 });
 
+test("cwv_fix carries the performance lever and a confirmed regression rolls it back", () => {
+  assert.strictEqual(leverForType("cwv_fix"), "performance");
+  assert.strictEqual(leverForType("page_speed_fix"), "performance");
+  // A bad speed change is a deterministic commit, so the safe remediation is revert —
+  // never a content refresh (that would pull the wrong lever).
+  assert.strictEqual(decideRemediation("performance", CFG), "rollback");
+});
+
 // ── planConfirmationStep: debounce state machine ─────────────────────────────
 test("planConfirmationStep: clean reading is success (or recovered after a prior dip)", () => {
   assert.strictEqual(planConfirmationStep({ regressed: false, consecutivePrior: 0, config: CFG }).decision, "success");

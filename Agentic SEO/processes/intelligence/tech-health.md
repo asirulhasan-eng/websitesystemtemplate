@@ -82,7 +82,7 @@ node $V2 intelligence report \
   --report-json '{
     "threats":[{"type":"serp_change","keyword":"<url>","severity":"warning","recommendation":"LCP 4.1s â€” investigate render-blocking resources"}],
     "observations":["No manual actions","Sitemap valid, 2 orphan URLs"],
-    "recommendations":[{"priority":"high","action":"Planner: queue CWV fix for <pages>","evidence":"LCP > 2.5s on 3 service pages"}],
+    "recommendations":[{"priority":"high","action":"Planner: queue a cwv_fix task (risk=safe, general_operational lane — the safe executor lazy-loads below-fold images and defers render-blocking head scripts deterministically) for <pages>","evidence":"LCP > 2.5s on 3 service pages"}],
     "data":{"cwv":{},"indexing":{},"crawl":{},"sitemap":{},"manual_actions":[],"security":[]},
     "coverage":{"scanned_count":"...","surfaced_top":"...","floor_applied":"...","deprioritized_reason":"..."}
   }' \

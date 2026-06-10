@@ -160,7 +160,7 @@ elif [ "$BUCKET" = "edit_refresh_needed" ]; then
   # rejected as "Unknown skill(s)". See client-operations skill ref:
   # references/hermes-cron-skill-alias-verification.md.
   SKILL_PRELOAD="content-refresh"
-  PRODUCTION_STEP="Follow the content-refresh skill end-to-end to REFRESH the EXISTING target page identified by the task (target_url/target_file) â€” do NOT create a new page or change its slug/URL. Improve title/meta/H1, body depth, FAQ, schema, internal links, and alt text per the skill's quality targets. Treble-check you are editing the already-published file in place."
+  PRODUCTION_STEP="Operate in the content-refresh skill's AUTONOMOUS PIPELINE MODE (no human gate â€” the task is already approved; do not stop at a QA report or wait for approval). Follow it end-to-end to REFRESH the EXISTING target page identified by the task (target_url/target_file) â€” do NOT create a new page or change its slug/URL. Improve title/meta/H1, body depth, FAQ, schema, internal links, and alt text per the skill's quality targets, QA, then publish. Treble-check you are editing the already-published file in place."
 else
   CONTENT_KIND="blog post"
   PROCESS_FILE="${AGENT_ROOT}/processes/new-blog-creation.md"

@@ -32,7 +32,8 @@
     "deterministic_ops": {
       "lane": "general_operational",
       "deploys": "straight to production via safe-fix (safe and semi_safe both â†’ safe-fix --production)",
-      "handles": ["internal_link_opportunity", "internal_linking", "missing_title", "missing_meta_description", "missing_canonical", "missing_image_alt", "duplicate_faqpage_schema", "protect_ranking_gain", "service_architecture_review", "ranking_followup", "ranking_recovery"],
+      "handles": ["internal_link_opportunity", "internal_linking", "missing_title", "missing_meta_description", "missing_canonical", "missing_image_alt", "duplicate_faqpage_schema", "protect_ranking_gain", "service_architecture_review", "ranking_followup", "ranking_recovery", "cwv_fix", "page_speed_fix"],
+      "cwv_note": "cwv_fix/page_speed_fix are deterministic page-speed edits the safe executor applies itself: lazy-load below-the-fold images (everything after the first H2; LCP candidates above it are never touched) and defer render-blocking external <head> scripts. Use when tech-health/speed-audit reports CWV regressions on a page. Anything deeper (image re-encoding, critical CSS, third-party scripts) is NOT deterministic — plan it as a content/Hermes task instead. These open a 'performance'-lever measurement window like any other ranking-affecting deploy, which prevents a speed problem from being misattributed to a content change.",
       "handles_note": "ranking_followup is self-scheduled by the executor after a ranking-affecting deploy (deferred ~14d via scheduled_for). It judges outcome on GSC clicks (primary; see outcome_loop), and on a CONFIRMED regression (debounced — 2 consecutive degraded checks) auto-remediates: rollback for metadata/link levers, content_refresh enqueue for content levers, with a ranking_recovery fallback for a human. The planner does not need to create these.",
       "risk_guidance": "Assign these risk_level=safe (or semi_safe). Both auto-deploy to production with no gate."
     },
@@ -66,9 +67,9 @@
       "recheck_days": 7,
       "max_watch_days": 28
     },
-    "auto_rollback_levers": ["title", "meta", "canonical", "image_alt", "schema", "internal_links"],
+    "auto_rollback_levers": ["title", "meta", "canonical", "image_alt", "schema", "internal_links", "performance"],
     "auto_refresh_levers": ["content"],
-    "auto_remediation_note": "On a CONFIRMED regression the ranking_followup auto-remediates with no human gate (sanctioned autonomous edges — the auditor should NOT flag these): metadata/link-lever changes are auto-ROLLED BACK via deploy-rollback of the offending commit; content-lever changes are auto-REFRESHED by enqueuing a content_refresh task (blog_content lane). If a rollback cannot proceed (no commit, already rolled back, or git-revert conflict), it falls back to filing a ranking_recovery task for a human. Corrective/unknown levers never auto-act."
+    "auto_remediation_note": "On a CONFIRMED regression the ranking_followup auto-remediates with no human gate (sanctioned autonomous edges — the auditor should NOT flag these): metadata/link/performance-lever changes are auto-ROLLED BACK via deploy-rollback of the offending commit; content-lever changes are auto-REFRESHED by enqueuing a content_refresh task (blog_content lane — the content-refresh skill's Autonomous Pipeline Mode re-optimizes the page in place and republishes). If a rollback cannot proceed (no commit, already rolled back, or git-revert conflict), it falls back to filing a ranking_recovery task for a human. Corrective/unknown levers never auto-act."
   },
 
   "keyword_strategy": {

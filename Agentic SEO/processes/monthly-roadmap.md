@@ -4,7 +4,7 @@ name: "Monthly Roadmap"
 version: 1
 description: "Monthly strategic planning process to assess big picture and chart course for next month."
 trigger:
-  schedule: "0 7 1-7 * 1"
+  schedule: "0 7 1-7 * *"
   timezone: "UTC"
 ---
 
@@ -15,7 +15,11 @@ trigger:
 
 ## Trigger
 
-- **Schedule:** First Monday of each month at 07:00 UTC (cron: `0 7 1-7 * 1`)
+- **Schedule:** First Monday of each month at 07:00 UTC. The cron entry is
+  `0 7 1-7 * *` (daily on days 1-7) and `cron/run-monthly-roadmap.sh` exits unless
+  today is a Monday — NOT `0 7 1-7 * 1`, because vixie cron ORs a restricted
+  day-of-month with a restricted day-of-week (that line would fire on days 1-7
+  AND on every Monday).
 - **Manual:** Can be triggered on-demand for mid-month strategic reassessment
 
 ## Pre-Flight Checks

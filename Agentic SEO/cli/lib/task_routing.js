@@ -47,6 +47,10 @@ const SERVICE_PAGE_CREATE_TYPES = new Set([
 const OPERATIONAL_TASK_TYPES = new Set([
   'internal_link_opportunity',
   'internal_linking',
+  // Deterministic CWV/page-speed edits (lazy-load below-fold images, defer
+  // render-blocking head scripts) — handled by the ops safe executor.
+  'cwv_fix',
+  'page_speed_fix',
 ]);
 
 function safeJsonWithFlag(value) {

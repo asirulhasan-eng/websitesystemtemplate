@@ -32,7 +32,7 @@ const DEFAULTS = {
     recheck_days: 7,                  // cadence once a degradation is first seen
     max_watch_days: 28,               // 4-week ceiling from deploy; then hand to human
   },
-  auto_rollback_levers: ["title", "meta", "canonical", "image_alt", "schema", "internal_links"],
+  auto_rollback_levers: ["title", "meta", "canonical", "image_alt", "schema", "internal_links", "performance"],
   auto_refresh_levers: ["content"],
 };
 

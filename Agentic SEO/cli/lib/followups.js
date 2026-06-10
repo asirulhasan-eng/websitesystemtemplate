@@ -41,6 +41,8 @@ const RANKING_AFFECTING_TYPES = new Set([
   "missing_image_alt",
   "internal_link_opportunity",
   "internal_linking",
+  "cwv_fix",
+  "page_speed_fix",
   "new_blog_post",
   "content_refresh",
   "blog_content_refresh",

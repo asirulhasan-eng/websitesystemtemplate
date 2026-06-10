@@ -86,6 +86,15 @@ V2_CRONS=$(cat <<'CRONTAB'
 # planner stays the primary producer. See processes/weekly-review.md.
 0 6 * * 1 /usr/bin/env bash /opt/client-agent/cron/run-weekly-review.sh >> /opt/client-agent/cron/logs/weekly-review.log 2>&1
 
+# -- MONTHLY ROADMAP (long-range strategy) --------------------------------------
+# First Monday of the month 07:00 UTC (an hour after that day's Weekly Review):
+# 28/56/90-day trends, last month's focus-area outcomes, next month's 3-5 focus
+# areas, roadmap email. Sets the north star the Weekly Review evaluates against.
+# Vixie cron ORs restricted day-of-month and day-of-week, so "1-7 * 1" would fire
+# on days 1-7 AND every Monday — instead run daily on days 1-7 and let the script
+# exit unless it is Monday. See processes/monthly-roadmap.md.
+0 7 1-7 * * /usr/bin/env bash /opt/client-agent/cron/run-monthly-roadmap.sh >> /opt/client-agent/cron/logs/monthly-roadmap.log 2>&1
+
 # â”€â”€ CONSUMERS (execute ready/approved tasks; one task per tick) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Ops Pipeline â€” Every 7 minutes: next ready general_operational task
 */7 * * * * /usr/bin/env bash /opt/client-agent/cron/run-ops-pipeline.sh >> /opt/client-agent/cron/logs/ops-pipeline.log 2>&1
@@ -106,15 +115,11 @@ V2_CRONS=$(cat <<'CRONTAB'
 15 2,14 * * * cd /opt/client-agent && /usr/bin/env node cli/bin/v2.js task dedupe --apply --json >> /opt/client-agent/cron/logs/dedupe.log 2>&1
 
 # â”€â”€ NOT YET IMPLEMENTED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# The three jobs below reference shell scripts that do not exist in cron/.
-# (Weekly Review is now IMPLEMENTED and ACTIVE above.)
+# The jobs below reference shell scripts that do not exist in cron/.
+# (Weekly Review and Monthly Roadmap are now IMPLEMENTED and ACTIVE above.)
 # They are commented out so cron does not fire dead entries (which produce
 # silent failures / system mail every run). Uncomment each line only after
 # the matching run-*.sh script has been created in cron/.
-# Weekly Review â€” 06:00 UTC on Monday
-# (moved up: Weekly Review is ACTIVE above - Monday 06:00 UTC; cron/run-weekly-review.sh.)
-# Monthly Roadmap â€” 07:00 UTC on the first Monday of the month
-# 0 7 1-7 * 1 /opt/client-agent/cron/run-monthly-roadmap.sh >> /opt/client-agent/cron/logs/monthly-roadmap.log 2>&1
 # Task Triage â€” 03:30 UTC daily
 # 30 3 * * * /opt/client-agent/cron/run-task-triage.sh >> /opt/client-agent/cron/logs/task-triage.log 2>&1
 # Opportunity Scan â€” 14:00 UTC every 2 days
@@ -157,6 +162,7 @@ echo "  11:02 AM {{TIMEZONE_ABBR}} â€” Industry Radar      â€” PRODUCE
 echo "  Every 2 hours â€” Feedback Analyst   â€” writes feedback brief (Hermes, gated)"
 echo "  Every 6 hours â€” Self-Eval Auditor  â€” grades A-F, injects fixes, Telegram report (Hermes)"
 echo "  Mon 06:00 UTC - Weekly Review     - strategy step-back + weekly email (Hermes)"
+echo "  1st Mon 07:00 UTC - Monthly Roadmap - month-scale strategy + roadmap email (Hermes)"
 echo "  Every 7 min   â€” Ops Pipeline       â€” executes ready general tasks"
 echo "  Every 19 min  â€” Blog Pipeline      â€” executes ready blog drafts"
 echo "  Every 15 min  â€” Health Monitor (direct CLI)"
