@@ -133,8 +133,9 @@ Steps:
    node ${V2_CLI} email send --to {{ADMIN_EMAIL}} --subject \"${SUBJECT}\" --html-file <rendered.html> --json
 5. Record heartbeat finish: node ${V2_CLI} heartbeat finish --job ${JOB} --json"
 
+WORKPLAN_TIMEOUT=1440
 if command -v hermes &> /dev/null; then
-  hermes --skills system-rules,client-operations -z "$PROMPT" 2>&1 | tee -a "${LOG_DIR}/workplan-${SESSION}-$(date +%Y-%m-%d).log"
+  timeout "$WORKPLAN_TIMEOUT" hermes --skills system-rules,client-operations -z "$PROMPT" 2>&1 | tee -a "${LOG_DIR}/workplan-${SESSION}-$(date +%Y-%m-%d).log"
 else
   echo "[ERROR] hermes command not found. Falling back to dumping pre-computed intelligence (no AI planning)."
   node "$V2_CLI" intelligence summary --session "$SESSION" --json > "${LOG_DIR}/intelligence-summary-latest.json" 2>/dev/null || true

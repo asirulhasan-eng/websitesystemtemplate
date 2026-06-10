@@ -102,7 +102,8 @@ actions AGAINST those rules. Recall related memory before judging a target. Pref
 fewer well-evidenced findings over many weak ones; a false positive that cancels good
 work is worse than a missed minor gap. Do NOT re-plan the day â€” that is the planner's job."
 
-if hermes --skills system-rules,client-operations -z "$PROMPT" 2>&1 | tee -a "${LOG_DIR}/auditor-$(date +%Y-%m-%d).log"; then
+AUDITOR_TIMEOUT=1440
+if timeout "$AUDITOR_TIMEOUT" hermes --skills system-rules,client-operations -z "$PROMPT" 2>&1 | tee -a "${LOG_DIR}/auditor-$(date +%Y-%m-%d).log"; then
   node "$V2_CLI" heartbeat finish --job "$JOB" --json >/dev/null 2>&1 || true
   echo "[${TIMESTAMP}] [done] auditor session complete."
 else

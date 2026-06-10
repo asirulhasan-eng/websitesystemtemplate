@@ -65,10 +65,9 @@ release_lock() {
 trap release_lock EXIT
 
 # â”€â”€ 2. No-op gate: count worker activity since the last run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-ACTIVITY_SQL="SELECT COUNT(*) AS n FROM events WHERE created_at >= ? AND ( \
-  event_type LIKE '%pipeline%' OR event_type LIKE '%execution%' OR \
-  (event_type = 'task_status_changed' AND new_value IN \
-    ('preview_ready','preview_pushed','executed','deployed','deployed_to_production','completed','failed','rollback')) )"
+ACTIVITY_SQL="SELECT COUNT(*) AS n FROM events WHERE created_at >= ? AND \
+  event_type = 'task_status_changed' AND new_value IN \
+    ('preview_ready','preview_pushed','executed','deployed','deployed_to_production','completed','failed','rollback')"
 ACTIVITY_JSON=$(node "$V2_CLI" db query --sql "$ACTIVITY_SQL" --params "[\"${CUTOFF}\"]" --json 2>/dev/null || echo '{}')
 ACTIVITY=$(printf '%s' "$ACTIVITY_JSON" | json_field rows.0.n)
 ACTIVITY=${ACTIVITY:-0}
@@ -123,7 +122,8 @@ Brief sections (keep it tight â€” this is planner input, not a report):
 
 Do not modify task state. The work plan is the sole producer."
 
-if hermes chat -q "$PROMPT" --quiet --yolo --accept-hooks 2>&1 | tee -a "${LOG_DIR}/feedback-$(date +%Y-%m-%d).log"; then
+FEEDBACK_TIMEOUT=1440
+if timeout "$FEEDBACK_TIMEOUT" hermes chat -q "$PROMPT" --quiet --yolo --accept-hooks 2>&1 | tee -a "${LOG_DIR}/feedback-$(date +%Y-%m-%d).log"; then
   node "$V2_CLI" heartbeat finish --job "$JOB" --json >/dev/null 2>&1 || true
   echo "[${TIMESTAMP}] [done] feedback brief written to ${LATEST_BRIEF}."
 else

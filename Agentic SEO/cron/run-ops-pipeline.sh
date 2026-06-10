@@ -95,7 +95,8 @@ if [ -n "$CUR_BRANCH" ] && [ "$CUR_BRANCH" != "$PROD_BRANCH" ]; then
       echo "[${TIMESTAMP}] [fix] site repo was on '${CUR_BRANCH}', checked out '${PROD_BRANCH}' for production deploy."
     fi
   else
-    echo "[${TIMESTAMP}] [warn] site repo on '${CUR_BRANCH}' with uncommitted changes â€” not switching to '${PROD_BRANCH}' to avoid data loss."
+    echo "[${TIMESTAMP}] [error] site repo on '${CUR_BRANCH}' with uncommitted changes — aborting to avoid deploying to wrong branch."
+    exit 1
   fi
 fi
 

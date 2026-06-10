@@ -206,8 +206,14 @@ Quality gate: do NOT publish to main or mark deployed_to_production unless QA pa
 HERMES_TIMEOUT=1440
 
 if timeout "$HERMES_TIMEOUT" hermes chat -q "$PROMPT" --quiet --yolo --accept-hooks ${SKILL_PRELOAD:+-s "$SKILL_PRELOAD"} 2>&1 | tee -a "${LOG_DIR}/blog-pipeline-${TASK_ID}-$(date +%Y-%m-%d).log"; then
-  node "$V2_CLI" heartbeat finish --job "$JOB" --completed-tasks 1 --json >/dev/null 2>&1 || true
-  echo "[${TIMESTAMP}] [done] ${TASK_ID} ${CONTENT_KIND} draft session complete."
+  NEW_STATUS=$(node "$V2_CLI" db query --sql "SELECT status FROM tasks WHERE task_id = ?" --params "[\"${TASK_ID}\"]" --json 2>/dev/null | json_field rows.0.status)
+  if [ "$NEW_STATUS" = "approved" ]; then
+    echo "[${TIMESTAMP}] [fail] ${TASK_ID} hermes exited 0 but failed to update task status. Artificial failure triggered."
+    node "$V2_CLI" heartbeat finish --job "$JOB" --error "hermes hallucinated success for ${TASK_ID}" --json >/dev/null 2>&1 || true
+  else
+    node "$V2_CLI" heartbeat finish --job "$JOB" --completed-tasks 1 --json >/dev/null 2>&1 || true
+    echo "[${TIMESTAMP}] [done] ${TASK_ID} ${CONTENT_KIND} draft session complete."
+  fi
 else
   RC=$?
   if [ $RC -eq 124 ]; then
