@@ -151,10 +151,14 @@ function auditPage(html, relativePath, siteRoot) {
   }
 
   // Broken internal links (check if target file exists)
-  const linkRegex = /<a\b[^>]*href=["']([^"'#]*?)["'][^>]*>/gi;
+  const linkRegex = /<a\b[^>]*href=["']([^"']*?)["'][^>]*>/gi;
   let m;
   while ((m = linkRegex.exec(html)) !== null) {
-    const href = m[1].trim();
+    let href = m[1].trim();
+    const qIdx = href.indexOf('?');
+    if (qIdx >= 0) href = href.substring(0, qIdx);
+    const hIdx = href.indexOf('#');
+    if (hIdx >= 0) href = href.substring(0, hIdx);
     if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) continue;
 
     // Resolve relative link to file path

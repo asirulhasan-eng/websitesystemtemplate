@@ -39,6 +39,7 @@ if (-not (Test-Path $websiteDir)) {
     }
 }
 
+$absWebsiteDir = [regex]::Escape((Resolve-Path $websiteDir).Path)
 $htmlFiles = Get-ChildItem -Path $websiteDir -Recurse -Filter '*.html' |
     Where-Object { $_.FullName -notmatch '[\\/]node_modules[\\/]' -and $_.FullName -notmatch '[\\/]\.git[\\/]' }
 
@@ -54,7 +55,7 @@ $rxPattern = "(?:href|src)\s*=\s*[$Q$A]([^$Q$A#][^$Q$A]*)(?:#[^$Q$A]*)?[$Q$A]"
 $rxLinks = New-Object regex($rxPattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
 foreach ($file in $htmlFiles) {
-    $relativePath = $file.FullName.Replace($websiteDir, '').TrimStart('\', '/')
+    $relativePath = [regex]::Replace($file.FullName, "^$absWebsiteDir", "", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase).TrimStart('\', '/')
     $fileDir = Split-Path -Parent $file.FullName
     $html = Get-Content -Raw -Path $file.FullName -Encoding UTF8 -ErrorAction SilentlyContinue
     if ($null -eq $html) { continue }

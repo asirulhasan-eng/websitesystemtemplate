@@ -49,13 +49,14 @@ $passed = 0
 # ============================================================
 # 1. CHECK ALL HTML FILES
 # ============================================================
+$absWebsiteDir = [regex]::Escape((Resolve-Path $websiteDir).Path)
 $htmlFiles = Get-ChildItem -Path $websiteDir -Recurse -Filter '*.html' |
     Where-Object { $_.FullName -notmatch '[\\/]node_modules[\\/]' -and $_.FullName -notmatch '[\\/]\.git[\\/]' }
 
 Write-Host ("    Scanning " + $htmlFiles.Count + " HTML file(s)...") -ForegroundColor Gray
 
 foreach ($file in $htmlFiles) {
-    $relativePath = $file.FullName.Replace($websiteDir, '').TrimStart('\', '/')
+    $relativePath = [regex]::Replace($file.FullName, "^$absWebsiteDir", "", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase).TrimStart('\', '/')
     $html = Get-Content -Raw -Path $file.FullName -Encoding UTF8 -ErrorAction SilentlyContinue
     if ($null -eq $html) { continue }
 

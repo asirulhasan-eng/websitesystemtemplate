@@ -300,43 +300,48 @@ async function main() {
     const results = [];
 
     for (const keyword of keywords) {
-      let serpData;
+      try {
+        let serpData;
 
-      if (provider === 'dataforseo') {
-        serpData = await checkSerpDataforseo(config, keyword, { top, location: args.location });
-      } else {
-        serpData = await checkSerpSerper(config, keyword, { top, location: args.location });
-      }
+        if (provider === 'dataforseo') {
+          serpData = await checkSerpDataforseo(config, keyword, { top, location: args.location });
+        } else {
+          serpData = await checkSerpSerper(config, keyword, { top, location: args.location });
+        }
 
-      const found = findDomainInResults(serpData, domain);
-      const topResults = (serpData.organic || []).slice(0, top).map(r => ({
-        position: r.position,
-        title: r.title,
-        link: r.link,
-        domain: (r.link || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, ''),
-      }));
+        const found = findDomainInResults(serpData, domain);
+        const topResults = (serpData.organic || []).slice(0, top).map(r => ({
+          position: r.position,
+          title: r.title,
+          link: r.link,
+          domain: (r.link || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, ''),
+        }));
 
-      const row = {
-        keyword,
-        position: found.position,
-        url: found.url,
-        title: found.title,
-        domain,
-        top_results: topResults,
-      };
-
-      if (includePaa && serpData.peopleAlsoAsk) {
-        row.paa = serpData.peopleAlsoAsk;
-      }
-      if (includeFeatures) {
-        row.features = {
-          knowledge_graph: !!serpData.knowledgeGraph,
-          paa_count: (serpData.peopleAlsoAsk || []).length,
-          related_searches: (serpData.relatedSearches || []).length,
+        const row = {
+          keyword,
+          position: found.position,
+          url: found.url,
+          title: found.title,
+          domain,
+          top_results: topResults,
         };
-      }
 
-      results.push(row);
+        if (includePaa && serpData.peopleAlsoAsk) {
+          row.paa = serpData.peopleAlsoAsk;
+        }
+        if (includeFeatures) {
+          row.features = {
+            knowledge_graph: !!serpData.knowledgeGraph,
+            paa_count: (serpData.peopleAlsoAsk || []).length,
+            related_searches: (serpData.relatedSearches || []).length,
+          };
+        }
+
+        results.push(row);
+      } catch (keywordError) {
+        console.error(`[serp-check] Failed to check "${keyword}": ${keywordError.message}`);
+        // Log individual keyword failure but continue checking the remaining keywords
+      }
     }
 
     // â”€â”€ Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

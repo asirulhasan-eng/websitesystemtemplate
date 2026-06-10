@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$AGENT_ROOT = (Get-Item .).FullName
+$AGENT_ROOT = Split-Path -Parent $PSScriptRoot
 $V2_CLI = "$AGENT_ROOT\cli\bin\v2.js"
 $PROCESS_FILE = "$AGENT_ROOT\processes\daily-workplan.md"
 $LOG_DIR = "$AGENT_ROOT\cron\logs"

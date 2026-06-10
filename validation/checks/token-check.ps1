@@ -61,6 +61,7 @@ $excludePatterns = @(
 $metaTokens = @('{{TOKEN}}', '{{TOKENS}}', '{{PLACEHOLDER}}', '{{PLACEHOLDERS}}')
 
 # Get all files then filter
+$absSitePath = [regex]::Escape((Resolve-Path $SitePath).Path)
 $allFiles = Get-ChildItem -Path $SitePath -Recurse -File |
     Where-Object { $includeExt -contains $_.Extension.ToLower() }
 
@@ -87,7 +88,7 @@ foreach ($file in $files) {
         foreach ($m in $matches_) {
             if ($metaTokens -contains $m.Value) { continue }
             $totalTokens++
-            $relativePath = $file.FullName.Replace($SitePath, '').TrimStart('\', '/')
+            $relativePath = [regex]::Replace($file.FullName, "^$absSitePath", "", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase).TrimStart('\', '/')
             $issues += @{
                 File    = $relativePath
                 Line    = $lineNum

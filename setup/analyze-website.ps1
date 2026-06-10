@@ -52,7 +52,8 @@ Write-Host ""
 # PS 5.1 parses [^ inside single-quoted strings as a type literal.
 # Using double-quoted strings with backtick-escaped quotes avoids this.
 $Q = '"'  # quote char for building regex patterns safely
-$rxCanonical = "(?i)<link\s+rel\s*=\s*[`"']canonical[`"']\s+href\s*=\s*[`"']([^`"']*)[`"']"
+$rxCanonical = "(?i)<link\s+[^>]*rel\s*=\s*[`"']canonical[`"'][^>]*>"
+$rxHref = "(?i)href\s*=\s*[`"']([^`"']*)`"'"
 
 # ============================================================
 # HELPERS
@@ -123,8 +124,11 @@ if ($indexFile) {
 
     # Domain from canonical or og:url
     $canonical = $null
-    $m = [regex]::Match($indexHtml, $rxCanonical)
-    if ($m.Success) { $canonical = $m.Groups[1].Value }
+    $mCanonical = [regex]::Match($indexHtml, $rxCanonical)
+    if ($mCanonical.Success) {
+        $mHref = [regex]::Match($mCanonical.Value, $rxHref)
+        if ($mHref.Success) { $canonical = $mHref.Groups[1].Value }
+    }
     $ogUrl = Extract-MetaContent $indexHtml 'og:url'
     $rawUrl = if ($canonical) { $canonical } elseif ($ogUrl) { $ogUrl } else { $null }
     if ($rawUrl) {

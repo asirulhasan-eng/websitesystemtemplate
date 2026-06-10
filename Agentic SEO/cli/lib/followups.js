@@ -276,13 +276,13 @@ function createFollowupTask(db, spec) {
   if (spec.dedupeByTargetUrl && spec.targetUrl) {
     const target = normalizeUrlForDedupe(spec.targetUrl);
     const candidates = db
-      .prepare("SELECT task_id, status, metadata_json FROM tasks WHERE target_url = ? AND task_id != ?")
-      .all(spec.targetUrl, spec.excludeTaskId || "");
+      .prepare("SELECT task_id, status, target_url, metadata_json FROM tasks WHERE target_url IS NOT NULL AND task_id != ?")
+      .all(spec.excludeTaskId || "");
     const dupe = candidates.some((row) => {
       if (isTerminalStatus(row.status)) return false;
       const meta = safeJson(row.metadata_json);
       const type = meta.task_type || (meta.evidence && meta.evidence.type);
-      return type === spec.taskType && normalizeUrlForDedupe(spec.targetUrl) === target;
+      return type === spec.taskType && normalizeUrlForDedupe(row.target_url) === target;
     });
     if (dupe) return { created: false, reason: "duplicate_active_followup" };
   }
