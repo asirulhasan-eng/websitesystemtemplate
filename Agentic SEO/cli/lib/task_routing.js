@@ -1,4 +1,5 @@
 const { loadGuardrails, requiresExplicitApproval } = require("./guardrails");
+const { classifyIncomingChange } = require("./experiments");
 
 const BLOG_CONTENT_TYPES = new Set([
   'new_blog_post',
@@ -104,6 +105,21 @@ function routeTask(task, context = {}) {
     flags.push('approval_required_missing_approval');
   }
 
+  // Research/measurement-window gate. A change that pulls the SAME lever as an
+  // open experiment on this URL would confound rank attribution, so hold it until
+  // that window closes (it auto-lifts at the experiment's ended_at). A change on a
+  // DIFFERENT lever is allowed but annotated so movement stays interpretable.
+  // Callers that don't pass context.open_experiments get decision:'allow' (no-op).
+  const research = classifyIncomingChange({
+    taskType,
+    approvalRequired: Number(task.approval_required || 0) === 1,
+    openExperiments: context.open_experiments || [],
+    taskId: task.task_id,
+    now: context.now,
+  });
+  if (research.decision === 'hold') flags.push('research_hold_same_lever');
+  else if (research.decision === 'annotate') flags.push('experiment_window_orthogonal');
+
   let executionLane = 'general_operational';
   let routeConfidence = 'medium';
 
@@ -155,6 +171,13 @@ function routeTask(task, context = {}) {
   if (flags.includes('metadata_target_mismatch')) workflowBucket = 'needs_lane_review';
   if (flags.includes('invalid_metadata_json')) workflowBucket = 'needs_lane_review';
   if (flags.includes('no_go_switch_monster')) workflowBucket = 'blocked_no_go';
+  // Park a same-lever change behind the research window, unless a harder gate
+  // already claimed it (a blocked / approval / data-quality task never runs anyway).
+  if (research.decision === 'hold'
+      && !['approval_needed', 'needs_lane_review', 'blocked_no_go'].includes(workflowBucket)) {
+    workflowBucket = 'research_hold';
+    routeReason.push(`research_hold:${research.lever}`);
+  }
 
   return {
     task_id: task.task_id,
@@ -165,6 +188,13 @@ function routeTask(task, context = {}) {
     route_reason: routeReason,
     route_confidence: routeConfidence,
     data_quality_flags: flags,
+    research_window: {
+      decision: research.decision,
+      reason: research.reason,
+      lever: research.lever,
+      lift_at: research.lift_at,
+      confounding_experiments: research.confounds.map((e) => e.experiment_id).filter(Boolean),
+    },
   };
 }
 

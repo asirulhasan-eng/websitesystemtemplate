@@ -204,7 +204,25 @@ v2 lock release --id <lock-id> --json
 
 ## Post-Update Monitoring
 
-After 7-14 days, check if the update had the desired effect:
+A ranking-affecting deploy automatically **opens a measurement window** (an
+`experiments` row) for this URL + lever and schedules a `ranking_followup` ~14
+days out (see `cli/lib/experiments.js` and `cli/lib/followups.js`). You do not
+need to create either by hand.
+
+While that window is open:
+- A **same-lever** change to this URL (e.g. another title/meta edit while a title
+  experiment is running) is automatically parked in the `research_hold` bucket by
+  `routeTask` and skipped by `task next` — it would confound attribution. The hold
+  auto-lifts when the window closes (or at `ended_at`, even if the follow-up never
+  runs). Deliberately re-running the change **supersedes** the open experiment and
+  resets the clock.
+- A **different-lever** change (e.g. adding an internal link during a title
+  experiment) is allowed but flagged `experiment_window_orthogonal` and logged as a
+  `page_change_event`, so movement stays interpretable against the change log.
+- **Corrective** work (`ranking_recovery` after a drop) is never held.
+
+When the follow-up runs at the window end, it closes the experiment with the
+measured outcome (improved / stable / regressed):
 
 ```bash
 v2 gsc-compare --from-db --keyword "<target-keyword>" --current-days 7 --previous-days 7 --json

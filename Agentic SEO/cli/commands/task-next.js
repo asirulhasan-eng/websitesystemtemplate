@@ -28,7 +28,8 @@
 const { parseArgs, requireArg, numberArg, resolveDbPath, getOutputFormat } = require("../lib/cli");
 const { printOutput, envelope, errorEnvelope } = require("../lib/output");
 const { openStateDb } = require("../lib/state_db");
-const { routeTask } = require("../lib/task_routing");
+const { routeTask, normalizeUrlForDedupe } = require("../lib/task_routing");
+const { loadOpenExperimentsByUrl } = require("../lib/experiments");
 const { nowIso } = require("../lib/dates");
 
 const TOOL = "task-next";
@@ -110,6 +111,9 @@ module.exports = function taskNext() {
         ORDER BY priority_score DESC, created_at ASC
       `).all(READY_STATUS, now);
       const locks = db.prepare("SELECT * FROM locks WHERE status = 'active'").all();
+      // Open experiments keyed by normalized URL — lets routeTask hold a same-lever
+      // change behind an open measurement window without a per-task DB query.
+      const experimentsByUrl = loadOpenExperimentsByUrl(db, now);
       // Defense in depth: an irreversible task (approval_required=1) is only
       // runnable with a real approved approval row â€” not just status='approved'.
       // If the producer ever mis-approves one, routeTask flags it and we skip it.
@@ -124,6 +128,7 @@ module.exports = function taskNext() {
             active_locks: locks,
             now,
             has_approved_approval: approvedTaskIds.has(task.task_id),
+            open_experiments: experimentsByUrl.get(normalizeUrlForDedupe(task.target_url)) || [],
           }),
         }))
         .filter(({ route }) => route.execution_lane === lane && isExecutable(route))
@@ -152,7 +157,8 @@ function isExecutable(route) {
   return !flags.has("active_task_lock")
     && !flags.has("invalid_metadata_json")
     && !flags.has("no_go_switch_monster")
-    && !["approval_needed", "needs_lane_review", "blocked_no_go"].includes(route.workflow_bucket);
+    && !flags.has("research_hold_same_lever")
+    && !["approval_needed", "needs_lane_review", "blocked_no_go", "research_hold"].includes(route.workflow_bucket);
 }
 
 function summarize(task, route) {
