@@ -33,7 +33,7 @@
       "lane": "general_operational",
       "deploys": "straight to production via safe-fix (safe and semi_safe both â†’ safe-fix --production)",
       "handles": ["internal_link_opportunity", "internal_linking", "missing_title", "missing_meta_description", "missing_canonical", "missing_image_alt", "duplicate_faqpage_schema", "protect_ranking_gain", "service_architecture_review", "ranking_followup", "ranking_recovery"],
-      "handles_note": "ranking_followup is self-scheduled by the executor after a ranking-affecting deploy (deferred ~14d via scheduled_for); it re-checks SERP positions and enqueues ranking_recovery + an alert on a drop. The planner does not need to create these.",
+      "handles_note": "ranking_followup is self-scheduled by the executor after a ranking-affecting deploy (deferred ~14d via scheduled_for). It judges outcome on GSC clicks (primary; see outcome_loop), and on a CONFIRMED regression (debounced — 2 consecutive degraded checks) auto-remediates: rollback for metadata/link levers, content_refresh enqueue for content levers, with a ranking_recovery fallback for a human. The planner does not need to create these.",
       "risk_guidance": "Assign these risk_level=safe (or semi_safe). Both auto-deploy to production with no gate."
     },
     "hermes_content": {
@@ -47,9 +47,28 @@
       "flow": "high-risk Phase 1 â†’ waiting_for_approval â†’ owner 'approve <id>' via Telegram"
     },
     "research_window": {
-      "note": "A ranking-affecting deploy opens a measurement window (experiments row) on its URL+lever and schedules a ~14d ranking_followup that closes it with an outcome. While open, routeTask parks a SAME-lever change to that URL in the 'research_hold' bucket (flag research_hold_same_lever) so it never confounds attribution; task-next/task-audit treat research_hold as non-executable. The hold auto-lifts at the experiment's ended_at even if the follow-up never runs. A DIFFERENT-lever change is allowed but flagged 'experiment_window_orthogonal' and logged as a page_change_event. Corrective types (ranking_recovery) and approval-gated tasks are never held. Re-opening the same URL+lever supersedes the prior experiment (clock reset). Levers are defined in cli/lib/experiments.js (LEVER_FOR_TYPE).",
+      "note": "A ranking-affecting deploy opens a measurement window (experiments row) on its URL+lever and schedules a ~14d ranking_followup that closes it with a clicks-primary outcome (see outcome_loop). While open, routeTask parks a SAME-lever change to that URL in the 'research_hold' bucket (flag research_hold_same_lever) so it never confounds attribution; task-next/task-audit treat research_hold as non-executable. The hold auto-lifts at the experiment's ended_at even if the follow-up never runs. A DIFFERENT-lever change is allowed but flagged 'experiment_window_orthogonal' and logged as a page_change_event. Corrective types (ranking_recovery) and approval-gated tasks are never held. Re-opening the same URL+lever supersedes the prior experiment (clock reset). The 14d hold is for ATTRIBUTION only; a confirmation watch (outcome_loop.confirm) may keep monitoring past it without re-blocking same-lever edits. Levers are defined in cli/lib/experiments.js (LEVER_FOR_TYPE).",
       "owner_override": "To ship a held same-lever change now, deliberately re-run/deploy it — opening the new experiment supersedes the old window and resets the 14-day clock."
     }
+  },
+
+  "outcome_loop": {
+    "note": "Closes the business-outcome loop. After a ranking-affecting deploy, the executor-scheduled ranking_followup judges success on GSC CLICKS (primary), not SERP position. Position is a secondary diagnostic and the fallback signal when a page has fewer than min_baseline_clicks (too noisy to judge on clicks). Read by cli/lib/outcome_loop.js; every value is overridable via env (CLIENT_CLICK_DROP_RATIO, CLIENT_MIN_BASELINE_CLICKS, CLIENT_FOLLOWUP_DAYS, CLIENT_RECHECK_DAYS, CLIENT_REQUIRED_CONSECUTIVE_DEGRADED, CLIENT_MAX_WATCH_DAYS).",
+    "metric": "clicks",
+    "click_drop_ratio": 0.30,
+    "click_improve_ratio": 0.10,
+    "min_baseline_clicks": 5,
+    "position_drop": 3,
+    "window_days": 14,
+    "confirm": {
+      "note": "Debounce — NEVER act on a single dip (owner rule). A degraded reading starts a confirmation watch; only required_consecutive_degraded degraded checks within max_watch_days trigger auto-remediation. Re-checks run every recheck_days. The gate applies to BOTH responses (rollback and refresh).",
+      "required_consecutive_degraded": 2,
+      "recheck_days": 7,
+      "max_watch_days": 28
+    },
+    "auto_rollback_levers": ["title", "meta", "canonical", "image_alt", "schema", "internal_links"],
+    "auto_refresh_levers": ["content"],
+    "auto_remediation_note": "On a CONFIRMED regression the ranking_followup auto-remediates with no human gate (sanctioned autonomous edges — the auditor should NOT flag these): metadata/link-lever changes are auto-ROLLED BACK via deploy-rollback of the offending commit; content-lever changes are auto-REFRESHED by enqueuing a content_refresh task (blog_content lane). If a rollback cannot proceed (no commit, already rolled back, or git-revert conflict), it falls back to filing a ranking_recovery task for a human. Corrective/unknown levers never auto-act."
   },
 
   "keyword_strategy": {

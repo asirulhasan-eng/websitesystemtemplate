@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { parseArgs, requireArg, exitWithError } = require("../lib/cli");
-const { nowIso } = require("../lib/dates");
+const { nowIso, nowPlusDaysIso } = require("../lib/dates");
 const { writeJson, slugify } = require("../lib/io");
 const { openStateDb, makeId } = require("../lib/state_db");
 const { LOCK_ORDER, urlToLikelyFile } = require("../lib/tasks");
@@ -12,8 +12,9 @@ const { loadBrain, assertAllowedByBrain, logBrainEvent } = require("../lib/obsid
 const { assertTaskStatus, isCompletedTaskStatus } = require("../lib/statuses");
 const { assertTaskExecutionAllowed } = require("../lib/guardrails");
 const { resolveSitePath } = require("../lib/site_paths");
-const { maybeCreateFollowups, createFollowupTask, evaluateRankingDeltas, domainFromUrl } = require("../lib/followups");
+const { maybeCreateFollowups, createFollowupTask, evaluateRankingDeltas, readClicksWindow, domainFromUrl } = require("../lib/followups");
 const { closeExperiment, leverForType } = require("../lib/experiments");
+const { loadOutcomeConfig, evaluateOutcome, planConfirmationStep, decideRemediation } = require("../lib/outcome_loop");
 
 function main() {
   const args = parseArgs();
@@ -188,21 +189,36 @@ function main() {
   }
 }
 
-// Execute a ranking_followup task: re-check live SERP positions for the tracked
-// keywords, compare against the baseline captured when the original change shipped,
-// and (on regression) enqueue a recovery task + alert. No file edit is made.
+// Execute a ranking_followup task: re-check the target's outcome (GSC clicks PRIMARY,
+// SERP position as fallback/diagnostic) against the baseline captured when the change
+// shipped. A single dip never acts: a degraded reading starts a debounced confirmation
+// watch (re-check every recheck_days), and only a CONFIRMED regression (N consecutive
+// degraded checks within max_watch_days) triggers a lever-split auto-remediation —
+// content levers are refreshed, metadata/link levers are rolled back. No file edit here.
 function executeRankingFollowup(db, task, metadata, { args, output }) {
   const evidence = metadata.evidence || {};
+  const cfg = loadOutcomeConfig();
+  const windowDays = Number(evidence.window_days) > 0 ? Number(evidence.window_days) : cfg.window_days;
   const keywords = (Array.isArray(evidence.keywords) && evidence.keywords.length)
     ? evidence.keywords
     : [task.target_keyword].filter(Boolean);
   const baseline = evidence.baseline_positions && typeof evidence.baseline_positions === "object"
     ? evidence.baseline_positions
     : {};
+  const baselineClicks = evidence.baseline_clicks && typeof evidence.baseline_clicks === "object"
+    ? toNumberOrNull(evidence.baseline_clicks.total)
+    : null;
+  const parentTaskId = evidence.parent_task_id || null;
+  const parentTaskType = evidence.parent_task_type || null;
+  const lever = leverForType(parentTaskType);
+  const consecutivePrior = Number(evidence.consecutive_degraded) || 0;
   const domain = args.domain || domainFromUrl(task.target_url) || null;
+
   output.tool = "ranking_followup_evaluation";
   output.keywords = keywords;
   output.baseline_positions = baseline;
+  output.baseline_clicks = baselineClicks;
+  output.consecutive_degraded_prior = consecutivePrior;
 
   if (!keywords.length) {
     output.status = args.apply ? "skipped" : "no_action";
@@ -213,7 +229,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
 
   if (!args.apply) {
     output.status = "planned";
-    output.reason = `Would re-check SERP positions for ${keywords.join(", ")} and compare to baseline.`;
+    output.reason = `Would re-check clicks + SERP positions for ${keywords.join(", ")} and compare to baseline.`;
     return finish(output, args);
   }
 
@@ -242,62 +258,239 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
     updateTaskState(db, task, "needs_review", output, "ranking_followup_check_failed");
     return finish(output, args);
   }
-
   output.current_positions = current;
-  const evaluation = evaluateRankingDeltas(baseline, current, {});
-  output.evaluation = evaluation;
 
-  if (evaluation.regressed) {
-    const regressedKeywords = evaluation.regressions.map((r) => r.keyword);
-    output.recovery_task = createFollowupTask(db, {
-      parentTask: task,
-      parentMetadata: metadata,
-      taskType: "ranking_recovery",
-      riskLevel: "safe",
-      priority: 920,
-      source: "executor_followup",
-      title: `Investigate ranking drop: ${regressedKeywords[0]}`,
-      description: `Rankings slipped after a prior optimization. Regressed: ${evaluation.regressions
-        .map((r) => `${r.keyword} ${r.baseline}→${r.current === null ? "unranked" : r.current}`)
-        .join("; ")}. Diagnose and recover.`,
-      targetUrl: task.target_url || null,
-      targetFile: task.target_file || null,
-      targetKeyword: regressedKeywords[0],
-      scheduledForIso: null, // recovery work is not deferred
-      dedupeByTargetUrl: true,
-      evidence: {
-        type: "ranking_recovery",
-        keywords: regressedKeywords,
-        regressions: evaluation.regressions,
-        baseline_positions: baseline,
-        current_positions: current,
-        parent_followup_task_id: task.task_id,
-      },
-    });
-    enqueueRankingAlert(db, task, evaluation);
-    output.alerted = true;
+  // Current clicks over the comparison window (primary signal). Best-effort.
+  let currentClicks = null;
+  try {
+    currentClicks = readClicksWindow(db, task.target_url, windowDays).total;
+  } catch (e) {
+    output.clicks_check = { ok: false, error: e.message };
+  }
+  output.current_clicks = currentClicks;
+
+  const positionEval = evaluateRankingDeltas(baseline, current, { dropThreshold: cfg.position_drop });
+  const outcomeEval = evaluateOutcome({ baselineClicks, currentClicks, positionEval, config: cfg });
+  output.evaluation = { ...outcomeEval, positions: positionEval };
+
+  const resultPayload = () => ({
+    baseline_positions: baseline,
+    current_positions: current,
+    baseline_clicks: baselineClicks,
+    current_clicks: currentClicks,
+    click_delta: outcomeEval.click_delta,
+    primary_signal: outcomeEval.primary_signal,
+    position_deltas: positionEval.rows,
+  });
+  const closeWindow = (outcome) => closeExperiment(db, { parentTaskId, lever, outcome, result: resultPayload() });
+
+  // Debounce: decide whether this reading is success/recovered, a not-yet-confirmed
+  // dip (watch/inconclusive), or a confirmed regression to act on. Pure + tested.
+  const step = planConfirmationStep({
+    regressed: outcomeEval.regressed,
+    consecutivePrior,
+    config: cfg,
+    watchUntil: evidence.watch_until || null,
+    windowDays,
+  });
+  output.consecutive_degraded = step.consecutive;
+  output.confirmation_step = step.decision;
+
+  // ── Not degraded: success, or a prior dip that recovered. Close + done. ──
+  if (step.decision === "success" || step.decision === "recovered") {
+    output.experiment = closeWindow(step.decision === "recovered" ? "recovered_transient" : outcomeEval.outcome);
+    output.action_taken = step.decision === "recovered" ? "recovered_no_action" : "none";
+    updateTaskState(db, task, "completed", output, "ranking_followup_evaluated");
+    output.status = "completed";
+    return finish(output, args);
   }
 
-  // Close the measurement window this follow-up was verifying, recording the
-  // outcome. Lifting the experiment also releases any same-lever change that was
-  // parked in research_hold against this URL. Best-effort: never fail the task.
-  const outcome = evaluation.regressed ? "regressed" : (evaluation.improvements.length ? "improved" : "stable");
-  output.experiment = closeExperiment(db, {
-    parentTaskId: metadata.evidence && metadata.evidence.parent_task_id,
-    lever: leverForType(metadata.evidence && metadata.evidence.parent_task_type),
-    outcome,
-    result: { baseline, current, deltas: evaluation.rows },
-  });
+  // ── Degraded but unconfirmed: schedule a tighter re-check, or hand to a human. ──
+  // Close the (14d) attribution window now so same-lever edits aren't blocked through
+  // the watch. depthDelta:0 keeps monitoring re-checks off the change-depth budget.
+  if (step.decision === "watch" || step.decision === "inconclusive") {
+    output.experiment = closeWindow("regressed_watching");
+    if (step.decision === "watch") {
+      output.recheck_task = createFollowupTask(db, {
+        parentTask: task,
+        parentMetadata: metadata,
+        depthDelta: 0,
+        taskType: "ranking_followup",
+        riskLevel: "safe",
+        priority: 650,
+        source: "executor_followup",
+        title: `Ranking re-check: ${keywords[0]}`,
+        description: `Confirmation re-check ${cfg.confirm.recheck_days}d after a degraded reading on `
+          + `${task.target_url}. Degraded ${step.consecutive}/${cfg.confirm.required_consecutive_degraded} `
+          + "consecutive checks — acts only once confirmed.",
+        targetUrl: task.target_url || null,
+        targetFile: task.target_file || null,
+        targetKeyword: keywords[0],
+        scheduledForIso: nowPlusDaysIso(cfg.confirm.recheck_days),
+        dedupeByTargetUrl: true,
+        evidence: {
+          type: "ranking_followup",
+          keywords,
+          window_days: windowDays,
+          baseline_positions: baseline,
+          baseline_clicks: evidence.baseline_clicks || null,
+          parent_task_id: parentTaskId,
+          parent_task_type: parentTaskType,
+          consecutive_degraded: step.consecutive,
+          watch_until: step.watch_until,
+        },
+      });
+      output.action_taken = "watch_scheduled";
+    } else {
+      // 4-week watch elapsed without confirmation -> hand to a human, no auto-action.
+      enqueueRankingAlert(db, task, positionEval, {
+        action: "inconclusive",
+        message: `Degradation observed but not confirmed within ${cfg.confirm.max_watch_days}d; owner review.`,
+      });
+      output.action_taken = "inconclusive_alerted";
+      output.alerted = true;
+    }
+    updateTaskState(db, task, "completed", output, "ranking_followup_evaluated");
+    output.status = "completed";
+    return finish(output, args);
+  }
 
+  // ── Confirmed regression (step.decision === "act"). ACT (lever-split). ──
+  // Close the attribution window first so an auto-refresh isn't parked in its own
+  // just-finished research_hold.
+  output.experiment = closeWindow("regressed");
+  const decision = decideRemediation(lever, cfg);
+  output.lever = lever;
+  output.remediation_decision = decision;
+
+  if (decision === "refresh") {
+    output.remediation = createFollowupTask(db, {
+      parentTask: task,
+      parentMetadata: metadata,
+      taskType: "content_refresh",
+      riskLevel: "safe",
+      priority: 900,
+      source: "executor_followup",
+      title: `Auto-refresh after confirmed drop: ${keywords[0]}`,
+      description: `Confirmed performance regression on ${task.target_url} (content lever). `
+        + `Re-optimize the page in place per the content-refresh skill.`,
+      targetUrl: task.target_url || null,
+      targetFile: task.target_file || null,
+      targetKeyword: keywords[0],
+      scheduledForIso: null,
+      dedupeByTargetUrl: true,
+      evidence: {
+        type: "content_refresh",
+        keywords,
+        reason: "confirmed_outcome_regression",
+        baseline_clicks: evidence.baseline_clicks || null,
+        current_clicks: currentClicks,
+        position_deltas: positionEval.rows,
+        parent_followup_task_id: task.task_id,
+        parent_change_task_id: parentTaskId,
+      },
+    });
+    output.action_taken = output.remediation && output.remediation.created ? "refresh_enqueued" : "refresh_skipped";
+  } else if (decision === "rollback") {
+    output.remediation = autoRollback(db, task, metadata, parentTaskId, args);
+    output.action_taken = output.remediation.action_taken;
+  } else {
+    // Corrective / unknown lever: no safe auto-action -> file a recovery task.
+    output.remediation = fallbackRecovery(db, task, metadata, parentTaskId, `no_auto_lever(${lever || "none"})`);
+    output.action_taken = "manual_recovery_enqueued";
+  }
+
+  enqueueRankingAlert(db, task, positionEval, { action: output.action_taken });
+  output.alerted = true;
   updateTaskState(db, task, "completed", output, "ranking_followup_evaluated");
   output.status = "completed";
   return finish(output, args);
 }
 
-function enqueueRankingAlert(db, task, evaluation) {
-  const summary = evaluation.regressions
+function toNumberOrNull(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Auto-revert the offending production deploy for a confirmed metadata/link
+// regression. Resolves the parent change's latest commit from the deployments
+// table; on any problem (no commit, already rolled back, revert conflict) falls
+// back to filing a human recovery task. Never leaves the repo dirty (deploy-rollback
+// aborts its own revert on conflict).
+function autoRollback(db, followupTask, metadata, parentTaskId, args) {
+  if (!parentTaskId) return fallbackRecovery(db, followupTask, metadata, parentTaskId, "no_parent_change_task");
+
+  const dep = db
+    .prepare(
+      "SELECT deployment_id, commit_sha, status FROM deployments WHERE task_id = ? AND commit_sha IS NOT NULL ORDER BY finished_at DESC, started_at DESC LIMIT 1",
+    )
+    .get(parentTaskId);
+  if (!dep || !dep.commit_sha) return fallbackRecovery(db, followupTask, metadata, parentTaskId, "no_deployment_commit");
+  if (dep.status === "rolled_back") {
+    return { action_taken: "already_rolled_back", deployment_id: dep.deployment_id, commit_sha: dep.commit_sha };
+  }
+
+  const siteRoot = args["site-root"] ? path.resolve(process.cwd(), args["site-root"]) : process.cwd();
+  const dbPath = args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db";
+  try {
+    const out = JSON.parse(
+      runTool("deploy-rollback.js", [
+        "--commit-sha", dep.commit_sha,
+        "--deployment-id", dep.deployment_id,
+        "--site-root", siteRoot,
+        "--task", parentTaskId,
+        "--db", dbPath,
+        "--apply", "--push", "--json",
+      ]),
+    );
+    if (out && out.ok) {
+      return { action_taken: "rolled_back", deployment_id: dep.deployment_id, commit_sha: dep.commit_sha, rollback: out };
+    }
+    const fb = fallbackRecovery(db, followupTask, metadata, parentTaskId, `rollback_failed:${(out && out.error) || "unknown"}`);
+    return { ...fb, action_taken: "manual_fallback", rollback: out };
+  } catch (e) {
+    const fb = fallbackRecovery(db, followupTask, metadata, parentTaskId, `rollback_error:${e.message}`);
+    return { ...fb, action_taken: "manual_fallback" };
+  }
+}
+
+// File a ranking_recovery task for a human/planner when auto-remediation can't or
+// shouldn't proceed (this is the pre-automation behavior, now used only as a fallback).
+function fallbackRecovery(db, followupTask, metadata, parentTaskId, reason) {
+  const recovery = createFollowupTask(db, {
+    parentTask: followupTask,
+    parentMetadata: metadata,
+    taskType: "ranking_recovery",
+    riskLevel: "safe",
+    priority: 920,
+    source: "executor_followup",
+    title: `Investigate ranking drop: ${followupTask.target_keyword || followupTask.target_url || followupTask.task_id}`,
+    description: `Auto-remediation could not proceed (${reason}). Diagnose and recover manually.`,
+    targetUrl: followupTask.target_url || null,
+    targetFile: followupTask.target_file || null,
+    targetKeyword: followupTask.target_keyword || null,
+    scheduledForIso: null,
+    dedupeByTargetUrl: true,
+    evidence: {
+      type: "ranking_recovery",
+      reason,
+      parent_change_task_id: parentTaskId,
+      parent_followup_task_id: followupTask.task_id,
+    },
+  });
+  return { action_taken: "manual_fallback", reason, recovery_task: recovery };
+}
+
+// Queue an owner alert for a confirmed/inconclusive ranking regression. `evaluation`
+// is a position-delta result (carries .regressions); `opts.action` names what the
+// system did (rolled_back / refresh_enqueued / inconclusive / ...).
+function enqueueRankingAlert(db, task, evaluation, opts = {}) {
+  const summary = (evaluation.regressions || [])
     .map((r) => `${r.keyword}: ${r.baseline} -> ${r.current === null ? "unranked" : r.current}`)
     .join("; ");
+  const actionNote = opts.action ? ` Action: ${opts.action}.` : "";
+  const extraNote = opts.message ? ` ${opts.message}` : "";
   db.prepare(
     "INSERT INTO outbox_jobs (outbox_id, job_type, entity_type, entity_id, payload_json, status, created_at) VALUES (?, 'send_monitor_alert', 'task', ?, ?, 'pending', ?)",
   ).run(
@@ -305,11 +498,12 @@ function enqueueRankingAlert(db, task, evaluation) {
     task.task_id,
     JSON.stringify({
       alert_type: "ranking_regression",
-      severity: "warning",
-      message: `Ranking regression detected after optimization (task ${task.task_id}): ${summary}`,
+      severity: opts.severity || "warning",
+      message: `Confirmed performance regression after optimization (task ${task.task_id}): ${summary || "clicks down"}.${actionNote}${extraNote}`,
       task_id: task.task_id,
       target_url: task.target_url,
-      regressions: evaluation.regressions,
+      action_taken: opts.action || null,
+      regressions: evaluation.regressions || [],
     }),
     nowIso(),
   );

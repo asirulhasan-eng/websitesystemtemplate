@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-06-10T06:59:57.701Z",
+  "tool": "sync_obsidian_outbox",
+  "db_path": "C:\\Users\\asiru\\AppData\\Local\\Temp\\mem-e2e-db-PfcccF\\state.db",
+  "obsidian_root": "C:\\Users\\asiru\\AppData\\Local\\Temp\\mem-e2e-vault-6a7xrc",
+  "dry_run": false,
+  "processed": 1,
+  "results": [
+    {
+      "outbox_id": "OUT-2026-06-10-F7978923",
+      "entity_id": "MEM-2026-06-10-AF76EED8",
+      "job_type": "write_obsidian_brain_note",
+      "status": "completed",
+      "note_path": "C:\\Users\\asiru\\AppData\\Local\\Temp\\mem-e2e-vault-6a7xrc\\01-Agent-Brain\\Lessons\\2026-06-10-title-rewrite-lifted-seo-for-audience.md"
+    }
+  ]
+}

@@ -13,9 +13,9 @@
 #                                   path, following the server-side production skill
 #                                   /opt/client-site/tools/SERVICE-PAGE-PRODUCTION-SKILL.md
 #                                   (parallel to the blog skills). Also published to main.
-#   edit_refresh_needed           â†’ SKIP + FLAG to needs_review. The blog/service
-#                                   MODIFICATION skill is deferred (PRE-LAUNCH TODO),
-#                                   so these are surfaced to the AI instead of run.
+#   edit_refresh_needed           â†’ REFRESH the existing page IN PLACE via the
+#                                   dedicated content-refresh skill (title/meta/body/
+#                                   faq/schema/interlinking). Auto-runs; no human gate.
 #   anything else                 â†’ SKIP + FLAG to needs_review.
 #
 # Producer/consumer contract: when the work plan marks a blog task
@@ -103,8 +103,8 @@ echo "[${TIMESTAMP}] [pick] ${TASK_ID} (bucket=${BUCKET})"
 
 # â”€â”€ 4. Only draft buckets are auto-runnable by this worker â†’ else flag and exit
 # draft_needed (new_blog_post) and service_page_draft_needed (new_service_page)
-# both use the Hermes authoring path below. Edits/refreshes and anything else are
-# still surfaced to the AI (blog/service MODIFICATION skill is deferred).
+# both use the Hermes authoring path below; edit_refresh_needed drives the dedicated
+# content-refresh skill IN PLACE. Anything else is surfaced to the AI (needs_review).
 case "$BUCKET" in
   draft_needed|service_page_draft_needed|edit_refresh_needed) : ;;
   *)

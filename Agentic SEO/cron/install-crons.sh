@@ -80,6 +80,12 @@ V2_CRONS=$(cat <<'CRONTAB'
 # processes/self-evaluation.md.
 0 5,11,17,23 * * * /usr/bin/env bash /opt/client-agent/cron/run-auditor.sh >> /opt/client-agent/cron/logs/auditor.log 2>&1
 
+# -- WEEKLY REVIEW (strategic step-back) ---------------------------------------
+# Every Monday 06:00 UTC: reviews the past week (clicks-primary outcomes), evaluates
+# strategy, records Brain notes, and emails the owner. Analysis job; the twice-daily
+# planner stays the primary producer. See processes/weekly-review.md.
+0 6 * * 1 /usr/bin/env bash /opt/client-agent/cron/run-weekly-review.sh >> /opt/client-agent/cron/logs/weekly-review.log 2>&1
+
 # â”€â”€ CONSUMERS (execute ready/approved tasks; one task per tick) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Ops Pipeline â€” Every 7 minutes: next ready general_operational task
 */7 * * * * /usr/bin/env bash /opt/client-agent/cron/run-ops-pipeline.sh >> /opt/client-agent/cron/logs/ops-pipeline.log 2>&1
@@ -100,12 +106,13 @@ V2_CRONS=$(cat <<'CRONTAB'
 15 2,14 * * * cd /opt/client-agent && /usr/bin/env node cli/bin/v2.js task dedupe --apply --json >> /opt/client-agent/cron/logs/dedupe.log 2>&1
 
 # â”€â”€ NOT YET IMPLEMENTED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# The four jobs below reference shell scripts that do not exist in cron/.
+# The three jobs below reference shell scripts that do not exist in cron/.
+# (Weekly Review is now IMPLEMENTED and ACTIVE above.)
 # They are commented out so cron does not fire dead entries (which produce
 # silent failures / system mail every run). Uncomment each line only after
 # the matching run-*.sh script has been created in cron/.
 # Weekly Review â€” 06:00 UTC on Monday
-# 0 6 * * 1 /opt/client-agent/cron/run-weekly-review.sh >> /opt/client-agent/cron/logs/weekly-review.log 2>&1
+# (moved up: Weekly Review is ACTIVE above - Monday 06:00 UTC; cron/run-weekly-review.sh.)
 # Monthly Roadmap â€” 07:00 UTC on the first Monday of the month
 # 0 7 1-7 * 1 /opt/client-agent/cron/run-monthly-roadmap.sh >> /opt/client-agent/cron/logs/monthly-roadmap.log 2>&1
 # Task Triage â€” 03:30 UTC daily
@@ -149,6 +156,7 @@ echo "  08:00 PM {{TIMEZONE_ABBR}} â€” Work Plan: Evening  â€” PRODUCE
 echo "  11:02 AM {{TIMEZONE_ABBR}} â€” Industry Radar      â€” PRODUCER, newsâ†’blog topics, enqueue-only (Hermes, every 2 days)"
 echo "  Every 2 hours â€” Feedback Analyst   â€” writes feedback brief (Hermes, gated)"
 echo "  Every 6 hours â€” Self-Eval Auditor  â€” grades A-F, injects fixes, Telegram report (Hermes)"
+echo "  Mon 06:00 UTC - Weekly Review     - strategy step-back + weekly email (Hermes)"
 echo "  Every 7 min   â€” Ops Pipeline       â€” executes ready general tasks"
 echo "  Every 19 min  â€” Blog Pipeline      â€” executes ready blog drafts"
 echo "  Every 15 min  â€” Health Monitor (direct CLI)"

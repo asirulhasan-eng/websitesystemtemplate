@@ -143,6 +143,47 @@ function captureBaselinePositions(db, keywords, domain, evidence = {}) {
   return baseline;
 }
 
+// Total GSC clicks to a target URL over the trailing `days` window (ending now).
+// Read-only; matches gsc_snapshots.page on the same normalized-URL rule the rest of
+// the system uses, so a trailing slash / .html never hides traffic. Returns
+// { total, rows }: total is null when no snapshot rows match (caller then treats the
+// page as too-low-data and falls back to the SERP-position signal). Never throws.
+function readClicksWindow(db, url, days, now = nowIso()) {
+  if (!url) return { total: null, rows: 0 };
+  let cutoff;
+  try {
+    const from = new Date(now);
+    from.setUTCDate(from.getUTCDate() - Number(days || DEFAULT_FOLLOWUP_DAYS));
+    cutoff = from.toISOString();
+  } catch {
+    return { total: null, rows: 0 };
+  }
+  let rows;
+  try {
+    rows = db
+      .prepare("SELECT page, clicks FROM gsc_snapshots WHERE captured_at >= ? AND captured_at <= ?")
+      .all(cutoff, now);
+  } catch {
+    return { total: null, rows: 0 }; // table may not exist yet on a fresh DB
+  }
+  const target = normalizeUrlForDedupe(url);
+  let total = 0;
+  let matched = 0;
+  for (const row of rows) {
+    if (normalizeUrlForDedupe(row.page) !== target) continue;
+    total += Number(row.clicks) || 0;
+    matched += 1;
+  }
+  return { total: matched ? total : null, rows: matched };
+}
+
+// Baseline clicks captured at deploy time: clicks to the target over the window
+// ENDING at deploy. Stored on the follow-up so the +window_days check can compare.
+function captureBaselineClicks(db, url, days) {
+  const win = readClicksWindow(db, url, days);
+  return { total: win.total, window_days: Number(days) || DEFAULT_FOLLOWUP_DAYS, rows: win.rows };
+}
+
 // Pure comparison of baseline vs current positions. Lower position = better rank;
 // a positive delta or falling out of the tracked set is a regression.
 function evaluateRankingDeltas(baseline = {}, current = {}, options = {}) {
@@ -221,7 +262,11 @@ function planRankingFollowup(parentTask, parentMetadata = {}, options = {}) {
 // cap, dedupe, and guardrails. Returns { created, task_id?, reason }.
 function createFollowupTask(db, spec) {
   const parentDepth = Number(spec.parentMetadata && spec.parentMetadata.followup_depth) || 0;
-  const childDepth = parentDepth + 1;
+  // depthDelta defaults to 1 (a follow-up is one step deeper than its parent). A
+  // monitoring CONFIRMATION re-check passes depthDelta:0 so repeated re-checks don't
+  // consume the optimize -> verify -> recover budget that MAX_FOLLOWUP_DEPTH bounds.
+  const depthDelta = Number.isFinite(Number(spec.depthDelta)) ? Number(spec.depthDelta) : 1;
+  const childDepth = parentDepth + depthDelta;
   if (childDepth > MAX_FOLLOWUP_DEPTH) {
     return { created: false, reason: `max_followup_depth_reached(${MAX_FOLLOWUP_DEPTH})` };
   }
@@ -347,6 +392,13 @@ function maybeCreateFollowups(db, parentTask, parentMetadata = {}, options = {})
       options.domain || domainFromUrl(parentTask.target_url),
       parentMetadata.evidence || {},
     );
+    // Clicks are the PRIMARY outcome signal (see outcome_loop.js): capture the
+    // baseline click volume at deploy so the +window_days check can compare.
+    spec.evidence.baseline_clicks = captureBaselineClicks(
+      db,
+      parentTask.target_url,
+      spec.evidence.window_days,
+    );
     results.push({ kind: "ranking_followup", ...createFollowupTask(db, spec) });
 
     // Open a measurement window (experiment) on this URL+lever so a SAME-lever
@@ -360,7 +412,7 @@ function maybeCreateFollowups(db, parentTask, parentMetadata = {}, options = {})
         targetUrl: parentTask.target_url,
         targetKeyword: spec.targetKeyword,
         hypothesis: parentTask.title,
-        baseline: spec.evidence.baseline_positions,
+        baseline: { positions: spec.evidence.baseline_positions, clicks: spec.evidence.baseline_clicks },
         windowDays: spec.evidence.window_days,
       }),
     });
@@ -388,6 +440,8 @@ module.exports = {
   keywordsForTask,
   followupWindowDays,
   captureBaselinePositions,
+  readClicksWindow,
+  captureBaselineClicks,
   evaluateRankingDeltas,
   planRankingFollowup,
   createFollowupTask,

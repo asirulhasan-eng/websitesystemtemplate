@@ -31,7 +31,11 @@ rule costs more velocity than the cleaner attribution buys. Instead:
    - `allow` — no open window, corrective type, or approval-gated task.
 3. **Close** — When the `ranking_followup` runs, it computes deltas and **closes the
    experiment** with an outcome (`improved` / `stable` / `regressed`) + `result_json`.
-   Closing lifts the hold on any parked same-lever task.
+   Closing lifts the hold on any parked same-lever task. *What* the outcome means
+   (clicks-primary) and what is done about a regression (debounced lever-split
+   remediation) is the [outcome loop](outcome-loop.md). Note: the 14-day window here is
+   for **attribution only** — a confirmation watch may keep monitoring past it without
+   re-blocking same-lever edits.
 
 ## Key rules
 
