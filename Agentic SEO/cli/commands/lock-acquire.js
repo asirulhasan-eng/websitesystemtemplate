@@ -30,6 +30,21 @@ const { nowIso } = require('../lib/dates');
 
 const TOOL = 'lock-acquire';
 
+/**
+ * Check if a process with the given PID is still alive.
+ * Uses `process.kill(pid, 0)` which sends signal 0 (no-op) to test existence.
+ * @param {number} pid
+ * @returns {boolean}
+ */
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const HELP = `
 lock-acquire â€” Acquire a resource lock atomically
 
@@ -117,14 +132,38 @@ module.exports = function lockAcquire() {
         `).get(lockType, resourceId, now);
 
         if (conflict) {
-          db.exec('ROLLBACK');
-          printOutput(errorEnvelope(
-            `Lock conflict: resource "${resourceId}" (${lockType}) is already locked by "${conflict.owner_agent}" ` +
-            `(lock_id: ${conflict.lock_id}, expires: ${conflict.expires_at || 'never'}, reason: ${conflict.reason || 'none'})`,
-            { tool: TOOL }
-          ), 'json');
-          process.exitCode = 1;
-          return;
+          // Check if the holder process is still alive by extracting PID from
+          // the lock's metadata or owner info (holder_id format: worker-<pid>-<timestamp>).
+          let holderPid = null;
+          try {
+            const meta = conflict.metadata_json ? JSON.parse(conflict.metadata_json) : {};
+            const holderId = meta.holder_id || conflict.owner_agent || '';
+            const pidMatch = holderId.match(/\b(\d{2,7})\b/);
+            if (pidMatch) holderPid = Number(pidMatch[1]);
+          } catch { /* ignore parse errors */ }
+
+          if (holderPid && !isProcessAlive(holderPid)) {
+            // Holder process is dead — auto-release the orphaned lock and fall through to acquire.
+            db.prepare("UPDATE locks SET status = 'released', released_at = ? WHERE lock_id = ?").run(now, conflict.lock_id);
+            db.prepare(`
+              INSERT INTO events (event_id, event_type, task_id, resource_type, resource_id,
+                old_value, new_value, source, agent_name, created_at, metadata_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              makeId('EVT'), 'lock_dead_holder_released', conflict.task_id, 'lock', conflict.lock_id,
+              'active', 'released', TOOL, owner, now,
+              JSON.stringify({ reason: 'holder_pid_dead', dead_pid: holderPid })
+            );
+          } else {
+            db.exec('ROLLBACK');
+            printOutput(errorEnvelope(
+              `Lock conflict: resource "${resourceId}" (${lockType}) is already locked by "${conflict.owner_agent}" ` +
+              `(lock_id: ${conflict.lock_id}, expires: ${conflict.expires_at || 'never'}, reason: ${conflict.reason || 'none'})`,
+              { tool: TOOL }
+            ), 'json');
+            process.exitCode = 1;
+            return;
+          }
         }
 
         // Insert the lock

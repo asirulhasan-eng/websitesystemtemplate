@@ -176,3 +176,76 @@ test("createFollowupTask depthDelta:0 preserves parent depth (monitoring re-chec
   assert.strictEqual(change.depth, 3, "a real change step still increments depth by 1");
   db.close();
 });
+
+// ── excludeTaskId: self-match bypass (Bug #1 fix) ────────────────────────────
+test("createFollowupTask with excludeTaskId is not blocked by the current task's own row", () => {
+  const db = tempDb();
+  const selfTaskId = "TSK-SELF-001";
+  const targetUrl = "https://example.com/page-a";
+  // Insert the currently-executing task row (status 'approved', same URL + type).
+  db.prepare(`
+    INSERT INTO tasks (task_id, title, status, risk_level, priority_score, source,
+      target_url, target_keyword, approval_required, created_at, updated_at, metadata_json)
+    VALUES (?, 'Ranking follow-up: kw', 'approved', 'safe', 600, 'executor_followup',
+      ?, 'kw', 0, ?, ?, ?)
+  `).run(selfTaskId, targetUrl, nowIso(), nowIso(), JSON.stringify({
+    task_type: "ranking_followup",
+    evidence: { type: "ranking_followup" },
+    followup_depth: 1,
+  }));
+
+  const result = createFollowupTask(db, {
+    parentTask: { task_id: selfTaskId, title: "Ranking follow-up: kw", target_url: targetUrl, target_keyword: "kw" },
+    parentMetadata: { followup_depth: 1 },
+    depthDelta: 0,
+    taskType: "ranking_followup",
+    riskLevel: "safe",
+    source: "executor_followup",
+    title: "Ranking re-check: kw",
+    targetUrl: targetUrl,
+    targetKeyword: "kw",
+    scheduledForIso: nowPlusDaysIso(7),
+    dedupeByTargetUrl: true,
+    excludeTaskId: selfTaskId,
+    evidence: { type: "ranking_followup" },
+  });
+  assert.strictEqual(result.created, true, "follow-up should NOT be blocked by the executing task itself");
+  db.close();
+});
+
+test("createFollowupTask dedup still blocks genuine duplicate active tasks (different task_id)", () => {
+  const db = tempDb();
+  const existingTaskId = "TSK-OTHER-001";
+  const currentTaskId = "TSK-CURRENT-002";
+  const targetUrl = "https://example.com/page-b";
+  // Insert a DIFFERENT active ranking_followup row for the same URL.
+  db.prepare(`
+    INSERT INTO tasks (task_id, title, status, risk_level, priority_score, source,
+      target_url, target_keyword, approval_required, created_at, updated_at, metadata_json)
+    VALUES (?, 'Ranking follow-up: kw', 'approved', 'safe', 600, 'executor_followup',
+      ?, 'kw', 0, ?, ?, ?)
+  `).run(existingTaskId, targetUrl, nowIso(), nowIso(), JSON.stringify({
+    task_type: "ranking_followup",
+    evidence: { type: "ranking_followup" },
+    followup_depth: 1,
+  }));
+
+  const result = createFollowupTask(db, {
+    parentTask: { task_id: currentTaskId, title: "Ranking follow-up: kw", target_url: targetUrl, target_keyword: "kw" },
+    parentMetadata: { followup_depth: 1 },
+    depthDelta: 0,
+    taskType: "ranking_followup",
+    riskLevel: "safe",
+    source: "executor_followup",
+    title: "Ranking re-check: kw",
+    targetUrl: targetUrl,
+    targetKeyword: "kw",
+    scheduledForIso: nowPlusDaysIso(7),
+    dedupeByTargetUrl: true,
+    excludeTaskId: currentTaskId,
+    evidence: { type: "ranking_followup" },
+  });
+  assert.strictEqual(result.created, false, "genuine duplicate should still be caught");
+  assert.strictEqual(result.reason, "duplicate_active_followup");
+  db.close();
+});

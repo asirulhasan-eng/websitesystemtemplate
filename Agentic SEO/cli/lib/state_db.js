@@ -96,6 +96,26 @@ function migrateSchema(db) {
   } catch (error) {
     console.error(`[state_db] tasks.scheduled_for migration skipped: ${error.message}`);
   }
+
+  // ── monitor_alerts table: add dedup / resolution columns ──
+  try {
+    const alertColumns = new Set(
+      db.prepare("PRAGMA table_info(monitor_alerts)").all().map((c) => c.name),
+    );
+    if (alertColumns.size > 0) {
+      if (!alertColumns.has("last_seen_at")) {
+        db.exec("ALTER TABLE monitor_alerts ADD COLUMN last_seen_at TEXT");
+      }
+      if (!alertColumns.has("occurrence_count")) {
+        db.exec("ALTER TABLE monitor_alerts ADD COLUMN occurrence_count INTEGER DEFAULT 1");
+      }
+      if (!alertColumns.has("resolution_note")) {
+        db.exec("ALTER TABLE monitor_alerts ADD COLUMN resolution_note TEXT");
+      }
+    }
+  } catch (error) {
+    console.error(`[state_db] monitor_alerts migration skipped: ${error.message}`);
+  }
 }
 
 function initSchema(db) {
@@ -234,7 +254,10 @@ function initSchema(db) {
       status TEXT NOT NULL,
       message TEXT NOT NULL,
       triggered_at TEXT NOT NULL,
+      last_seen_at TEXT,
+      occurrence_count INTEGER DEFAULT 1,
       resolved_at TEXT,
+      resolution_note TEXT,
       notified_at TEXT,
       metadata_json TEXT
     );

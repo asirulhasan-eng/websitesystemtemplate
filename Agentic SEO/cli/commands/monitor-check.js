@@ -380,20 +380,54 @@ module.exports = function monitorCheck() {
       const overallStatus = severities.includes('critical') ? 'critical'
         : severities.includes('warning') ? 'warning' : 'ok';
 
-      // Create alerts for failures
+      // Create / update alerts for failures (dedup by alert_type)
       if (alertOnFailure) {
         const failedChecks = checks.filter(c => c.status !== 'ok');
         for (const check of failedChecks) {
-          const alertId = makeId('ALT');
-          db.prepare(`
-            INSERT INTO monitor_alerts (alert_id, alert_type, severity, status, message, triggered_at, metadata_json)
-            VALUES (?, ?, ?, 'open', ?, ?, ?)
-          `).run(
-            alertId, `health_check_${check.check}`, check.status, check.message, now,
-            JSON.stringify(check.details)
-          );
-          check.alert_id = alertId;
+          const alertType = `health_check_${check.check}`;
+          const existing = db.prepare(
+            "SELECT alert_id, occurrence_count FROM monitor_alerts WHERE alert_type = ? AND status = 'open' LIMIT 1"
+          ).get(alertType);
+
+          if (existing) {
+            // Update existing open alert: bump count, refresh timestamps & message
+            db.prepare(`
+              UPDATE monitor_alerts
+              SET severity = ?, message = ?, last_seen_at = ?,
+                  occurrence_count = COALESCE(occurrence_count, 1) + 1,
+                  metadata_json = ?
+              WHERE alert_id = ?
+            `).run(
+              check.status, check.message, now,
+              JSON.stringify(check.details),
+              existing.alert_id
+            );
+            check.alert_id = existing.alert_id;
+          } else {
+            // Insert new alert with occurrence tracking fields
+            const alertId = makeId('ALT');
+            db.prepare(`
+              INSERT INTO monitor_alerts (alert_id, alert_type, severity, status, message, triggered_at, last_seen_at, occurrence_count, metadata_json)
+              VALUES (?, ?, ?, 'open', ?, ?, ?, 1, ?)
+            `).run(
+              alertId, alertType, check.status, check.message, now, now,
+              JSON.stringify(check.details)
+            );
+            check.alert_id = alertId;
+          }
           alertsCreated++;
+        }
+
+        // Auto-resolve: checks that are now OK should close any lingering open alerts
+        const okChecks = checks.filter(c => c.status === 'ok');
+        for (const check of okChecks) {
+          const alertType = `health_check_${check.check}`;
+          db.prepare(`
+            UPDATE monitor_alerts
+            SET status = 'resolved', resolved_at = ?,
+                resolution_note = 'Auto-resolved: check passed'
+            WHERE alert_type = ? AND status = 'open'
+          `).run(now, alertType);
         }
       }
 

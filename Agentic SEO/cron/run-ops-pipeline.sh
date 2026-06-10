@@ -20,6 +20,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/check-health-status.sh"
+
 AGENT_ROOT="/opt/client-agent"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
 SITE_ROOT="/opt/client-site"
@@ -68,7 +71,7 @@ trap release_lock EXIT
 
 # â”€â”€ 2. Cheap health check (also releases stale locks); abort tick on critical â”€
 HEALTH=$(node "$V2_CLI" monitor-check --auto-fix --json 2>/dev/null || echo '{"status":"unknown"}')
-if printf '%s' "$HEALTH" | grep -q '"critical"'; then
+if is_health_critical "$HEALTH"; then
   echo "[${TIMESTAMP}] [abort] critical health issue â€” skipping tick."
   exit 0
 fi
@@ -105,6 +108,27 @@ if [ -z "$TASK_ID" ]; then
 fi
 DISPATCH=$(printf '%s' "$NEXT" | json_field task.dispatch)
 echo "[${TIMESTAMP}] [pick] ${TASK_ID} (dispatch=${DISPATCH:-none})"
+
+# ── 3b. Attempt guard ─────────────────────────────────────────────────────────
+# `task next` orders by priority_score DESC, so a high-priority task that keeps
+# failing stays status='approved' and is re-picked every tick — it starves every
+# lower-priority task behind it. Count each pick in metadata_json.worker_attempts
+# and park the task after MAX_ATTEMPTS so one broken task can never block the lane.
+MAX_ATTEMPTS=3
+ATTEMPTS=$(node "$V2_CLI" db query \
+  --sql "SELECT COALESCE(json_extract(metadata_json, '\$.worker_attempts'), 0) AS n FROM tasks WHERE task_id = ?" \
+  --params "[\"${TASK_ID}\"]" --json 2>/dev/null | json_field rows.0.n)
+ATTEMPTS=$(( ${ATTEMPTS:-0} + 1 ))
+node "$V2_CLI" db query \
+  --sql "UPDATE tasks SET metadata_json = json_set(COALESCE(metadata_json, '{}'), '\$.worker_attempts', ?) WHERE task_id = ?" \
+  --params "[${ATTEMPTS}, \"${TASK_ID}\"]" --allow-write --json >/dev/null 2>&1 || true
+if [ "$ATTEMPTS" -gt "$MAX_ATTEMPTS" ]; then
+  echo "[${TIMESTAMP}] [park] ${TASK_ID} auto-parked after $((ATTEMPTS - 1)) failed worker attempts (dispatch=${DISPATCH:-none}). Needs manual review."
+  node "$V2_CLI" task update --id "$TASK_ID" --status needs_review \
+    --note "Auto-parked after $((ATTEMPTS - 1)) failed worker attempts (dispatch=${DISPATCH:-none}). Needs manual diagnosis before re-approval." \
+    --json >/dev/null 2>&1 || true
+  exit 0
+fi
 
 node "$V2_CLI" heartbeat start --job "$JOB" --task-id "$TASK_ID" --json >/dev/null 2>&1 || true
 

@@ -22,6 +22,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/check-health-status.sh"
+
 AGENT_ROOT="/opt/client-agent"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
 DB_PATH="/opt/client-sqlite/seo-agent.db"
@@ -84,7 +87,7 @@ trap release_lock EXIT
 
 # â”€â”€ 2. Cheap health check; abort tick on critical â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 HEALTH=$(node "$V2_CLI" monitor-check --auto-fix --json 2>/dev/null || echo '{"status":"unknown"}')
-if printf '%s' "$HEALTH" | grep -q '"critical"'; then
+if is_health_critical "$HEALTH"; then
   echo "[${TIMESTAMP}] [abort] critical health issue â€” skipping tick."
   exit 0
 fi

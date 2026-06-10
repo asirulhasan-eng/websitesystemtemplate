@@ -1,30 +1,33 @@
 #!/usr/bin/env bash
-# run-blog-pipeline.sh â€” Blog consumer (blog_content lane).
+# run-blog-pipeline.sh — Blog consumer (blog_content lane).
 #
-# Runs every 19 minutes. Pure CONSUMER: executes the single highest-priority
-# READY (approved) blog_content task, then exits â€” one task per tick.
+# Runs every 29 minutes. Pure CONSUMER: executes the single highest-priority
+# READY (approved) blog_content task, then exits — one task per tick.
 #
 # Behaviour by workflow bucket (see processes/dual-pipeline-plan.md):
-#   draft_needed (new_blog_post)          â†’ write + publish to main via the creation skill
+#   draft_needed (new_blog_post)          → write + publish to main via the creation skill
 #                                   (Hermes, fresh session per processes/new-blog-creation.md).
 #                                   Cloudflare builds production; the live URL is emailed.
 #   service_page_draft_needed (new_service_page)
-#                                 â†’ author a NEW service page via the same Hermes
+#                                 → author a NEW service page via the same Hermes
 #                                   path, following the server-side production skill
 #                                   /opt/client-site/tools/SERVICE-PAGE-PRODUCTION-SKILL.md
 #                                   (parallel to the blog skills). Also published to main.
-#   edit_refresh_needed           â†’ REFRESH the existing page IN PLACE via the
+#   edit_refresh_needed           → REFRESH the existing page IN PLACE via the
 #                                   dedicated content-refresh skill (title/meta/body/
 #                                   faq/schema/interlinking). Auto-runs; no human gate.
-#   anything else                 â†’ SKIP + FLAG to needs_review.
+#   anything else                 → SKIP + FLAG to needs_review.
 #
 # Producer/consumer contract: when the work plan marks a blog task
-# status='approved', THIS worker picks it up within ~19 min. There is no second
+# status='approved', THIS worker picks it up within ~29 min. There is no second
 # gate, so the producer must only approve blog drafts it actually wants written.
 #
-# Cron: */19 * * * * /opt/client-agent/cron/run-blog-pipeline.sh >> /opt/client-agent/cron/logs/blog-pipeline.log 2>&1
+# Cron: */29 * * * * /opt/client-agent/cron/run-blog-pipeline.sh >> /opt/client-agent/cron/logs/blog-pipeline.log 2>&1
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/check-health-status.sh"
 
 AGENT_ROOT="/opt/client-agent"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
@@ -43,7 +46,7 @@ LOG_DIR="${AGENT_ROOT}/cron/logs"
 LANE="blog_content"
 JOB="blog-pipeline"
 RUN_LOCK="blog-pipeline"
-LOCK_TTL_MINUTES=18           # one tick's worth (cron is */19); lock clears before the next tick.
+LOCK_TTL_MINUTES=25           # Must exceed typical Hermes session but clear before */29 cron tick; timeout guard ensures exit before expiry.
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 mkdir -p "$LOG_DIR"
@@ -62,17 +65,17 @@ json_field() {
 }
 
 flag_for_review() {
-  # $1=task_id  $2=reason â€” move the task out of the approved pool so it stops
+  # $1=task_id  $2=reason — move the task out of the approved pool so it stops
   # being re-picked and surfaces to the AI in the next planning session.
   node "$V2_CLI" task update --id "$1" --status needs_review --note "$2" --json >/dev/null 2>&1 || true
-  echo "[${TIMESTAMP}] [flag] ${1} â†’ needs_review: ${2}"
+  echo "[${TIMESTAMP}] [flag] ${1} → needs_review: ${2}"
 }
 
-# â”€â”€ 1. Run-lock: skip this tick if a previous run is still in flight â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── 1. Run-lock: skip this tick if a previous run is still in flight ──────────
 LOCK_JSON=$(node "$V2_CLI" lock acquire --type general --resource "$RUN_LOCK" \
   --owner "$JOB" --ttl-minutes "$LOCK_TTL_MINUTES" --reason "blog pipeline tick" --json 2>/dev/null || true)
 if [ "$(printf '%s' "$LOCK_JSON" | json_field ok)" != "true" ]; then
-  echo "[${TIMESTAMP}] [skip] ${JOB} run-lock held â€” previous tick still running."
+  echo "[${TIMESTAMP}] [skip] ${JOB} run-lock held — previous tick still running."
   exit 0
 fi
 LOCK_ID=$(printf '%s' "$LOCK_JSON" | json_field lock_id)
@@ -83,14 +86,14 @@ release_lock() {
 }
 trap release_lock EXIT
 
-# â”€â”€ 2. Cheap health check; abort tick on critical â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── 2. Cheap health check; abort tick on critical ─────────────────────────────
 HEALTH=$(node "$V2_CLI" monitor-check --auto-fix --json 2>/dev/null || echo '{"status":"unknown"}')
-if printf '%s' "$HEALTH" | grep -q '"critical"'; then
-  echo "[${TIMESTAMP}] [abort] critical health issue â€” skipping tick."
+if is_health_critical "$HEALTH"; then
+  echo "[${TIMESTAMP}] [abort] critical health issue — skipping tick."
   exit 0
 fi
 
-# â”€â”€ 3. Pick the next ready blog task (one per tick) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── 3. Pick the next ready blog task (one per tick) ───────────────────────────
 NEXT=$(node "$V2_CLI" task next --lane "$LANE" --json 2>/dev/null || echo '{}')
 TASK_ID=$(printf '%s' "$NEXT" | json_field task.task_id)
 if [ -z "$TASK_ID" ]; then
@@ -101,7 +104,7 @@ BUCKET=$(printf '%s' "$NEXT" | json_field task.workflow_bucket)
 TASK_TITLE=$(printf '%s' "$NEXT" | json_field task.title)
 echo "[${TIMESTAMP}] [pick] ${TASK_ID} (bucket=${BUCKET})"
 
-# â”€â”€ 4. Only draft buckets are auto-runnable by this worker â†’ else flag and exit
+# ── 4. Only draft buckets are auto-runnable by this worker → else flag and exit
 # draft_needed (new_blog_post) and service_page_draft_needed (new_service_page)
 # both use the Hermes authoring path below; edit_refresh_needed drives the dedicated
 # content-refresh skill IN PLACE. Anything else is surfaced to the AI (needs_review).
@@ -112,9 +115,9 @@ case "$BUCKET" in
     exit 0 ;;
 esac
 
-# â”€â”€ 4b. Attempt guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── 4b. Attempt guard ─────────────────────────────────────────────────────────
 # `task next` orders by priority_score DESC, so a high-priority task that fails
-# its Hermes session stays status='approved' and is re-picked every tick â€” it
+# its Hermes session stays status='approved' and is re-picked every tick — it
 # starves every lower-priority task behind it (the homepage-refresh-vs-blogs
 # block). Count each pick in metadata_json.worker_attempts (the tasks table has
 # no attempt_count column) and park the task after MAX_ATTEMPTS so one broken
@@ -132,7 +135,7 @@ if [ "$ATTEMPTS" -gt "$MAX_ATTEMPTS" ]; then
   exit 0
 fi
 
-# â”€â”€ 5. Draft â†’ author + PR via the creation skill (Hermes, fresh session) â”€â”€â”€â”€â”€
+# ── 5. Draft → author + PR via the creation skill (Hermes, fresh session) ─────
 if ! command -v hermes >/dev/null 2>&1; then
   flag_for_review "$TASK_ID" "hermes CLI not available on this host; draft creation needs a Hermes session. Flagged for manual handling."
   exit 0
@@ -147,38 +150,38 @@ SKILL_PRELOAD=""
 if [ "$BUCKET" = "service_page_draft_needed" ]; then
   CONTENT_KIND="service page"
   PROCESS_FILE="${SITE_ROOT}/tools/SERVICE-PAGE-PRODUCTION-SKILL.md"
-  PRODUCTION_STEP="Read ${PROCESS_FILE} IN FULL and follow it end-to-end to author the service page (Research â†’ Planning â†’ Assets â†’ Writing â†’ Linking â†’ Integration â†’ QA). Pick the canonical /services/<slug> URL from the task target_url/brief. Honor the skill's hard rule: do NOT scaffold or write any file until the Research, Planning, and Assets phases are complete."
+  PRODUCTION_STEP="Read ${PROCESS_FILE} IN FULL and follow it end-to-end to author the service page (Research → Planning → Assets → Writing → Linking → Integration → QA). Pick the canonical /services/<slug> URL from the task target_url/brief. Honor the skill's hard rule: do NOT scaffold or write any file until the Research, Planning, and Assets phases are complete."
 elif [ "$BUCKET" = "edit_refresh_needed" ]; then
-  # MODIFICATION of an EXISTING blog/service page â†’ drive the dedicated
+  # MODIFICATION of an EXISTING blog/service page → drive the dedicated
   # content-refresh skill (refresh title/meta/body/faq/schema/interlinking on the
   # already-published target). Edits the existing file in place; no new page.
   CONTENT_KIND="content refresh"
   PROCESS_FILE="${HOME}/.hermes/skills/client/content-refresh/SKILL.md"
   # Hermes resolves a preloaded skill by its FOLDER SLUG, not the frontmatter
   # `name:`. The skill lives at .../client/content-refresh/, so the loadable
-  # alias is `content-refresh` â€” `client-content-refresh` (the name:) is
+  # alias is `content-refresh` — `client-content-refresh` (the name:) is
   # rejected as "Unknown skill(s)". See client-operations skill ref:
   # references/hermes-cron-skill-alias-verification.md.
   SKILL_PRELOAD="content-refresh"
-  PRODUCTION_STEP="Operate in the content-refresh skill's AUTONOMOUS PIPELINE MODE (no human gate â€” the task is already approved; do not stop at a QA report or wait for approval). Follow it end-to-end to REFRESH the EXISTING target page identified by the task (target_url/target_file) â€” do NOT create a new page or change its slug/URL. Improve title/meta/H1, body depth, FAQ, schema, internal links, and alt text per the skill's quality targets, QA, then publish. Treble-check you are editing the already-published file in place."
+  PRODUCTION_STEP="Operate in the content-refresh skill's AUTONOMOUS PIPELINE MODE (no human gate — the task is already approved; do not stop at a QA report or wait for approval). Follow it end-to-end to REFRESH the EXISTING target page identified by the task (target_url/target_file) — do NOT create a new page or change its slug/URL. Improve title/meta/H1, body depth, FAQ, schema, internal links, and alt text per the skill's quality targets, QA, then publish. Treble-check you are editing the already-published file in place."
 else
   CONTENT_KIND="blog post"
   PROCESS_FILE="${AGENT_ROOT}/processes/new-blog-creation.md"
-  PRODUCTION_STEP="Follow ${PROCESS_FILE} to pick the production line (standard vs stats) and write the post end-to-end (research â†’ planning â†’ AI infographics â†’ writing â†’ integration â†’ QA). It delegates to the server-side production skill under /opt/client-site/tools/."
+  PRODUCTION_STEP="Follow ${PROCESS_FILE} to pick the production line (standard vs stats) and write the post end-to-end (research → planning → AI infographics → writing → integration → QA). It delegates to the server-side production skill under /opt/client-site/tools/."
 fi
 # Publish straight to production: commit + push on main, no preview branch.
 BRANCH="main"
 
 PROMPT="You are the {{SITE_NAME}} content pipeline worker. Produce ONE ${CONTENT_KIND} for this approved task, in this fresh session.
 
-Task: ${TASK_ID} â€” ${TASK_TITLE}
+Task: ${TASK_ID} — ${TASK_TITLE}
 
 Read first (in full):
 - Router/playbook: ${PROCESS_FILE}
 - Guardrails:      ${GUARDRAILS_FILE}
 - Memory protocol: ${MEMORY_PROTOCOL}
 
-MEMORY (Obsidian Brain) â€” recall before writing, record after:
+MEMORY (Obsidian Brain) — recall before writing, record after:
 - Load standing policy: 'node ${V2_CLI} brain summary --markdown'.
 - Recall topic memory: 'node ${V2_CLI} brain recall --query \"<topic>\" --markdown' (respect prior decisions / no-go).
 
@@ -193,16 +196,23 @@ Steps:
 4. Record state in SQLite (never write the DB directly):
    node ${V2_CLI} task update --id ${TASK_ID} --status deployed_to_production --note \"Published to main; live: <live-url>\" --json
 5. Send the live link to the owner:
-   node ${V2_CLI} email send --to {{ADMIN_EMAIL}} --subject \"âœ… Published (${CONTENT_KIND}) â€” ${TASK_TITLE}\" --body \"Live: <live-url> (task ${TASK_ID})\" --json
+   node ${V2_CLI} email send --to {{ADMIN_EMAIL}} --subject \"✅ Published (${CONTENT_KIND}) — ${TASK_TITLE}\" --body \"Live: <live-url> (task ${TASK_ID})\" --json
 6. Record ONE Brain note (decision) summarizing the topic/page, production line, and internal links chosen.
 
-Quality gate: do NOT publish to main or mark deployed_to_production unless QA passes (title/meta/H1/schema/internal links/alt text). Publishing goes straight to the live site â€” there is no preview gate."
+Quality gate: do NOT publish to main or mark deployed_to_production unless QA passes (title/meta/H1/schema/internal links/alt text). Publishing goes straight to the live site — there is no preview gate."
 
-if hermes chat -q "$PROMPT" --quiet --yolo --accept-hooks ${SKILL_PRELOAD:+-s "$SKILL_PRELOAD"} 2>&1 | tee -a "${LOG_DIR}/blog-pipeline-${TASK_ID}-$(date +%Y-%m-%d).log"; then
+# Timeout wrapper — kill hung Hermes sessions before the lock TTL expires.
+# 24 minutes (1440s) is safely under the 25-min lock TTL.
+HERMES_TIMEOUT=1440
+
+if timeout "$HERMES_TIMEOUT" hermes chat -q "$PROMPT" --quiet --yolo --accept-hooks ${SKILL_PRELOAD:+-s "$SKILL_PRELOAD"} 2>&1 | tee -a "${LOG_DIR}/blog-pipeline-${TASK_ID}-$(date +%Y-%m-%d).log"; then
   node "$V2_CLI" heartbeat finish --job "$JOB" --completed-tasks 1 --json >/dev/null 2>&1 || true
   echo "[${TIMESTAMP}] [done] ${TASK_ID} ${CONTENT_KIND} draft session complete."
 else
   RC=$?
+  if [ $RC -eq 124 ]; then
+    echo "[${TIMESTAMP}] [timeout] ${TASK_ID} hermes session killed after ${HERMES_TIMEOUT}s — exceeds timeout."
+  fi
   node "$V2_CLI" heartbeat finish --job "$JOB" --error "hermes ${CONTENT_KIND} session exit ${RC} for ${TASK_ID}" --json >/dev/null 2>&1 || true
   echo "[${TIMESTAMP}] [fail] ${TASK_ID} hermes session exit ${RC}."
 fi

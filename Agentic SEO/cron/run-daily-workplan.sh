@@ -12,6 +12,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/check-health-status.sh"
+
 SESSION="${1:-morning}"
 AGENT_ROOT="/opt/client-agent"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
@@ -50,7 +53,7 @@ node "$V2_CLI" heartbeat start --job "$JOB" --json 2>/dev/null || true
 # 2. Health check first; abort on critical
 HEALTH=$(node "$V2_CLI" monitor-check --auto-fix --json 2>/dev/null || echo '{"ok":false,"error":"monitor-check failed"}')
 echo "[health] $HEALTH"
-if echo "$HEALTH" | grep -q '"critical"'; then
+if is_health_critical "$HEALTH"; then
   echo "[ABORT] Critical health issue detected. Sending alert email."
   node "$V2_CLI" email send \
     --to {{ADMIN_EMAIL}} \

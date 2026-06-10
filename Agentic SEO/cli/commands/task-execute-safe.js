@@ -311,7 +311,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
   if (step.decision === "watch" || step.decision === "inconclusive") {
     output.experiment = closeWindow("regressed_watching");
     if (step.decision === "watch") {
-      output.recheck_task = createFollowupTask(db, {
+      const followupResult = createFollowupTask(db, {
         parentTask: task,
         parentMetadata: metadata,
         depthDelta: 0,
@@ -328,6 +328,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
         targetKeyword: keywords[0],
         scheduledForIso: nowPlusDaysIso(cfg.confirm.recheck_days),
         dedupeByTargetUrl: true,
+        excludeTaskId: task.task_id,
         evidence: {
           type: "ranking_followup",
           keywords,
@@ -340,7 +341,11 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
           watch_until: step.watch_until,
         },
       });
-      output.action_taken = "watch_scheduled";
+      output.recheck_task = followupResult;
+      const action_taken = followupResult.created
+        ? "watch_scheduled"
+        : `watch_blocked:${followupResult.reason}`;
+      output.action_taken = action_taken;
     } else {
       // 4-week watch elapsed without confirmation -> hand to a human, no auto-action.
       enqueueRankingAlert(db, task, positionEval, {
@@ -462,7 +467,7 @@ function fallbackRecovery(db, followupTask, metadata, parentTaskId, reason) {
     parentTask: followupTask,
     parentMetadata: metadata,
     taskType: "ranking_recovery",
-    riskLevel: "safe",
+    riskLevel: "needs_review",
     priority: 920,
     source: "executor_followup",
     title: `Investigate ranking drop: ${followupTask.target_keyword || followupTask.target_url || followupTask.task_id}`,
