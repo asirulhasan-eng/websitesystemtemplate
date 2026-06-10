@@ -20,6 +20,7 @@ const { nowIso, nowPlusDaysIso } = require("./dates");
 const { COMPLETED_TASK_STATUSES } = require("./statuses");
 const { routeTaskCreationThroughGuardrails } = require("./guardrails");
 const { normalizeUrlForDedupe } = require("./task_routing");
+const { openExperiment } = require("./experiments");
 
 const DEFAULT_FOLLOWUP_DAYS = 14;
 // Bounds the optimize → ranking_followup → ranking_recovery → ranking_followup
@@ -336,18 +337,37 @@ function createFollowupTask(db, spec) {
 // ranking baseline and schedules the follow-up. Never throws into the executor's
 // success path — a follow-up failure must not fail the underlying task.
 function maybeCreateFollowups(db, parentTask, parentMetadata = {}, options = {}) {
+  const results = [];
   try {
     const spec = planRankingFollowup(parentTask, parentMetadata, options);
-    if (!spec) return [];
+    if (!spec) return results;
     spec.evidence.baseline_positions = captureBaselinePositions(
       db,
       spec.evidence.keywords,
       options.domain || domainFromUrl(parentTask.target_url),
       parentMetadata.evidence || {},
     );
-    return [{ kind: "ranking_followup", ...createFollowupTask(db, spec) }];
+    results.push({ kind: "ranking_followup", ...createFollowupTask(db, spec) });
+
+    // Open a measurement window (experiment) on this URL+lever so a SAME-lever
+    // change is held until the window closes (it auto-lifts at ended_at). Reusing
+    // the baseline + window we just computed; best-effort and never throws.
+    results.push({
+      kind: "experiment",
+      ...openExperiment(db, {
+        taskType: spec.evidence.parent_task_type,
+        taskId: parentTask.task_id,
+        targetUrl: parentTask.target_url,
+        targetKeyword: spec.targetKeyword,
+        hypothesis: parentTask.title,
+        baseline: spec.evidence.baseline_positions,
+        windowDays: spec.evidence.window_days,
+      }),
+    });
+    return results;
   } catch (error) {
-    return [{ kind: "ranking_followup", created: false, reason: `error:${error.message}` }];
+    results.push({ kind: "ranking_followup", created: false, reason: `error:${error.message}` });
+    return results;
   }
 }
 

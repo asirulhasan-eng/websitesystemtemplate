@@ -2,7 +2,8 @@
 const { parseArgs, numberArg, boolArg, resolveDbPath, getOutputFormat } = require("../lib/cli");
 const { printOutput, errorEnvelope } = require("../lib/output");
 const { openStateDb } = require("../lib/state_db");
-const { routeTask } = require("../lib/task_routing");
+const { routeTask, normalizeUrlForDedupe } = require("../lib/task_routing");
+const { loadOpenExperimentsByUrl } = require("../lib/experiments");
 
 const TOOL = "task-audit";
 const ACTIVE_STATUSES = ["candidate", "approved", "waiting_for_approval", "preview_ready", "preview_pushed", "monitored", "needs_review"];
@@ -53,9 +54,15 @@ module.exports = function taskAudit() {
         ORDER BY priority_score DESC, created_at ASC
       `).all(...statuses);
       const locks = db.prepare("SELECT * FROM locks WHERE status = 'active'").all();
+      const now = new Date().toISOString();
+      const experimentsByUrl = loadOpenExperimentsByUrl(db, now);
       const routed = rows.map((task) => ({
         task,
-        route: routeTask(task, { active_locks: locks, now: new Date().toISOString() }),
+        route: routeTask(task, {
+          active_locks: locks,
+          now,
+          open_experiments: experimentsByUrl.get(normalizeUrlForDedupe(task.target_url)) || [],
+        }),
       }));
 
       const audit = buildAudit(routed);
@@ -98,6 +105,7 @@ function buildAudit(routed) {
     blog_review: routed.filter(({ route, task }) => route.execution_lane === "blog_content" && ["preview_ready", "preview_pushed"].includes(task.status)),
     needs_lane_review: routed.filter(({ route }) => route.workflow_bucket === "needs_lane_review"),
     approval_needed: routed.filter(({ route }) => route.workflow_bucket === "approval_needed"),
+    research_hold: routed.filter(({ route }) => route.workflow_bucket === "research_hold"),
   };
 
   return {
@@ -148,7 +156,8 @@ function isExecutable(route) {
   return !flags.has("active_task_lock")
     && !flags.has("invalid_metadata_json")
     && !flags.has("no_go_switch_monster")
-    && !["approval_needed", "needs_lane_review", "blocked_no_go"].includes(route.workflow_bucket);
+    && !flags.has("research_hold_same_lever")
+    && !["approval_needed", "needs_lane_review", "blocked_no_go", "research_hold"].includes(route.workflow_bucket);
 }
 
 function summarizeTask(row) {

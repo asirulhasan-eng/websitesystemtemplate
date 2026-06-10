@@ -45,6 +45,10 @@
     "explicit_approval": {
       "applies_to": "require_explicit_approval types only",
       "flow": "high-risk Phase 1 â†’ waiting_for_approval â†’ owner 'approve <id>' via Telegram"
+    },
+    "research_window": {
+      "note": "A ranking-affecting deploy opens a measurement window (experiments row) on its URL+lever and schedules a ~14d ranking_followup that closes it with an outcome. While open, routeTask parks a SAME-lever change to that URL in the 'research_hold' bucket (flag research_hold_same_lever) so it never confounds attribution; task-next/task-audit treat research_hold as non-executable. The hold auto-lifts at the experiment's ended_at even if the follow-up never runs. A DIFFERENT-lever change is allowed but flagged 'experiment_window_orthogonal' and logged as a page_change_event. Corrective types (ranking_recovery) and approval-gated tasks are never held. Re-opening the same URL+lever supersedes the prior experiment (clock reset). Levers are defined in cli/lib/experiments.js (LEVER_FOR_TYPE).",
+      "owner_override": "To ship a held same-lever change now, deliberately re-run/deploy it — opening the new experiment supersedes the old window and resets the 14-day clock."
     }
   },
 

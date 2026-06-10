@@ -13,6 +13,7 @@ const { assertTaskStatus, isCompletedTaskStatus } = require("../lib/statuses");
 const { assertTaskExecutionAllowed } = require("../lib/guardrails");
 const { resolveSitePath } = require("../lib/site_paths");
 const { maybeCreateFollowups, createFollowupTask, evaluateRankingDeltas, domainFromUrl } = require("../lib/followups");
+const { closeExperiment, leverForType } = require("../lib/experiments");
 
 function main() {
   const args = parseArgs();
@@ -276,6 +277,17 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
     enqueueRankingAlert(db, task, evaluation);
     output.alerted = true;
   }
+
+  // Close the measurement window this follow-up was verifying, recording the
+  // outcome. Lifting the experiment also releases any same-lever change that was
+  // parked in research_hold against this URL. Best-effort: never fail the task.
+  const outcome = evaluation.regressed ? "regressed" : (evaluation.improvements.length ? "improved" : "stable");
+  output.experiment = closeExperiment(db, {
+    parentTaskId: metadata.evidence && metadata.evidence.parent_task_id,
+    lever: leverForType(metadata.evidence && metadata.evidence.parent_task_type),
+    outcome,
+    result: { baseline, current, deltas: evaluation.rows },
+  });
 
   updateTaskState(db, task, "completed", output, "ranking_followup_evaluated");
   output.status = "completed";
