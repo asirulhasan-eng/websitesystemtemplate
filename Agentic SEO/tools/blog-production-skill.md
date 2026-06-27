@@ -611,46 +611,45 @@ CSS components available: `.related-posts`, `.related-posts__title`, `.related-p
 
 ## 7. Phase 5 â€” Site Integration
 
-### 5.1 Add Blog Card to Index
-Edit `blog/index.html` â€” insert new card BEFORE existing cards (newest first):
-```html
-<div class="blog-card reveal">
-  <div class="blog-card__image" style="background:linear-gradient(...);">
-    <svg>...</svg>
-  </div>
-  <div class="blog-card__content">
-    <div class="blog-card__meta">
-      <span>[Category]</span> &bull; [Date]
-    </div>
-    <h2 class="blog-card__title">
-      <a href="/blog/[slug]">[Title]</a>
-    </h2>
-    <p class="blog-card__excerpt">[1â€“2 sentence excerpt]</p>
-    <a href="/blog/[slug]" class="blog-card__read-more">Read Article ...</a>
-  </div>
-</div>
+### 5.1 Register the Post with the Standard Tool
+
+Use `Website/tools/register-blog-post.ps1` instead of hand-editing the blog index, sitemap, or link registry:
+
+```powershell
+pwsh -NoProfile -File tools/register-blog-post.ps1 `
+  -Slug "[new-post-slug]" `
+  -Title "[Full Title]" `
+  -Category "[Category]" `
+  -Excerpt "[1-2 sentence excerpt]" `
+  -Date "[Month D, YYYY]" `
+  -LastMod "[YYYY-MM-DD]" `
+  -BaseUrl "https://{{DOMAIN}}"
 ```
 
-### 5.2 Update Sitemap
-```xml
-<url>
-  <loc>https://{{DOMAIN}}/blog/[slug]</loc>
-  <lastmod>[YYYY-MM-DD]</lastmod>
-  <changefreq>monthly</changefreq>
-  <priority>0.6</priority>
-</url>
+What the script owns:
+
+- Adds the blog card above `<!-- ADD NEW BLOG CARDS ABOVE THIS LINE -->`.
+- Immediately runs `tools/sort-blog-index.js` so `/blog/` is sorted by publish date, latest first.
+- Rejects malformed sitemap dates unless `LastMod` is a real `YYYY-MM-DD` calendar date.
+- Adds a clean URL sitemap entry, unless `-NoSitemap` is used.
+- Appends an `internal.blog` entry in `tools/link-registry.json`, unless `-NoLinkRegistry` is used.
+- Removes any conflicting `/blog/[slug] -> /blog/[slug].html` redirect when present.
+- Skips existing entries instead of duplicating them.
+
+Default behavior uses clean live SEO links such as `/blog/[slug]`. Use `-UseHtmlLinksInIndex` only for local static preview cards when the preview server cannot route clean URLs.
+
+### 5.2 Manual Edit Escape Hatch
+
+Only hand-edit `blog/index.html`, `sitemap.xml`, or `tools/link-registry.json` if the standard registration tool cannot run. After any manual blog-index edit, run:
+
+```bash
+node tools/sort-blog-index.js blog/index.html
+node --test test/blog-index-sort.test.js
+node --test test/sitemap-lastmod.test.js
+node --test test/structured-data-jsonld.test.js
 ```
 
-### 5.3 Update Link Registry
-Append to `internal.blog` array in `tools/link-registry.json`:
-```json
-{
-  "slug": "/blog/[new-post-slug]",
-  "title": "[Full Title]",
-  "topics": ["keyword1", "keyword2", "keyword3"],
-  "anchors": ["suggested anchor 1", "suggested anchor 2"]
-}
-```
+Do not manually hand-place cards above or below other posts; the sorter owns ordering. Sitemap `<lastmod>` must be `YYYY-MM-DD`.
 
 ---
 
@@ -674,7 +673,10 @@ Append to `internal.blog` array in `tools/link-registry.json`:
 - [ ] Internal links work (no forced links)
 - [ ] External links cite sources (`target="_blank" rel="noopener"`)
 - [ ] Related Posts section with 3 siblings
-- [ ] New post added to `link-registry.json`
+- [ ] New post added via `tools/register-blog-post.ps1`
+- [ ] `/blog/` ordering verified latest-first with `node --test test/blog-index-sort.test.js`
+- [ ] Sitemap `<lastmod>` values verified with `node --test test/sitemap-lastmod.test.js`
+- [ ] Structured data parses with `node --test test/structured-data-jsonld.test.js`
 - [ ] Footer markup matches the scaffold/blog-index footer, including scripts and `footer-year`
 - [ ] FAQ uses `.faq-question` buttons and opens/closes through `js/main.js`
 - [ ] No unsupported one-off classes remain for core components (`.article-cta`, `.keep-reading`, raw `details` FAQ)

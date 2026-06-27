@@ -14,7 +14,7 @@ const forbidden = [
   /BEGIN OPENSSH PRIVATE KEY/,
   /BEGIN RSA PRIVATE KEY/,
 ];
-const ignoredDirs = new Set(['.git', 'Website', 'node_modules']);
+const ignoredDirs = new Set(['.git', 'node_modules']);
 const ignoredExt = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.pdf', '.db', '.sqlite', '.log']);
 
 function walk(dir, out = []) {

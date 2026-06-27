@@ -768,54 +768,35 @@ Add "Keep Reading" section with 3 related sibling posts, same as standard skill.
 <a id="phase-5-integration"></a>
 ## 6. Phase 5: Site Integration
 
-### Step 5.1 -- Add Blog Card to Index
-Edit `blog/index.html` -- insert a new `blog-card` div BEFORE existing cards (newest first):
+### Step 5.1 -- Register the Post with the Standard Tool
 
-```html
-<div class="blog-card reveal">
-  <div class="blog-card__image" style="background:linear-gradient(135deg, rgba(23,107,154,0.15), rgba(116,201,167,0.1));">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M3 3h18v18H3z"/><path d="M7 17V10"/><path d="M12 17V7"/><path d="M17 17V13"/>
-    </svg>
-  </div>
-  <div class="blog-card__content">
-    <div class="blog-card__meta">
-      <span>[Category]</span> &bull; [Date]
-    </div>
-    <h2 class="blog-card__title">
-      <a href="/blog/[slug]">[Title]: [N]+ Data Points for [Year]</a>
-    </h2>
-    <p class="blog-card__excerpt">[1-2 sentence excerpt highlighting the most striking statistic]</p>
-    <a href="/blog/[slug]" class="blog-card__read-more">Read Article ...</a>
-  </div>
-</div>
+Use `Website/tools/register-blog-post.ps1` instead of hand-editing the blog index, sitemap, or link registry:
+
+```powershell
+pwsh -NoProfile -File tools/register-blog-post.ps1 `
+  -Slug "[new-post-slug]" `
+  -Title "[Full Title of Statistics Post]" `
+  -Category "[Category]" `
+  -Excerpt "[1-2 sentence excerpt highlighting the most striking statistic]" `
+  -Date "[Month D, YYYY]" `
+  -LastMod "[YYYY-MM-DD]" `
+  -BaseUrl "https://{{DOMAIN}}"
 ```
 
-### Step 5.2 -- Update Sitemap
-Add to `sitemap.xml`:
+The registration tool adds the card, immediately runs `tools/sort-blog-index.js` so `/blog/` stays latest-first, rejects malformed sitemap dates, updates `sitemap.xml`, and appends `tools/link-registry.json`. Use `-NoSitemap` or `-NoLinkRegistry` only for placeholder/noindex drafts.
 
-```xml
-<url>
-  <loc>https://{{DOMAIN}}/blog/[slug]</loc>
-  <lastmod>[YYYY-MM-DD]</lastmod>
-  <changefreq>monthly</changefreq>
-  <priority>0.6</priority>
-</url>
+### Step 5.2 -- Manual Edit Escape Hatch
+
+If the registration tool cannot run and you manually touch `blog/index.html`, `sitemap.xml`, or `tools/link-registry.json`, run:
+
+```bash
+node tools/sort-blog-index.js blog/index.html
+node --test test/blog-index-sort.test.js
+node --test test/sitemap-lastmod.test.js
+node --test test/structured-data-jsonld.test.js
 ```
 
-### Step 5.3 -- Update Link Registry
-Add the new post to `tools/link-registry.json`:
-
-```json
-{
-  "slug": "/blog/[new-post-slug]",
-  "title": "[Full Title of Statistics Post]",
-  "topics": ["keyword1", "keyword2", "keyword3", "statistics", "data"],
-  "anchors": ["suggested anchor text 1", "suggested anchor text 2"]
-}
-```
-
-Append this entry to the `internal.blog` array in the registry.
+Do not manually hand-place cards above or below other posts; the sorter owns ordering. Sitemap `<lastmod>` must be a real `YYYY-MM-DD` calendar date.
 
 ---
 
@@ -860,7 +841,10 @@ Verify in the HTML:
 - [ ] Internal links added where natural
 - [ ] External links have `target="_blank" rel="noopener"`
 - [ ] Related Posts section with 3 sibling articles
-- [ ] New post added to `tools/link-registry.json`
+- [ ] New post added via `tools/register-blog-post.ps1`
+- [ ] `/blog/` ordering verified latest-first with `node --test test/blog-index-sort.test.js`
+- [ ] Sitemap `<lastmod>` values verified with `node --test test/sitemap-lastmod.test.js`
+- [ ] Structured data parses with `node --test test/structured-data-jsonld.test.js`
 
 ### Step 6.3 -- Data Accuracy Spot Check
 - [ ] Randomly verify 5-10 statistics against their cited sources

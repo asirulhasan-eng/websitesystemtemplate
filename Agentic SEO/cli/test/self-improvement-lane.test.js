@@ -6,12 +6,16 @@ const { spawnSync } = require('node:child_process');
 
 const repoRoot = path.resolve(__dirname, '../../..');
 
-test('self-improvement command and cron lane are present in generic template', () => {
+test('self-improvement command, cron lane, and guardrail policy are present in generic template', () => {
   const v2 = fs.readFileSync(path.join(repoRoot, 'Agentic SEO/cli/bin/v2.js'), 'utf8');
+  const guardrails = JSON.parse(fs.readFileSync(path.join(repoRoot, 'Agentic SEO/config/guardrails.json'), 'utf8'));
   assert.match(v2, /self-improve/);
   assert.ok(fs.existsSync(path.join(repoRoot, 'Agentic SEO/cli/commands/self-improve.js')));
   assert.ok(fs.existsSync(path.join(repoRoot, 'Agentic SEO/cli/commands/task-execute-self-improvement.js')));
   assert.ok(fs.existsSync(path.join(repoRoot, 'Agentic SEO/cron/run-self-improvement.sh')));
+  assert.equal(guardrails.self_improvement.enabled_env, 'SELF_IMPROVEMENT_ENABLED');
+  assert.ok(Array.isArray(guardrails.self_improvement.merge_gate));
+  assert.ok(guardrails.self_improvement.no_touch.includes('Website/**'));
 });
 
 test('cron installer includes AI review and self-improvement lanes', () => {
