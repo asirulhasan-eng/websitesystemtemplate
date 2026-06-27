@@ -1,5 +1,5 @@
 /**
- * deploy-branch.js â€” Create a git branch, stage files, and commit
+ * deploy-branch.js Ã¢â‚¬â€ Create a git branch, stage files, and commit
  *
  * Usage:
  *   v2 deploy branch --site-root /opt/site --branch agent/seo-update --message "Update meta tags"
@@ -11,8 +11,8 @@
  *   --message        Required. Commit message
  *   --files          Comma-separated files to stage (default: all changed files)
  *   --force-recreate Reset an existing branch to HEAD before committing
- *   --git-user-name  Git author name (default: {{SITE_NAME}} Agent)
- *   --git-user-email Git author email (default: agent@{{DOMAIN}})
+ *   --git-user-name  Git author name (default: Website Operations Agent)
+ *   --git-user-email Git author email (default: agent@example.com)
  *   --db             If provided, record deployment in deployments table
  *   --task           Associated task_id for deployment record
  *   --json           JSON output (default)
@@ -28,8 +28,13 @@ const { nowIso } = require('../lib/dates');
 
 const TOOL = 'deploy-branch';
 
+function committedFiles(git, cwd, ref = 'HEAD') {
+  const output = git(cwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', '--root', ref]);
+  return output.split('\n').map((file) => file.trim()).filter(Boolean);
+}
+
 const HELP = `
-deploy-branch â€” Create a git branch, stage files, and commit
+deploy-branch Ã¢â‚¬â€ Create a git branch, stage files, and commit
 
 USAGE
   v2 deploy branch --site-root <path> --branch <name> --message <msg> [options]
@@ -42,8 +47,8 @@ REQUIRED
 OPTIONS
   --files           Comma-separated list of files to stage (default: all changed files)
   --force-recreate  Reset an existing branch to HEAD before committing
-  --git-user-name   Git author name (default: {{SITE_NAME}} Agent)
-  --git-user-email  Git author email (default: agent@{{DOMAIN}})
+  --git-user-name   Git author name (default: Website Operations Agent)
+  --git-user-email  Git author email (default: agent@example.com)
   --db              If provided, records deployment entry in SQLite
   --task            Associated task_id for deployment tracking
   --json            JSON output (default)
@@ -52,7 +57,7 @@ OPTIONS
   --help            Show this help text
 
 EXAMPLES
-  v2 deploy branch --site-root /opt/client-site --branch agent/update-meta --message "Update meta descriptions"
+  v2 deploy branch --site-root /opt/website-site --branch agent/update-meta --message "Update meta descriptions"
   v2 deploy branch --site-root . --branch agent/fix-h1 --message "Fix H1 tags" --files index.html,about.html
   v2 deploy branch --site-root /opt/site --branch agent/seo-001 --message "SEO improvements" --db state.db --task TSK-123
 
@@ -76,23 +81,23 @@ module.exports = function deployBranch() {
     printOutput(envelope({
       branch: 'agent/seo-update',
       commit_sha: 'a1b2c3d',
-      message: 'Update meta tags for {{NICHE}} pages',
-      files_staged: ['services/{{NICHE}}.html', 'services/drain-cleaning.html'],
-      author: '{{SITE_NAME}} Agent <agent@{{DOMAIN}}>',
-      site_root: '/opt/client-site',
+      message: 'Update meta tags for website pages',
+      files_staged: ['services/website.html', 'services/drain-cleaning.html'],
+      author: 'Website Operations Agent <agent@example.com>',
+      site_root: '/opt/website-site',
     }, { tool: TOOL }), getOutputFormat(args));
     return;
   }
 
   try {
-    const { isGitRepo, checkoutNewBranch, add, commit, shortHead, statusPorcelain } = require('../lib/git');
+    const { isGitRepo, checkoutNewBranch, add, commit, shortHead, statusPorcelain, git } = require('../lib/git');
 
     const siteRoot = path.resolve(requireArg(args, 'site-root', 'Missing --site-root (git repository path)'));
     const branch = requireArg(args, 'branch', 'Missing --branch (branch name)');
     const message = requireArg(args, 'message', 'Missing --message (commit message)');
     const files = listArg(args, 'files');
-    const gitUserName = args['git-user-name'] || '{{SITE_NAME}} Agent';
-    const gitUserEmail = args['git-user-email'] || 'agent@{{DOMAIN}}';
+    const gitUserName = args['git-user-name'] || 'Website Operations Agent';
+    const gitUserEmail = args['git-user-email'] || 'agent@example.com';
 
     // Validate git repo
     if (!isGitRepo(siteRoot)) {
@@ -116,7 +121,7 @@ module.exports = function deployBranch() {
         commit_sha: shortHead(siteRoot),
         message,
         files_staged: [],
-        warning: 'Nothing to commit â€” working tree clean',
+        warning: 'Nothing to commit Ã¢â‚¬â€ working tree clean',
         site_root: siteRoot,
       }, { tool: TOOL }), getOutputFormat(args));
       return;
@@ -126,8 +131,10 @@ module.exports = function deployBranch() {
     commit(siteRoot, message, { name: gitUserName, email: gitUserEmail });
     const commitSha = shortHead(siteRoot);
 
-    // Parse staged files from status
-    const stagedFiles = status.split('\n').filter(Boolean).map(l => l.trim().replace(/^[A-Z?! ]+\s+/, ''));
+    // Record files from the commit that was just created. `git status --porcelain`
+    // includes unrelated unstaged/untracked workspace files, so it is not safe
+    // deployment metadata once the commit has succeeded.
+    const stagedFiles = committedFiles(git, siteRoot, 'HEAD');
 
     // Optionally record in DB
     let deploymentId = null;

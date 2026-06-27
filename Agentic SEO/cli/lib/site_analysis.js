@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DEFAULT_BASE_URL = 'https://{{DOMAIN}}';
+const DEFAULT_BASE_URL = 'https://example.com';
 
 const STOPWORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'been', 'but', 'by', 'can',
@@ -131,7 +131,7 @@ async function fetchText(url, options = {}) {
     const response = await fetch(url, {
       method: options.method || 'GET',
       redirect: options.redirect || 'follow',
-      headers: options.headers || { 'user-agent': '{{SITE_NAME}}Agent/2.0 (+https://{{DOMAIN}})' },
+      headers: options.headers || { 'user-agent': 'Website OperationsAgent/2.0 (+https://example.com)' },
       signal: controller.signal,
     });
     const body = options.method === 'HEAD' ? '' : await response.text();

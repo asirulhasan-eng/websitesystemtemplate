@@ -249,7 +249,7 @@ function main() {
 function printHelp() {
   console.log(`
 Usage:
-  node tools/rollback_deployment.js --deployment-id DEP-... --db tools/out/state/seo-agent.db --apply
+  node tools/rollback_deployment.js --deployment-id DEP-... --db tools/out/state/website-agent.db --apply
   node tools/rollback_deployment.js --commit-sha abc1234 --site-root /path/to/site --apply --push
 
 Options:

@@ -36,7 +36,7 @@ const COUNTED_DAILY_STATUSES = new Set(["completed", "deployed", "deployed_to_pr
 function loadGuardrails(options = {}) {
   const guardrailsPath = path.resolve(
     process.cwd(),
-    options.path || process.env.CLIENT_GUARDRAILS_PATH || DEFAULT_GUARDRAILS_PATH,
+    options.path || process.env.WEBSITE_AGENT_GUARDRAILS_PATH || DEFAULT_GUARDRAILS_PATH,
   );
   if (!fs.existsSync(guardrailsPath)) {
     return { path: guardrailsPath, config: null };

@@ -113,7 +113,7 @@ Output includes:
   - Delta counts
 
 Examples:
-  v2 crawl-diff --db /path/to/seo-agent.db --json
+  v2 crawl-diff --db /path/to/website-agent.db --json
   v2 crawl-diff --run-id CRWL-2026-06-03-ABC --compare-to CRWL-2026-05-30-DEF --json
 `);
 }

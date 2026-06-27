@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * serp-history.js â€” Query serp_checks table for historical SERP data
+ * serp-history.js Ã¢â‚¬â€ Query serp_checks table for historical SERP data
  *
  * Supports keyword filtering, trend analysis, best-ever position tracking,
  * volatility computation, and competitor analysis from stored SERP snapshots.
@@ -19,7 +19,7 @@ const { daysAgo } = require('../lib/dates');
 const TOOL = 'serp-history';
 
 const HELP = `
-serp-history â€” Query historical SERP check data from SQLite
+serp-history Ã¢â‚¬â€ Query historical SERP check data from SQLite
 
 USAGE
   node serp-history.js --db <path> [options]
@@ -51,11 +51,11 @@ OUTPUT
   --csv                      CSV output
 
 EXAMPLES
-  node serp-history.js --db ./seo.db --keyword "{{NICHE}} seo" --table
+  node serp-history.js --db ./seo.db --keyword "website seo" --table
   node serp-history.js --db ./seo.db --trend --days 30
   node serp-history.js --db ./seo.db --best --sort position
-  node serp-history.js --db ./seo.db --volatility --keyword {{NICHE}}
-  node serp-history.js --db ./seo.db --competitors --keyword "{{NICHE}} seo" --limit 5
+  node serp-history.js --db ./seo.db --volatility --keyword website
+  node serp-history.js --db ./seo.db --competitors --keyword "website seo" --limit 5
 `.trim();
 
 function buildBaseConditions(args) {
@@ -324,7 +324,7 @@ function main() {
   }
 
   try {
-    if (!args.db && !process.env.CLIENT_DB_PATH && !process.env.SEO_AGENT_DB) {
+    if (!args.db && !process.env.WEBSITE_AGENT_DB_PATH && !process.env.SEO_AGENT_DB) {
       throw new Error('--db <path> is required. Provide the SQLite database path.');
     }
 

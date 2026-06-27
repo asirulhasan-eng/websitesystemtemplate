@@ -21,19 +21,19 @@ scheduled roles:
 
 | Role | Component | Interval | What it does |
 |------|-----------|----------|--------------|
-| **Producer (internal signals)** | daily workplan (Hermes) | 2Ã—/day (08:00 / 20:00 {{TIMEZONE_ABBR}}) | Pure planner: decide strategy, create tasks, mark ready. **Does NOT execute.** |
-| **Producer (outside-world news)** | `run-industry-radar.sh` (Hermes) | 1Ã—/day (11:00 {{TIMEZONE_ABBR}}) | Scans SEO/GBP/PPC/core-update/local-SEO/{{NICHE}}-industry news, enqueues `new_blog_post` topics (status=approved). **Does NOT execute / write blogs.** See `processes/industry-radar.md`. |
+| **Producer (internal signals)** | daily workplan (Hermes) | 2Ãƒâ€”/day (08:00 / 20:00 BST) | Pure planner: decide strategy, create tasks, mark ready. **Does NOT execute.** |
+| **Producer (outside-world news)** | `run-industry-radar.sh` (Hermes) | 1Ãƒâ€”/day (11:00 BST) | Scans SEO/GBP/PPC/core-update/local-SEO/website-industry news, enqueues `new_blog_post` topics (status=approved). **Does NOT execute / write blogs.** See `processes/industry-radar.md`. |
 | **Feedback analyst** | feedback generator (Hermes) | every 2h | Reviews worker results + fresh data, writes a feedback brief the planner reads. |
 | **Ops consumer** | `run-ops-pipeline.sh` | `*/7` | Executes the next ready `general_operational` task. |
 | **Blog consumer** | `run-blog-pipeline.sh` | `*/19` | Executes the next ready `blog_content` task. |
 
 Decisions locked in:
-- **Enqueue-only producers** â€” there are now TWO: the twice-daily work plan
+- **Enqueue-only producers** Ã¢â‚¬â€ there are now TWO: the twice-daily work plan
   (internal signals) and the daily industry radar (outside-world news). Both only
   plan and enqueue; ALL execution happens in the workers. Single execution path.
 - **One task per tick** (highest-priority ready task in the lane, then exit).
 - **24/7** (workers tick around the clock, not just inside session windows).
-- **No code-enforced daily caps** â€” the AI decides what to enqueue. See contract.
+- **No code-enforced daily caps** Ã¢â‚¬â€ the AI decides what to enqueue. See contract.
 - **Feedback analyst is an AI (Hermes) run every 2h** that prepares inputs for the
   two daily planning sessions.
 
@@ -48,11 +48,11 @@ Decisions locked in:
 > task into a different type just to force pickup.
 
 Ready-state semantics:
-- `candidate` â†’ AI hasn't committed â†’ **workers skip**
-- `waiting_for_approval` â†’ irreversible, held for Telegram `approve` â†’ **workers skip**
-- `approved` â†’ ready (auto-approved under opt-out, or owner-approved high-risk) â†’ **workers execute**
-- `approved` **with a future `scheduled_for`** â†’ deferred â†’ **picker skips until due** (see below)
-- locked / `in_progress` / done â†’ **workers skip**
+- `candidate` Ã¢â€ â€™ AI hasn't committed Ã¢â€ â€™ **workers skip**
+- `waiting_for_approval` Ã¢â€ â€™ irreversible, held for Telegram `approve` Ã¢â€ â€™ **workers skip**
+- `approved` Ã¢â€ â€™ ready (auto-approved under opt-out, or owner-approved high-risk) Ã¢â€ â€™ **workers execute**
+- `approved` **with a future `scheduled_for`** Ã¢â€ â€™ deferred Ã¢â€ â€™ **picker skips until due** (see below)
+- locked / `in_progress` / done Ã¢â€ â€™ **workers skip**
 
 ### Executor-scheduled follow-ups (the one consumer-as-producer exception)
 
@@ -65,15 +65,15 @@ task plus an alert. Implementation: `cli/lib/followups.js`.
 Deferral uses the `tasks.scheduled_for` column (added for this): a follow-up is
 created `status='approved'` with a future timestamp, and `task next` filters out
 rows whose `scheduled_for` is in the future, so it stays invisible to the consumer
-until due â€” no promoter cron. Runaway production is bounded three ways: only
+until due Ã¢â‚¬â€ no promoter cron. Runaway production is bounded three ways: only
 `safe`, non-approval task types are created; a `followup_depth` cap bounds the
-optimizeâ†’verifyâ†’recoverâ†’verify chain; and a target+type dedupe prevents
+optimizeÃ¢â€ â€™verifyÃ¢â€ â€™recoverÃ¢â€ â€™verify chain; and a target+type dedupe prevents
 duplicate active follow-ups. Override the window per task via
-`evidence.followup_days` or globally via `CLIENT_FOLLOWUP_DAYS`.
+`evidence.followup_days` or globally via `WEBSITE_AGENT_FOLLOWUP_DAYS`.
 
 ## Components to build
 
-1. **`cli/commands/task-next.js`** â€” picker. Loads `approved` rows, runs
+1. **`cli/commands/task-next.js`** Ã¢â‚¬â€ picker. Loads `approved` rows, runs
    `routeTask` (lane can't be computed in SQL), returns the highest
    `priority_score` task in `--lane <lane>` that is not locked. `--json`.
 
@@ -81,49 +81,49 @@ duplicate active follow-ups. Override the window per task via
    - acquire run-lock `ops-pipeline` (skip tick if held)
    - `monitor-check --auto-fix` (cheap; abort tick on critical)
    - `TASK = v2 task next --lane general_operational --json`; exit if null
-   - dispatch by `risk_level`: `safe` â†’ `safe-fix`, `semi_safe` â†’ `semi-safe`,
-     `high_risk` â†’ `high-risk` (all `--apply --production`)
+   - dispatch by `risk_level`: `safe` Ã¢â€ â€™ `safe-fix`, `semi_safe` Ã¢â€ â€™ `semi-safe`,
+     `high_risk` Ã¢â€ â€™ `high-risk` (all `--apply --production`)
    - heartbeat; release run-lock
 
 3. **`cron/run-blog-pipeline.sh`** (`*/19`): same shape, `--lane blog_content`.
-   - `draft_needed` (new_blog_post) and new service page â†’ run via the
+   - `draft_needed` (new_blog_post) and new service page Ã¢â€ â€™ run via the
      creation process/skill ([new-blog-creation.md](new-blog-creation.md),
      [service-page-update.md](service-page-update.md)).
-   - `edit_refresh_needed` (content_refresh, editorial_copy_revision) â†’ **skip
+   - `edit_refresh_needed` (content_refresh, editorial_copy_revision) Ã¢â€ â€™ **skip
      and flag** for the AI until the modification skill exists (see TODO).
 
-4. **`cron/run-feedback.sh`** (`0 */2 * * *`) â€” Hermes "feedback analyst":
+4. **`cron/run-feedback.sh`** (`0 */2 * * *`) Ã¢â‚¬â€ Hermes "feedback analyst":
    - Pulls worker activity since last run from the `events` / `deployments` tables
      (executed, deployed, validated, rolled-back, failed, stuck).
-   - Pulls fresh outcome signals (GSC/SERP deltas for changed pages) â€” note this
+   - Pulls fresh outcome signals (GSC/SERP deltas for changed pages) Ã¢â‚¬â€ note this
      is the ONE place that may fetch data, NOT the */7 worker.
    - Writes a rolling **feedback brief** to `cron/feedback/latest.md` (+ timestamped
      copy) that the next planning session reads.
-   - Cost: 12 Hermes runs/day â€” gate it to no-op fast when there's no new activity.
+   - Cost: 12 Hermes runs/day Ã¢â‚¬â€ gate it to no-op fast when there's no new activity.
    - **Analysis-only.** It writes the brief; it does NOT create or approve tasks.
      The twice-daily planner is the sole producer.
 
-5. **Producer change â€” `run-daily-workplan.sh` + `daily-workplan.md`** â€” strip the
+5. **Producer change Ã¢â‚¬â€ `run-daily-workplan.sh` + `daily-workplan.md`** Ã¢â‚¬â€ strip the
    inline execution (`safe-fix`/`semi-safe`/`high-risk` calls). The session now only:
    reads the feedback brief, decides, creates tasks, sets them `approved`. Workers
    do the rest.
 
-6. **`cron/install-crons.sh`** â€” add:
+6. **`cron/install-crons.sh`** Ã¢â‚¬â€ add:
    ```cron
-   0   */2 * * * /opt/client-agent/cron/run-feedback.sh      >> .../logs/feedback.log 2>&1
-   */7   * * * * /opt/client-agent/cron/run-ops-pipeline.sh  >> .../logs/ops-pipeline.log 2>&1
-   */19  * * * * /opt/client-agent/cron/run-blog-pipeline.sh >> .../logs/blog-pipeline.log 2>&1
+   0   */2 * * * /opt/website-agent/cron/run-feedback.sh      >> .../logs/feedback.log 2>&1
+   */7   * * * * /opt/website-agent/cron/run-ops-pipeline.sh  >> .../logs/ops-pipeline.log 2>&1
+   */19  * * * * /opt/website-agent/cron/run-blog-pipeline.sh >> .../logs/blog-pipeline.log 2>&1
    ```
 
-7. **AI-awareness doc edits** â€” write the contract above into:
+7. **AI-awareness doc edits** Ã¢â‚¬â€ write the contract above into:
    - [processes/daily-workplan.md](daily-workplan.md)
    - [hermes/skills/client/system-rules/SKILL.md](../hermes/skills/client/system-rules/SKILL.md)
    - [hermes/skills/client/daily-workplan/skill.md](../hermes/skills/client/daily-workplan/skill.md)
    - [config/guardrails.json](../config/guardrails.json) `review_model` (note the auto-pickup)
 
 ## Concurrency
-- Named run-lock per pipeline via existing `locks` table â†’ no double-fire on overrun.
-- Per-task locks already acquired inside executors â†’ task mid-flight not re-picked.
+- Named run-lock per pipeline via existing `locks` table Ã¢â€ â€™ no double-fire on overrun.
+- Per-task locks already acquired inside executors Ã¢â€ â€™ task mid-flight not re-picked.
 
 ## Existing guards we rely on (already in code)
 - `semi-safe` refuses blog content / non-`general_operational` tasks.
@@ -134,10 +134,10 @@ duplicate active follow-ups. Override the window per task via
 
 ## PRE-LAUNCH TODO (before starting the agent)
 
-- [ ] **Blog/service-page MODIFICATION skill** â€” AI writes a detailed change spec,
+- [ ] **Blog/service-page MODIFICATION skill** Ã¢â‚¬â€ AI writes a detailed change spec,
       then applies it. Needed before the blog pipeline can handle
       `content_refresh` / `editorial_copy_revision` (until then those are skipped
-      and flagged). (Deferred per owner â€” "connect later".)
+      and flagged). (Deferred per owner Ã¢â‚¬â€ "connect later".)
 - [ ] Wire the new-blog / service-page CREATION skill into `run-blog-pipeline.sh`
       (decide: deterministic executor vs Hermes-invoked skill for quality).
 - [ ] Define the **feedback brief** schema/sections the planner consumes, and the

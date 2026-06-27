@@ -20,7 +20,7 @@
     "agent_root": "/opt/client-agent",
     "site_root": "/opt/client-site",
     "obsidian_root": "/opt/client-obsidian",
-    "db_path": "/opt/client-sqlite/seo-agent.db",
+    "db_path": "/opt/client-sqlite/website-agent.db",
     "logs": "/opt/client-agent/tools/out/logs"
   },
 

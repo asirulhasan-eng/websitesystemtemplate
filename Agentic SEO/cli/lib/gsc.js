@@ -7,8 +7,8 @@ const tokenCache = { token: null, expiresAt: 0 };
 async function getGscAccessToken(config) {
   const existingToken = config.get("GSC_ACCESS_TOKEN");
   const refreshToken = config.get("GSC_REFRESH_TOKEN");
-  const clientId = config.get("GSC_CLIENT_ID");
-  const clientSecret = config.get("GSC_CLIENT_SECRET");
+  const clientId = config.get("GSC_WEBSITE_AGENT_ID");
+  const clientSecret = config.get("GSC_WEBSITE_AGENT_SECRET");
 
   if (refreshToken && clientId && clientSecret) {
     if (tokenCache.token && Date.now() < tokenCache.expiresAt) {

@@ -60,9 +60,9 @@ $pairs = @(
   # generic slug
   @('plumbingseo',               'client'),
   # owner / personal
-  @('asirulhasan@gmail.com',     '{{ADMIN_EMAIL}}'),
-  @('Asirul Hasan',              '{{OWNER_NAME}}'),
-  @('Asirul',                    '{{OWNER_NAME}}'),
+  @('owner@example.com',     '{{ADMIN_EMAIL}}'),
+  @('Site Owner Hasan',              '{{OWNER_NAME}}'),
+  @('Site Owner',                    '{{OWNER_NAME}}'),
   # timezone / locale defaults
   @('Asia/Dhaka',                '{{TIMEZONE}}'),
   @('BDT',                       '{{TIMEZONE_ABBR}}')

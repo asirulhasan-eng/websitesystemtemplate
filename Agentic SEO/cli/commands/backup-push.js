@@ -42,7 +42,7 @@ module.exports = function backupPush() {
       generated_at: nowIso(),
       tool: TOOL,
       mode: "dry-run",
-      repos: [{ repo: "/opt/client-sqlite", dirty: true, committed: false, pushed: false }],
+      repos: [{ repo: "/opt/website-state", dirty: true, committed: false, pushed: false }],
     }, getOutputFormat(args));
     return;
   }

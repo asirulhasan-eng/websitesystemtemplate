@@ -86,10 +86,10 @@ clone_if_missing() {
   fi
 }
 
-clone_if_missing /opt/client-site https://github.com/asirulhasan-eng/client-site.git
-clone_if_missing /opt/client-sqlite https://github.com/asirulhasan-eng/client-sqlite.git
-clone_if_missing /opt/client-obsidian https://github.com/asirulhasan-eng/client-obsidian.git
-clone_if_missing /opt/client-agent https://github.com/asirulhasan-eng/client-agent.git
+clone_if_missing /opt/client-site https://github.com/YOUR_GITHUB_ORG/client-site.git
+clone_if_missing /opt/client-sqlite https://github.com/YOUR_GITHUB_ORG/client-state.git
+clone_if_missing /opt/client-obsidian https://github.com/YOUR_GITHUB_ORG/client-obsidian.git
+clone_if_missing /opt/client-agent https://github.com/YOUR_GITHUB_ORG/client-agent.git
 
 # ---- Step 4: Install Node Dependencies & Preflight ----
 info "Checking Node.js prerequisites..."

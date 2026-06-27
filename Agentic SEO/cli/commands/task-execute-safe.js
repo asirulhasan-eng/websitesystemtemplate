@@ -12,7 +12,14 @@ const { loadBrain, assertAllowedByBrain, logBrainEvent } = require("../lib/obsid
 const { assertTaskStatus, isCompletedTaskStatus } = require("../lib/statuses");
 const { assertTaskExecutionAllowed } = require("../lib/guardrails");
 const { resolveSitePath } = require("../lib/site_paths");
-const { maybeCreateFollowups, createFollowupTask, evaluateRankingDeltas, readClicksWindow, domainFromUrl } = require("../lib/followups");
+const {
+  maybeCreateFollowups,
+  createFollowupTask,
+  evaluateRankingDeltas,
+  partitionSerpReading,
+  readClicksWindow,
+  domainFromUrl,
+} = require("../lib/followups");
 const { closeExperiment, leverForType } = require("../lib/experiments");
 const { loadOutcomeConfig, evaluateOutcome, planConfirmationStep, decideRemediation } = require("../lib/outcome_loop");
 
@@ -23,9 +30,9 @@ function main() {
     return;
   }
 
-  const db = openStateDb(args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db");
+  const db = openStateDb(args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db");
   const taskId = requireArg(args, "task");
-  const siteRoot = path.resolve(process.cwd(), args["site-root"] || "D:\\Projects\\{{NICHE}} SEO Agency");
+  const siteRoot = path.resolve(process.cwd(), args["site-root"] || "D:\\Projects\\website SEO Agency");
   const task = db.prepare("SELECT * FROM tasks WHERE task_id = ?").get(taskId);
   if (!task) throw new Error(`Task not found: ${taskId}`);
   const brain = loadBrain({ vaultRoot: args["brain-vault"] || args.vault, mode: "execution", autoCompile: args.compile !== false }).brain;
@@ -103,8 +110,8 @@ function main() {
       if ((args.commit || isProduction) && changedFiles.length > 0) {
         git.add(siteRoot, changedFiles.map((file) => path.relative(siteRoot, file)));
         git.commit(siteRoot, `${taskId}: ${task.title}`, {
-          name: args["git-user-name"] || "{{SITE_NAME}} Agent",
-          email: args["git-user-email"] || "agent@{{DOMAIN}}",
+          name: args["git-user-name"] || "Website Operations Agent",
+          email: args["git-user-email"] || "agent@example.com",
         });
         output.commit_sha = git.shortHead(siteRoot);
       }
@@ -122,7 +129,7 @@ function main() {
         // Wait for Cloudflare deployment if available
         try {
           const waitResult = runTool("deploy-wait.js", [
-            "--db", args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db",
+            "--db", args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db",
             "--state-deployment-id", deploymentId,
             ...(isProduction ? ["--environment", "production"] : ["--branch", branch]),
             "--timeout-seconds", "180",
@@ -135,14 +142,14 @@ function main() {
         }
         // Only the wait tool confirming ok:true means the build went live.
         // A skipped/timed-out/failed wait must NOT be reported as a successful
-        // production deploy â€” flag it for human review instead.
+        // production deploy Ã¢â‚¬â€ flag it for human review instead.
         output.deploy_verified = output.cloudflare_wait && output.cloudflare_wait.ok === true;
 
         // Run live validation if requested
         if (args["validate-live"] && task.target_url) {
           try {
             const validateResult = runTool("deploy-validate.js", [
-              "--db", args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db",
+              "--db", args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db",
               "--deployment-id", deploymentId,
               "--url", task.target_url,
               "--task", taskId,
@@ -193,7 +200,7 @@ function main() {
 // SERP position as fallback/diagnostic) against the baseline captured when the change
 // shipped. A single dip never acts: a degraded reading starts a debounced confirmation
 // watch (re-check every recheck_days), and only a CONFIRMED regression (N consecutive
-// degraded checks within max_watch_days) triggers a lever-split auto-remediation —
+// degraded checks within max_watch_days) triggers a lever-split auto-remediation â€”
 // content levers are refreshed, metadata/link levers are rolled back. No file edit here.
 function executeRankingFollowup(db, task, metadata, { args, output }) {
   const evidence = metadata.evidence || {};
@@ -234,22 +241,31 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
   }
 
   // Live SERP re-check; persists to serp_checks so future baselines improve.
-  const current = {};
+  let current = {};
+  let checkedKeywords = keywords;
   try {
     const serpArgs = [
       "--keywords", keywords.join(","),
-      "--db", args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db",
+      "--db", args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db",
       "--json",
     ];
     if (domain) serpArgs.push("--domain", domain);
     const serpOut = JSON.parse(runTool("serp-check.js", serpArgs));
-    output.serp_check = { ok: serpOut.ok, keywords_checked: serpOut.keywords_checked };
-    for (const row of serpOut.rows || []) {
-      // Treat a missing position as null (unranked), never 0 — Number(null) === 0
-      // would otherwise read as rank #0 and hide a regression.
-      current[row.keyword] = (row.position === null || row.position === undefined || !Number.isFinite(Number(row.position)))
-        ? null
-        : Number(row.position);
+    const partition = partitionSerpReading(keywords, serpOut.rows || [], serpOut.errors || []);
+    current = partition.current_positions;
+    checkedKeywords = partition.checked_keywords;
+    output.serp_check = {
+      ok: serpOut.ok,
+      keywords_checked: checkedKeywords.length,
+      keywords_errored: partition.errors.length,
+      partial: partition.partial,
+    };
+    if (partition.errors.length) output.serp_errors = partition.errors;
+    if (partition.all_errored) {
+      output.status = "needs_review";
+      output.reason = "SERP re-check failed for every keyword.";
+      updateTaskState(db, task, "needs_review", output, "ranking_followup_check_failed");
+      return finish(output, args);
     }
   } catch (e) {
     output.status = "needs_review";
@@ -269,7 +285,11 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
   }
   output.current_clicks = currentClicks;
 
-  const positionEval = evaluateRankingDeltas(baseline, current, { dropThreshold: cfg.position_drop });
+  const checkedBaseline = {};
+  for (const keyword of checkedKeywords) {
+    if (Object.prototype.hasOwnProperty.call(baseline, keyword)) checkedBaseline[keyword] = baseline[keyword];
+  }
+  const positionEval = evaluateRankingDeltas(checkedBaseline, current, { dropThreshold: cfg.position_drop });
   const outcomeEval = evaluateOutcome({ baselineClicks, currentClicks, positionEval, config: cfg });
   output.evaluation = { ...outcomeEval, positions: positionEval };
 
@@ -296,7 +316,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
   output.consecutive_degraded = step.consecutive;
   output.confirmation_step = step.decision;
 
-  // ── Not degraded: success, or a prior dip that recovered. Close + done. ──
+  // â”€â”€ Not degraded: success, or a prior dip that recovered. Close + done. â”€â”€
   if (step.decision === "success" || step.decision === "recovered") {
     output.experiment = closeWindow(step.decision === "recovered" ? "recovered_transient" : outcomeEval.outcome);
     output.action_taken = step.decision === "recovered" ? "recovered_no_action" : "none";
@@ -305,7 +325,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
     return finish(output, args);
   }
 
-  // ── Degraded but unconfirmed: schedule a tighter re-check, or hand to a human. ──
+  // â”€â”€ Degraded but unconfirmed: schedule a tighter re-check, or hand to a human. â”€â”€
   // Close the (14d) attribution window now so same-lever edits aren't blocked through
   // the watch. depthDelta:0 keeps monitoring re-checks off the change-depth budget.
   if (step.decision === "watch" || step.decision === "inconclusive") {
@@ -322,7 +342,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
         title: `Ranking re-check: ${keywords[0]}`,
         description: `Confirmation re-check ${cfg.confirm.recheck_days}d after a degraded reading on `
           + `${task.target_url}. Degraded ${step.consecutive}/${cfg.confirm.required_consecutive_degraded} `
-          + "consecutive checks — acts only once confirmed.",
+          + "consecutive checks â€” acts only once confirmed.",
         targetUrl: task.target_url || null,
         targetFile: task.target_file || null,
         targetKeyword: keywords[0],
@@ -360,7 +380,7 @@ function executeRankingFollowup(db, task, metadata, { args, output }) {
     return finish(output, args);
   }
 
-  // ── Confirmed regression (step.decision === "act"). ACT (lever-split). ──
+  // â”€â”€ Confirmed regression (step.decision === "act"). ACT (lever-split). â”€â”€
   // Close the attribution window first so an auto-refresh isn't parked in its own
   // just-finished research_hold.
   output.experiment = closeWindow("regressed");
@@ -437,7 +457,7 @@ function autoRollback(db, followupTask, metadata, parentTaskId, args) {
   }
 
   const siteRoot = args["site-root"] ? path.resolve(process.cwd(), args["site-root"]) : process.cwd();
-  const dbPath = args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db";
+  const dbPath = args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db";
   try {
     const out = JSON.parse(
       runTool("deploy-rollback.js", [
@@ -467,7 +487,8 @@ function fallbackRecovery(db, followupTask, metadata, parentTaskId, reason) {
     parentTask: followupTask,
     parentMetadata: metadata,
     taskType: "ranking_recovery",
-    riskLevel: "needs_review",
+    status: "needs_review",
+    riskLevel: "high_risk",
     priority: 920,
     source: "executor_followup",
     title: `Investigate ranking drop: ${followupTask.target_keyword || followupTask.target_url || followupTask.task_id}`,
@@ -591,25 +612,25 @@ function replaceHeadAction(filePath, html, insertHtml) {
 
 function newBlogPostAction(siteRoot, targetFile, task, evidence) {
   const brief = evidence.blog_brief || {};
-  const h1 = cleanText(brief.proposed_h1 || task.title.replace(/^Create blog:\s*/i, "") || task.target_keyword || "{{NICHE}} SEO Guide");
+  const h1 = cleanText(brief.proposed_h1 || task.title.replace(/^Create blog:\s*/i, "") || task.target_keyword || "website SEO Guide");
   const keyword = cleanText(brief.primary_keyword || task.target_keyword || h1);
-  const intent = cleanText(brief.search_intent || task.description || `A practical guide for {{NICHE}} companies researching ${keyword}.`);
-  const canonical = canonicalFor(task) || `https://{{DOMAIN}}/${path.relative(siteRoot, targetFile).replace(/\\/g, "/").replace(/\.html$/i, "")}`;
+  const intent = cleanText(brief.search_intent || task.description || `A practical guide for website owners researching ${keyword}.`);
+  const canonical = canonicalFor(task) || `https://example.com/${path.relative(siteRoot, targetFile).replace(/\\/g, "/").replace(/\.html$/i, "")}`;
   const published = new Date().toISOString().slice(0, 10);
-  const title = `${h1} | {{SITE_NAME}}`;
-  const description = truncate(`${intent} Practical advice from {{SITE_NAME}}.agency for {{NICHE}} businesses that want more qualified calls.`, 155);
+  const title = `${h1} | Website Operations`;
+  const description = truncate(`${intent} Practical advice from Website Operations Agency for website owners that want more qualified calls.`, 155);
   const outline = Array.isArray(brief.outline) && brief.outline.length ? brief.outline : [
-    `What ${keyword} means for {{NICHE}} companies`,
+    `What ${keyword} means for website owners`,
     "Common mistakes to avoid",
     "How to turn the strategy into more booked jobs",
     "A practical owner checklist",
   ];
   const faqs = Array.isArray(brief.faq_targets) && brief.faq_targets.length ? brief.faq_targets : [
-    `What should {{AUDIENCE}} know about ${keyword}?`,
+    `What should small business owners know about ${keyword}?`,
     `How long does ${keyword} take to work?`,
-    `Can a {{NICHE}} company handle ${keyword} in-house?`,
+    `Can a website owner handle ${keyword} in-house?`,
   ];
-  const differentiation = cleanText(brief.differentiation || "This article uses {{AUDIENCE}}-specific examples, owner checklists, and conversion-focused next steps.");
+  const differentiation = cleanText(brief.differentiation || "This article uses small business owners-specific examples, owner checklists, and conversion-focused next steps.");
   const competitorSource = cleanText(evidence.competitor_source_url || "");
   const body = renderBlogArticle({ h1, keyword, intent, outline, faqs, differentiation, competitorSource, published });
   const html = renderBlogHtml({ title, description, canonical, h1, body, published });
@@ -625,12 +646,12 @@ function renderBlogHtml({ title, description, canonical, h1, body, published }) 
     url: canonical,
     datePublished: published,
     dateModified: published,
-    author: { "@type": "Organization", name: "{{SITE_NAME}}.agency", url: "https://{{DOMAIN}}" },
+    author: { "@type": "Organization", name: "Website Operations Agency", url: "https://example.com" },
     publisher: {
       "@type": "Organization",
-      name: "{{SITE_NAME}}.agency",
-      url: "https://{{DOMAIN}}",
-      logo: { "@type": "ImageObject", url: "https://{{DOMAIN}}/{{NICHE}}-seo-agency-logo-200.webp" },
+      name: "Website Operations Agency",
+      url: "https://example.com",
+      logo: { "@type": "ImageObject", url: "https://example.com/website-seo-agency-logo-200.webp" },
     },
     mainEntityOfPage: canonical,
   };
@@ -638,8 +659,8 @@ function renderBlogHtml({ title, description, canonical, h1, body, published }) 
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://{{DOMAIN}}/" },
-      { "@type": "ListItem", position: 2, name: "Blog", item: "https://{{DOMAIN}}/blog/" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://example.com/" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: "https://example.com/blog/" },
       { "@type": "ListItem", position: 3, name: h1, item: canonical },
     ],
   };
@@ -656,7 +677,7 @@ function renderBlogHtml({ title, description, canonical, h1, body, published }) 
 <meta content="${escapeHtml(description)}" property="og:description"/>
 <meta content="${escapeHtml(canonical)}" property="og:url"/>
 <meta content="article" property="og:type"/>
-<meta content="{{SITE_NAME}}.agency" property="og:site_name"/>
+<meta content="Website Operations Agency" property="og:site_name"/>
 <meta content="summary_large_image" name="twitter:card"/>
 <link href="../css/main.css" rel="stylesheet"/>
 <link href="../css/blog.css" rel="stylesheet"/>
@@ -666,17 +687,17 @@ function renderBlogHtml({ title, description, canonical, h1, body, published }) 
 <script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>
 </head>
 <body>
-<header class="header" id="header"><div class="header__inner"><a aria-label="{{SITE_NAME}}.agency Home" class="header__logo" href="../"><img alt="{{SITE_NAME}}.agency logo" height="80" src="../{{NICHE}}-seo-agency-logo-150.webp" width="80"/><span class="header__logo-text">{{SITE_NAME}}<span>.agency</span></span></a><nav aria-label="Main navigation" class="nav"><ul class="nav__links"><li><a class="nav__link" href="../">Home</a></li><li><a class="nav__link" href="../services/{{NICHE}}-seo">What We Offer</a></li><li><a class="nav__link" href="../services/{{NICHE}}-seo-process">How We Do It</a></li><li><a class="nav__link" href="../services/pricing">Pricing</a></li><li><a class="nav__link" href="../blog/">Blog</a></li></ul><a class="btn btn--primary btn--sm" href="../services/free-seo-audit">Get Free SEO Audit</a></nav></div></header>
+<header class="header" id="header"><div class="header__inner"><a aria-label="Website Operations Agency Home" class="header__logo" href="../"><img alt="Website Operations Agency logo" height="80" src="../website-seo-agency-logo-150.webp" width="80"/><span class="header__logo-text">Website Operations<span>.agency</span></span></a><nav aria-label="Main navigation" class="nav"><ul class="nav__links"><li><a class="nav__link" href="../">Home</a></li><li><a class="nav__link" href="../services/website-seo">What We Offer</a></li><li><a class="nav__link" href="../services/website-seo-process">How We Do It</a></li><li><a class="nav__link" href="../services/pricing">Pricing</a></li><li><a class="nav__link" href="../blog/">Blog</a></li></ul><a class="btn btn--primary btn--sm" href="../services/free-seo-audit">Get Free SEO Audit</a></nav></div></header>
 <main>
 <article>
-<header class="article-header"><div class="container"><div class="breadcrumbs" style="justify-content:center;margin-bottom:var(--space-4);"><a href="../">Home</a> <span>/</span> <a href="./">Blog</a></div><div class="article-header__meta">{{NICHE}} Marketing</div><h1 class="article-header__title">${escapeHtml(h1)}</h1><div class="article-header__author"><span>Published ${escapeHtml(formatDisplayDate(published))}</span> â€¢ <span>Draft for review</span></div></div></header>
+<header class="article-header"><div class="container"><div class="breadcrumbs" style="justify-content:center;margin-bottom:var(--space-4);"><a href="../">Home</a> <span>/</span> <a href="./">Blog</a></div><div class="article-header__meta">website Marketing</div><h1 class="article-header__title">${escapeHtml(h1)}</h1><div class="article-header__author"><span>Published ${escapeHtml(formatDisplayDate(published))}</span> Ã¢â‚¬Â¢ <span>Draft for review</span></div></div></header>
 <div class="article-layout"><div class="container"><div class="article-container article-content">
 ${body}
-<div class="cta-box" id="bottom-cta"><h2 class="cta-box__title">Want a {{NICHE}} SEO Plan Built Around Real Calls?</h2><p>We will review your site, rankings, local visibility, and lead path, then show you the biggest opportunities to get more booked jobs.</p><a class="btn btn--primary" href="../services/free-seo-audit">Run My Free SEO Audit</a></div>
+<div class="cta-box" id="bottom-cta"><h2 class="cta-box__title">Want a website SEO Plan Built Around Real Calls?</h2><p>We will review your site, rankings, local visibility, and lead path, then show you the biggest opportunities to get more booked jobs.</p><a class="btn btn--primary" href="../services/free-seo-audit">Run My Free SEO Audit</a></div>
 </div></div></div>
 </article>
 </main>
-<footer class="footer" id="footer"><div class="container"><p>{{SITE_NAME}}.agency helps {{NICHE}} companies rank higher, show up on Google Maps, and turn local searches into calls.</p></div></footer>
+<footer class="footer" id="footer"><div class="container"><p>Website Operations Agency helps website owners rank higher, show up on Google Maps, and turn local searches into calls.</p></div></footer>
 <script src="../js/main.js"></script>
 <script src="/js/floating-cta.js?v=1" defer></script>
 </body>
@@ -685,25 +706,25 @@ ${body}
 }
 
 function renderBlogArticle({ h1, keyword, intent, outline, faqs, differentiation, competitorSource, published }) {
-  const intro = `<div class="tldr-box"><div class="tldr-box__label">The Bottom Line for Busy {{AUDIENCE}}</div><ul><li>${escapeHtml(intent)}</li><li>This draft was generated from an approved competitor-gap content brief and should be reviewed before production publishing.</li><li>The goal is to answer the search intent better than generic marketing advice by using {{NICHE}}-specific examples, checklists, and conversion guidance.</li></ul></div>`;
-  const sourceNote = competitorSource ? `<p><em>Brief source reviewed: ${escapeHtml(competitorSource)}. This article is written as original {{SITE_NAME}} guidance, not copied competitor content.</em></p>` : "";
+  const intro = `<div class="tldr-box"><div class="tldr-box__label">The Bottom Line for Busy small business owners</div><ul><li>${escapeHtml(intent)}</li><li>This draft was generated from an approved competitor-gap content brief and should be reviewed before production publishing.</li><li>The goal is to answer the search intent better than generic marketing advice by using website-specific examples, checklists, and conversion guidance.</li></ul></div>`;
+  const sourceNote = competitorSource ? `<p><em>Brief source reviewed: ${escapeHtml(competitorSource)}. This article is written as original Website Operations guidance, not copied competitor content.</em></p>` : "";
   const sections = outline.map((heading, index) => {
     const cleanHeading = cleanText(heading);
     return `<h2>${escapeHtml(cleanHeading)}</h2>\n<p>${escapeHtml(sectionParagraph(cleanHeading, keyword, index))}</p>\n${index === 0 ? `<p>${escapeHtml(differentiation)}</p>` : ""}`;
   }).join("\n");
   const checklist = `<h2>Quick Owner Checklist</h2><ul>${outline.slice(0, 7).map((item) => `<li>${escapeHtml(checklistItem(item, keyword))}</li>`).join("")}</ul>`;
   const faqHtml = `<section class="faq-section" id="faq"><h2>FAQs About ${escapeHtml(keyword)}</h2><div class="faq-accordion">${faqs.map((question) => `<div class="faq-item"><button aria-expanded="false" class="faq-question">${escapeHtml(question)} <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="faq-answer"><div class="faq-answer__inner"><p>${escapeHtml(faqAnswer(question, keyword))}</p></div></div></div>`).join("")}</div></section>`;
-  return `${intro}\n<p>${escapeHtml(h1)} is a practical guide for {{NICHE}} company owners who want clearer marketing decisions, stronger local visibility, and more qualified calls.</p>\n${sourceNote}\n${sections}\n${checklist}\n${faqHtml}`;
+  return `${intro}\n<p>${escapeHtml(h1)} is a practical guide for website owner owners who want clearer marketing decisions, stronger local visibility, and more qualified calls.</p>\n${sourceNote}\n${sections}\n${checklist}\n${faqHtml}`;
 }
 
 function sectionParagraph(heading, keyword, index) {
   const lower = heading.toLowerCase();
   if (lower.includes("checklist") || lower.includes("action")) return `Use this section as a working checklist. For ${keyword}, the safest path is to inspect the current page, local search signals, tracking, and call path before making expensive changes. Prioritize fixes that can be measured in rankings, calls, booked jobs, and lead quality.`;
-  if (lower.includes("gbp") || lower.includes("google") || lower.includes("maps")) return `For {{AUDIENCE}}, Google visibility usually depends on both the website and the Google Business Profile. Check categories, services, reviews, photos, service areas, proximity, and whether the website reinforces the same services and locations.`;
+  if (lower.includes("gbp") || lower.includes("google") || lower.includes("maps")) return `For small business owners, Google visibility usually depends on both the website and the Google Business Profile. Check categories, services, reviews, photos, service areas, proximity, and whether the website reinforces the same services and locations.`;
   if (lower.includes("tracking") || lower.includes("call") || lower.includes("lead")) return `The work is only useful if it produces better calls. Connect ${keyword} decisions to call tracking, form tracking, booked-job quality, and page-level reporting so the owner can see which changes actually create revenue.`;
-  if (lower.includes("technical") || lower.includes("schema") || lower.includes("speed")) return `Technical SEO supports trust and discovery. A {{NICHE}} site should load quickly on mobile, be indexable, use clean internal links, and include structured data where it helps Google understand services, locations, and FAQs.`;
-  if (index === 0) return `${keyword} should be judged by practical business outcomes, not vanity metrics. A {{NICHE}} company needs pages and local signals that match real service demand, build trust quickly, and make it easy for homeowners to call.`;
-  return `This step matters because {{NICHE}} searches are local, urgent, and high-trust. The better the page answers the ownerâ€™s real question, the easier it is to earn rankings, calls, and confident follow-up.`;
+  if (lower.includes("technical") || lower.includes("schema") || lower.includes("speed")) return `Technical SEO supports trust and discovery. A website site should load quickly on mobile, be indexable, use clean internal links, and include structured data where it helps Google understand services, locations, and FAQs.`;
+  if (index === 0) return `${keyword} should be judged by practical business outcomes, not vanity metrics. A website owner needs pages and local signals that match real service demand, build trust quickly, and make it easy for homeowners to call.`;
+  return `This step matters because website searches are local, urgent, and high-trust. The better the page answers the ownerÃ¢â‚¬â„¢s real question, the easier it is to earn rankings, calls, and confident follow-up.`;
 }
 
 function checklistItem(item, keyword) {
@@ -712,10 +733,10 @@ function checklistItem(item, keyword) {
 
 function faqAnswer(question, keyword) {
   const lower = String(question || "").toLowerCase();
-  if (lower.includes("how long")) return `Most {{NICHE}} SEO improvements need weeks to months, depending on competition, the starting website, Google Business Profile strength, and how quickly content, technical fixes, and authority signals are improved.`;
+  if (lower.includes("how long")) return `Most website SEO improvements need weeks to months, depending on competition, the starting website, Google Business Profile strength, and how quickly content, technical fixes, and authority signals are improved.`;
   if (lower.includes("cost")) return `Cost depends on market size, competition, page count, tracking needs, and whether the company needs strategy, content, technical fixes, or ad support. Start by fixing the highest-impact gaps first.`;
   if (lower.includes("in-house")) return `Some tasks can be handled in-house if the team has time and clear standards. Competitive markets usually need experienced SEO, content, technical, and tracking support working together.`;
-  return `${keyword} works best when it is tied to real {{NICHE}} services, local demand, trustworthy proof, and measurable calls instead of generic website traffic alone.`;
+  return `${keyword} works best when it is tied to real website operations services, local demand, trustworthy proof, and measurable calls instead of generic website traffic alone.`;
 }
 
 function formatDisplayDate(dateValue) {
@@ -725,7 +746,7 @@ function formatDisplayDate(dateValue) {
 
 function truncate(value, max) {
   const text = cleanText(value);
-  return text.length <= max ? text : `${text.slice(0, max - 1).trim()}â€¦`;
+  return text.length <= max ? text : `${text.slice(0, max - 1).trim()}Ã¢â‚¬Â¦`;
 }
 
 function writeAction(filePath, before, after, description) {
@@ -795,7 +816,7 @@ function internalLinkActions(targetFile, html, evidence) {
     }
   }
   if (!applied.length || nextHtml === html) return [];
-  const summary = applied.map((s) => `"${s.anchor_text}" â†’ ${s.to_url}`).join(", ");
+  const summary = applied.map((s) => `"${s.anchor_text}" Ã¢â€ â€™ ${s.to_url}`).join(", ");
   return [writeAction(targetFile, html, nextHtml, `Add ${applied.length} internal link(s): ${summary}`)];
 }
 
@@ -804,7 +825,7 @@ function internalLinkActions(targetFile, html, evidence) {
 // internalLinkActions so a later transform never clobbers an earlier one):
 //   1. loading="lazy" + decoding="async" on below-the-fold <img> tags. Anything
 //      before the first <h2> (header/logo/hero) is a potential LCP element and is
-//      never touched — lazy-loading the LCP image makes LCP worse, not better.
+//      never touched â€” lazy-loading the LCP image makes LCP worse, not better.
 //   2. `defer` on render-blocking external <head> scripts (skips async/defer/
 //      module; inline and JSON-LD scripts have no src and are never matched).
 // Anything beyond these (image re-encoding, critical CSS, third-party scripts)
@@ -943,12 +964,12 @@ function resolveTargetFile(siteRoot, task, evidence) {
 
 function titleFromTask(task, html) {
   const h1 = firstMatch(html, /<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
-  return cleanText(h1 || task.target_keyword || task.title || "{{SITE_NAME}}");
+  return cleanText(h1 || task.target_keyword || task.title || "Website Operations");
 }
 
 function descriptionFromTask(task, html) {
   const title = titleFromTask(task, html);
-  return `${title} from {{SITE_NAME}}. Practical SEO support for {{NICHE}} businesses that want stronger search visibility and more qualified leads.`;
+  return `${title} from Website Operations. Practical SEO support for website owners that want stronger search visibility and more qualified leads.`;
 }
 
 function canonicalFor(task) {
@@ -974,7 +995,7 @@ function buildLockTargets(task, metadata) {
 function acquireLocks(db, task, targets) {
   const now = nowIso();
   const acquired = [];
-  // Sort by LOCK_ORDER to prevent deadlocks (Â§14)
+  // Sort by LOCK_ORDER to prevent deadlocks (Ã‚Â§14)
   targets.sort((a, b) => {
     const ai = LOCK_ORDER.indexOf(a.type);
     const bi = LOCK_ORDER.indexOf(b.type);
@@ -1046,7 +1067,29 @@ function recordTaskEvent(db, taskId, eventType, oldValue, newValue, metadata) {
 function assertRepoReady(siteRoot, allowDirty) {
   if (!fs.existsSync(siteRoot)) throw new Error(`Site root not found: ${siteRoot}`);
   if (!git.isGitRepo(siteRoot)) throw new Error(`Site root is not a git repo: ${siteRoot}`);
-  if (git.isDirty(siteRoot) && !allowDirty) throw new Error(`Site repo is dirty. Use --allow-dirty only after review.`);
+  const siteScopedStatus = siteScopedGitStatus(siteRoot);
+  if (siteScopedStatus && !allowDirty) {
+    throw new Error(
+      "Site repo has uncommitted changes within the site scope. " +
+      "Human action required: inspect, commit/stash, or revert these site files before safe-fix; " +
+      "use --allow-dirty only after review. Dirty site paths: " + summarizeGitStatus(siteScopedStatus),
+    );
+  }
+}
+
+function siteScopedGitStatus(siteRoot) {
+  return execFileSync("git", ["status", "--porcelain=v1", "--untracked-files=all", "--", "."], {
+    cwd: siteRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+function summarizeGitStatus(statusText, maxLines = 8) {
+  const lines = String(statusText || "").split(/\r?\n/).filter(Boolean);
+  const shown = lines.slice(0, maxLines).map((line) => line.trim()).join("; ");
+  const remaining = lines.length - maxLines;
+  return remaining > 0 ? `${shown}; ... +${remaining} more` : shown;
 }
 
 function finish(output, args) {
@@ -1120,7 +1163,7 @@ function safeJson(value) {
 function printHelp() {
   console.log(`
 Usage:
-  node tools/execute_safe_task.js --task CAND-2026-05-26-ABC --site-root "D:\\Projects\\{{NICHE}} SEO Agency"
+  node tools/execute_safe_task.js --task CAND-2026-05-26-ABC --site-root "D:\\Projects\\website SEO Agency"
   node tools/execute_safe_task.js --task CAND-... --apply --create-branch --commit
   node tools/execute_safe_task.js --task CAND-... --apply --production --validate-live
 
@@ -1148,7 +1191,7 @@ Options:
 
 Follow-ups:
   After a ranking-affecting change deploys, the executor schedules a deferred
-  'ranking_followup' task (default +14d, CLIENT_FOLLOWUP_DAYS to override) that
+  'ranking_followup' task (default +14d, WEBSITE_AGENT_FOLLOWUP_DAYS to override) that
   re-checks SERP positions and enqueues a recovery task if rankings slipped.
 `);
 }

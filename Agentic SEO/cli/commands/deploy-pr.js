@@ -15,7 +15,7 @@ async function main() {
   }
 
   const config = loadToolEnv({ envPath: args.env });
-  const siteRoot = path.resolve(process.cwd(), args["site-root"] || "D:\\Projects\\{{NICHE}} SEO Agency");
+  const siteRoot = path.resolve(process.cwd(), args["site-root"] || "D:\\Projects\\website SEO Agency");
   const remote = args.remote || "origin";
   const repo = args.repo ? parseRepo(args.repo) : git.githubRepo(siteRoot, remote);
   const branch = args.head || git.currentBranch(siteRoot);
@@ -62,7 +62,7 @@ async function main() {
             accept: "application/vnd.github+json",
             "x-github-api-version": "2022-11-28",
             "content-type": "application/json",
-            "user-agent": "client-agent",
+            "user-agent": "website-agent",
           },
           body: JSON.stringify(payload),
         });
@@ -184,8 +184,8 @@ function safe(fn, fallback) {
 function printHelp() {
   console.log(`
 Usage:
-  v2 deploy pr --site-root "D:\\Projects\\{{NICHE}} SEO Agency" --head agent/task --base main
-  v2 deploy pr --task CAND-... --db tools/out/state/seo-agent.db --apply --push
+  v2 deploy pr --site-root "D:\\Projects\\website SEO Agency" --head agent/task --base main
+  v2 deploy pr --task CAND-... --db tools/out/state/website-agent.db --apply --push
 
 Options:
   --site-root path   GitHub repo path.

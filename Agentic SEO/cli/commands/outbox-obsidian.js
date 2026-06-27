@@ -4,6 +4,18 @@ const { parseArgs, numberArg, resolveDbPath, exitWithError } = require("../lib/c
 const { compactDateTime, nowIso } = require("../lib/dates");
 const { slugify, writeJson, writeText } = require("../lib/io");
 const { openStateDb, makeId } = require("../lib/state_db");
+const { OUTBOX_RETRYABLE, sqlList } = require("../lib/outbox_states");
+
+const OBSIDIAN_JOB_TYPES = Object.freeze([
+  'update_obsidian_task_note',
+  'update_obsidian_approval_note',
+  'update_obsidian_page_note',
+  'update_obsidian_deployment_note',
+  'update_obsidian_backup_report',
+  'write_obsidian_brain_note',
+  'report_lock_expired',
+  'create_daily_report_section',
+]);
 
 function main() {
   const args = parseArgs();
@@ -13,30 +25,25 @@ function main() {
   }
 
   // Resolve the authoritative DB the same way every other v2 command does:
-  // --db > CLIENT_DB_PATH > SEO_AGENT_DB > /opt/client-sqlite/seo-agent.db.
+  // --db > WEBSITE_AGENT_DB_PATH > SEO_AGENT_DB > /opt/website-state/website-agent.db.
   // The previous cwd-relative fallback meant cron (which runs from outside the
-  // agent root) could open an unintended /<cwd>/tools/out/state/seo-agent.db,
+  // agent root) could open an unintended /<cwd>/tools/out/state/website-agent.db,
   // so the outbox sync polled the wrong database and drained nothing.
   const dbPath = resolveDbPath(args);
-  const obsidianRoot = path.resolve(process.cwd(), args["obsidian-root"] || process.env.CLIENT_OBSIDIAN_ROOT || "/opt/client-obsidian");
+  const obsidianRoot = path.resolve(process.cwd(), args["obsidian-root"] || process.env.WEBSITE_AGENT_OBSIDIAN_ROOT || "/opt/website-obsidian");
   const limit = numberArg(args, "limit", 25);
+  const dryRun = Boolean(args["dry-run"]);
   const db = openStateDb(dbPath);
-  const jobs = db
+  const reconciliation = args["reconcile-missing-task-dead-letters"]
+    ? reconcileMissingTaskDeadLetters(db, args, dryRun)
+    : { eligible: 0, changed: 0, results: [] };
+  const jobs = args["reconcile-only"] ? [] : db
     .prepare(
       `
         SELECT *
         FROM outbox_jobs
-        WHERE status IN ('pending', 'retrying')
-          AND job_type IN (
-            'update_obsidian_task_note',
-            'update_obsidian_approval_note',
-            'update_obsidian_page_note',
-            'update_obsidian_deployment_note',
-            'update_obsidian_backup_report',
-            'write_obsidian_brain_note',
-            'report_lock_expired',
-            'create_daily_report_section'
-          )
+        WHERE status IN (${sqlList(OUTBOX_RETRYABLE)})
+          AND job_type IN (${sqlList(OBSIDIAN_JOB_TYPES)})
         ORDER BY created_at ASC
         LIMIT ?
       `,
@@ -45,7 +52,7 @@ function main() {
 
   const results = [];
   for (const job of jobs) {
-    results.push(processJob(db, job, obsidianRoot, Boolean(args["dry-run"])));
+    results.push(processJob(db, job, obsidianRoot, dryRun));
   }
   db.close();
 
@@ -54,22 +61,146 @@ function main() {
     tool: "sync_obsidian_outbox",
     db_path: dbPath,
     obsidian_root: obsidianRoot,
-    dry_run: Boolean(args["dry-run"]),
+    dry_run: dryRun,
+    reconciliation,
     processed: results.length,
     results,
   };
 
-  const outPath =
-    args.out || path.join(process.cwd(), "tools", "out", "obsidian-sync", `obsidian-sync-${compactDateTime()}.json`);
-  writeJson(outPath, output);
+  const outPath = args.out || (results.length > 0
+    ? path.join(process.cwd(), "tools", "out", "obsidian-sync", `obsidian-sync-${compactDateTime()}.json`)
+    : null);
+  output.report_path = outPath;
+  if (outPath) writeJson(outPath, output);
 
   if (args.json) {
     console.log(JSON.stringify(output, null, 2));
   } else {
-    console.log(`Processed ${results.length} outbox jobs; wrote report to ${outPath}`);
+    console.log(`Processed ${results.length} outbox jobs${outPath ? `; wrote report to ${outPath}` : "; no report written"}`);
     for (const result of results) {
       console.log([result.status, result.outbox_id, result.entity_id, result.note_path || result.error].join(" | "));
     }
+  }
+}
+
+function reconcileMissingTaskDeadLetters(db, args = {}, dryRun = false) {
+  const action = String(args["reconcile-action"] || "resolved").toLowerCase();
+  if (!new Set(["resolved", "retry"]).has(action)) {
+    throw new Error("--reconcile-action must be 'resolved' or 'retry'");
+  }
+
+  const jobs = db.prepare(`
+    SELECT o.outbox_id, o.job_type, o.entity_type, o.entity_id, o.payload_json,
+           o.status, o.attempt_count, o.last_attempt_at, o.created_at,
+           o.completed_at, o.error_message,
+           t.task_id AS current_task_id,
+           (
+             SELECT later.outbox_id
+             FROM outbox_jobs later
+             WHERE later.outbox_id != o.outbox_id
+               AND later.job_type = 'update_obsidian_task_note'
+               AND later.entity_id = o.entity_id
+               AND later.status = 'completed'
+               AND COALESCE(later.completed_at, later.created_at) >= COALESCE(o.created_at, '')
+             ORDER BY COALESCE(later.completed_at, later.created_at) DESC
+             LIMIT 1
+           ) AS superseding_outbox_id,
+           (
+             SELECT COALESCE(later.completed_at, later.created_at)
+             FROM outbox_jobs later
+             WHERE later.outbox_id != o.outbox_id
+               AND later.job_type = 'update_obsidian_task_note'
+               AND later.entity_id = o.entity_id
+               AND later.status = 'completed'
+               AND COALESCE(later.completed_at, later.created_at) >= COALESCE(o.created_at, '')
+             ORDER BY COALESCE(later.completed_at, later.created_at) DESC
+             LIMIT 1
+           ) AS superseding_completed_at
+    FROM outbox_jobs o
+    LEFT JOIN tasks t ON t.task_id = o.entity_id
+    WHERE o.status = 'dead_letter'
+      AND o.job_type = 'update_obsidian_task_note'
+    ORDER BY o.created_at ASC
+  `).all();
+
+  const eligible = jobs.filter(isObsoleteMissingTaskDeadLetter);
+  const results = [];
+  for (const job of eligible) {
+    const reason = "superseded_by_later_completed_task_note";
+    if (!dryRun) applyMissingTaskDeadLetterReconciliation(db, job, action, reason);
+    results.push({
+      outbox_id: job.outbox_id,
+      job_type: job.job_type,
+      entity_id: job.entity_id,
+      previous_status: job.status,
+      status: dryRun ? `would_${action}` : action === "retry" ? "pending" : "resolved",
+      reason,
+      superseding_outbox_id: job.superseding_outbox_id,
+      superseding_completed_at: job.superseding_completed_at,
+    });
+  }
+
+  return {
+    enabled: true,
+    action,
+    eligible: eligible.length,
+    changed: dryRun ? 0 : eligible.length,
+    results,
+  };
+}
+
+function isObsoleteMissingTaskDeadLetter(job) {
+  if (job.job_type !== "update_obsidian_task_note") return false;
+  if (!/^Task not found:\s*TSK-/i.test(String(job.error_message || ""))) return false;
+  // Only auto-resolve when the task exists now and a later task-note mirror job
+  // completed for the same task. That proves this dead-letter is stale mirror
+  // fallout, not an unresolved referential-integrity problem.
+  return Boolean(job.current_task_id && job.superseding_outbox_id);
+}
+
+function applyMissingTaskDeadLetterReconciliation(db, job, action, reason) {
+  const now = nowIso();
+  const newStatus = action === "retry" ? "pending" : "resolved";
+  db.exec("BEGIN IMMEDIATE TRANSACTION");
+  try {
+    if (action === "retry") {
+      db.prepare(`
+        UPDATE outbox_jobs
+        SET status = 'pending', attempt_count = 0, last_attempt_at = NULL,
+            next_attempt_at = NULL, error_message = NULL, completed_at = NULL
+        WHERE outbox_id = ? AND status = 'dead_letter'
+      `).run(job.outbox_id);
+    } else {
+      db.prepare(`
+        UPDATE outbox_jobs
+        SET status = 'resolved', completed_at = ?, error_message = NULL
+        WHERE outbox_id = ? AND status = 'dead_letter'
+      `).run(now, job.outbox_id);
+    }
+    db.prepare(
+      'INSERT INTO events (event_id, event_type, task_id, resource_type, resource_id, old_value, new_value, source, agent_name, created_at, metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      makeId('EVT'),
+      action === "retry" ? "obsidian_outbox_dead_letter_requeued" : "obsidian_outbox_dead_letter_resolved",
+      job.entity_id || null,
+      "outbox",
+      job.outbox_id,
+      "dead_letter",
+      newStatus,
+      "obsidian_outbox",
+      "Obsidian Outbox Sync",
+      now,
+      JSON.stringify({
+        reason,
+        original_error: job.error_message,
+        superseding_outbox_id: job.superseding_outbox_id,
+        superseding_completed_at: job.superseding_completed_at,
+      }),
+    );
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
   }
 }
 
@@ -77,13 +208,13 @@ function processJob(db, job, obsidianRoot, dryRun) {
   const now = nowIso();
   const rendered = renderJob(db, job, obsidianRoot);
   if (!rendered.ok) {
-    markJobFailed(db, job, rendered.error);
-    return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: "failed", error: rendered.error };
+    const failure = markJobFailed(db, job, rendered.error);
+    return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: failure.status, attempts: failure.attempt_count, error: rendered.error };
   }
 
   if (!dryRun) {
     // TX 1: Mark as processing. The attempt counter is owned by markJobFailed
-    // (below) so that EVERY failure path increments it — including a render
+    // (below) so that EVERY failure path increments it â€” including a render
     // failure, which returns before this transaction ever runs.
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
@@ -93,8 +224,8 @@ function processJob(db, job, obsidianRoot, dryRun) {
       db.exec('COMMIT');
     } catch (error) {
       db.exec('ROLLBACK');
-      markJobFailed(db, job, error.message);
-      return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: 'failed', error: error.message };
+      const failure = markJobFailed(db, job, error.message);
+      return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: failure.status, attempts: failure.attempt_count, error: error.message };
     }
 
     // File I/O: Write Obsidian note (outside any transaction)
@@ -102,8 +233,8 @@ function processJob(db, job, obsidianRoot, dryRun) {
       assertSafeObsidianWritePath(obsidianRoot, rendered.notePath, rendered.markdown);
       writeText(rendered.notePath, rendered.markdown);
     } catch (error) {
-      markJobFailed(db, job, `File write failed: ${error.message}`);
-      return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: 'failed', error: error.message };
+      const failure = markJobFailed(db, job, `File write failed: ${error.message}`);
+      return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: failure.status, attempts: failure.attempt_count, error: error.message };
     }
 
     // TX 2: Mark as completed
@@ -115,8 +246,8 @@ function processJob(db, job, obsidianRoot, dryRun) {
       db.exec('COMMIT');
     } catch (error) {
       db.exec('ROLLBACK');
-      markJobFailed(db, job, error.message);
-      return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: 'failed', error: error.message };
+      const failure = markJobFailed(db, job, error.message);
+      return { outbox_id: job.outbox_id, entity_id: job.entity_id, status: failure.status, attempts: failure.attempt_count, error: error.message };
     }
   }
 
@@ -203,7 +334,7 @@ function renderJob(db, job, obsidianRoot) {
     }
     // relative_path is vault-root-relative (e.g. 01-Agent-Brain/Lessons/...md).
     // assertSafeObsidianWritePath enforces it stays in-vault and (for Brain
-    // writes) carries managed_by: client-agent, which the renderer emits.
+    // writes) carries managed_by: website-agent, which the renderer emits.
     return {
       ok: true,
       notePath: path.join(obsidianRoot, payload.relative_path),
@@ -255,14 +386,14 @@ function assertSafeObsidianWritePath(obsidianRoot, notePath, markdown) {
     throw new Error(`Refusing outbox write outside Obsidian root: ${target}`);
   }
   if (!relative.startsWith("01-Agent-Brain/")) return true;
-  if (/^managed_by:\s*client-agent\s*$/im.test(String(markdown || ""))) return true;
-  throw new Error(`Refusing outbox write into Obsidian Brain without managed_by: client-agent (${relative})`);
+  if (/^managed_by:\s*website-agent\s*$/im.test(String(markdown || ""))) return true;
+  throw new Error(`Refusing outbox write into Obsidian Brain without managed_by: website-agent (${relative})`);
 }
 
 function markJobFailed(db, job, message) {
   const now = nowIso();
   // Own the attempt counter here. This is the single failure path for both
-  // unrenderable jobs (entity missing → returns before the 'processing' TX) and
+  // unrenderable jobs (entity missing â†’ returns before the 'processing' TX) and
   // write failures, so incrementing here guarantees a job that can never succeed
   // climbs to dead_letter instead of looping as 'retrying' forever (the prior
   // bug: render failures never incremented attempt_count, so dead was never true).
@@ -275,6 +406,7 @@ function markJobFailed(db, job, message) {
     db.prepare(`INSERT INTO events (event_id, event_type, task_id, resource_type, resource_id, old_value, new_value, source, agent_name, created_at, metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
       .run(makeId('EVT'), dead ? 'outbox_dead_letter' : 'outbox_retry', job.entity_id || null, 'outbox', job.outbox_id, job.status, dead ? 'dead_letter' : 'retrying', 'outbox_sync', 'Obsidian Outbox Sync', now, JSON.stringify({error: message, attempt: newCount}));
     db.exec('COMMIT');
+    return { status: dead ? 'dead_letter' : 'retrying', attempt_count: newCount };
   } catch (e) { db.exec('ROLLBACK'); throw e; }
 }
 
@@ -580,13 +712,17 @@ function safeJson(value) {
 function printHelp() {
   console.log(`
 Usage:
-  node tools/sync_obsidian_outbox.js --db tools/out/state/seo-agent.db --obsidian-root ../client-obsidian
+  node tools/sync_obsidian_outbox.js --db tools/out/state/website-agent.db --obsidian-root ../websiteagent-obsidian
 
 Options:
   --db path              SQLite DB path.
-  --obsidian-root path   Obsidian vault path. Defaults to CLIENT_OBSIDIAN_ROOT or /opt/client-obsidian.
+  --obsidian-root path   Obsidian vault path. Defaults to WEBSITE_AGENT_OBSIDIAN_ROOT or /opt/website-obsidian.
   --limit 25             Pending jobs to process.
   --dry-run              Do not write notes or update jobs.
+  --reconcile-missing-task-dead-letters
+                        Resolve obsolete dead-letter task-note jobs when a later task-note sync completed.
+  --reconcile-action resolved|retry (default: resolved).
+  --reconcile-only       Reconcile dead letters without processing retryable jobs.
   --out path             JSON report path.
   --json                 Print full JSON to stdout.
 `);
@@ -600,4 +736,9 @@ if (require.main === module) {
   }
 }
 
-module.exports = Object.assign(main, { assertSafeObsidianWritePath, renderJob });
+module.exports = Object.assign(main, {
+  assertSafeObsidianWritePath,
+  renderJob,
+  reconcileMissingTaskDeadLetters,
+  isObsoleteMissingTaskDeadLetter,
+});

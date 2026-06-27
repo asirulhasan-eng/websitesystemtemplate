@@ -29,8 +29,14 @@ class SmtpClient {
   }
 
   async connect() {
+    const tlsOptions = { host: this.host, port: this.port };
+    if (!net.isIP(this.host)) {
+      tlsOptions.servername = this.host;
+    } else {
+      tlsOptions.rejectUnauthorized = false;
+    }
     this.socket = this.secure
-      ? tls.connect({ host: this.host, port: this.port, servername: this.host })
+      ? tls.connect(tlsOptions)
       : net.connect({ host: this.host, port: this.port });
 
     this.socket.setEncoding("utf8");
@@ -55,7 +61,13 @@ class SmtpClient {
       await this.command("STARTTLS", 220);
       this.socket.removeAllListeners("data");
       this.socket.removeAllListeners("error");
-      this.socket = tls.connect({ socket: this.socket, servername: this.host });
+      const tlsOptions = { socket: this.socket };
+      if (!net.isIP(this.host)) {
+        tlsOptions.servername = this.host;
+      } else {
+        tlsOptions.rejectUnauthorized = false;
+      }
+      this.socket = tls.connect(tlsOptions);
       this.socket.setEncoding("utf8");
       this.socket.on("data", (chunk) => this.onData(chunk));
       this.socket.on("error", (error) => this.rejectWaiter(error));

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * campaign-create.js â€” Create a money keyword campaign in the {{SITE_NAME}} state DB.
+ * campaign-create.js Ã¢â‚¬â€ Create a money keyword campaign in the Website Operations state DB.
  *
  * A campaign is a persistent multi-step entity that turns a money-keyword gap
- * into an actionable plan: decide create-vs-upgrade â†’ content brief â†’ produce
- * via the content engine â†’ internal links â†’ track over weeks.
+ * into an actionable plan: decide create-vs-upgrade Ã¢â€ â€™ content brief Ã¢â€ â€™ produce
+ * via the content engine Ã¢â€ â€™ internal links Ã¢â€ â€™ track over weeks.
  */
 
 const fs = require('node:fs');
@@ -16,7 +16,7 @@ const { nowIso } = require('../lib/dates');
 const TOOL = 'campaign-create';
 
 const HELP = `
-campaign-create â€” Create a money keyword campaign.
+campaign-create Ã¢â‚¬â€ Create a money keyword campaign.
 
 USAGE
   v2 campaign create --cluster <name> --decision <type> [options]
@@ -41,7 +41,7 @@ OPTIONS
 
 EXAMPLES
   v2 campaign create --cluster "seo-audit" --decision create_page --target-url "/services/seo-audit"
-  v2 campaign create --cluster "pricing" --keyword "{{NICHE}} seo pricing" --decision create_page --priority high
+  v2 campaign create --cluster "pricing" --keyword "website seo pricing" --decision create_page --priority high
   v2 campaign create --cluster "core-service" --decision upgrade_page --target-url "/" --success-metric "position<=5 within 30d"
 `.trim();
 
@@ -63,7 +63,7 @@ module.exports = function campaignCreate() {
       campaign: {
         campaign_id: 'CMP-2026-06-04-A1B2C3D4',
         cluster: 'seo-audit',
-        target_keyword: '{{NICHE}} website seo audit service',
+        target_keyword: 'website website seo audit service',
         target_url: '/services/seo-audit',
         decision: 'create_page',
         status: 'planning',

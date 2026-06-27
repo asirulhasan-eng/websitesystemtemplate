@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * content-inventory.js â€” WS5 Content Inventory
+ * content-inventory.js Ã¢â‚¬â€ WS5 Content Inventory
  *
  * Produces a comprehensive per-page inventory by scanning the local website
  * repo and optionally enriching with keyword registry and GSC performance data
@@ -17,13 +17,13 @@ const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb } = require('../lib/state_db');
 
 const HELP = `
-content-inventory â€” WS5 content inventory with optional keyword & GSC enrichment
+content-inventory Ã¢â‚¬â€ WS5 content inventory with optional keyword & GSC enrichment
 
 USAGE
   v2 content-inventory --db <path> [options]
 
 OPTIONS
-  --site-root <path>     Site root directory (default: env CLIENT_SITE_ROOT or /opt/client-site)
+  --site-root <path>     Site root directory (default: env WEBSITE_AGENT_SITE_ROOT or /opt/website-site)
   --join-keywords        Join with keyword registry to show target keywords per page
   --join-gsc             Join with latest GSC data to show impressions/clicks per page
   --type <type>          Filter by page type: service|blog|home|utility|other|all (default: all)
@@ -37,7 +37,7 @@ OUTPUT
 
 EXAMPLES
   v2 content-inventory --json
-  v2 content-inventory --join-keywords --join-gsc --db ./seo-agent.db --json
+  v2 content-inventory --join-keywords --join-gsc --db ./website-agent.db --json
   v2 content-inventory --type service --join-keywords --table
   v2 content-inventory --sample --json
 `.trim();
@@ -50,7 +50,7 @@ function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = buildSampleOutput();
     printOutput(envelope(sample, { tool: 'content-inventory' }), getOutputFormat(args));
@@ -58,7 +58,7 @@ function main() {
   }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     if (!fs.existsSync(siteRoot)) {
       throw new Error(`Site root not found: ${siteRoot}`);
     }
@@ -67,14 +67,14 @@ function main() {
     const joinGsc = boolArg(args, 'join-gsc');
     const typeFilter = args.type || 'all';
 
-    // â”€â”€ Step 1: Walk site root and extract page info â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 1: Walk site root and extract page info Ã¢â€â‚¬Ã¢â€â‚¬
     const htmlFiles = walkDir(siteRoot)
       .filter(f => f.endsWith('.html'))
       .filter(f => !f.includes('node_modules') && !f.includes('.git') && !f.includes('_archive'));
 
     let pages = htmlFiles.map(f => extractPageInfo(f, siteRoot));
 
-    // â”€â”€ Step 2: Build link map (reuse site-links.js pattern) â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 2: Build link map (reuse site-links.js pattern) Ã¢â€â‚¬Ã¢â€â‚¬
     const linkMap = buildLinkMap(siteRoot, htmlFiles);
 
     // Attach link counts to each page
@@ -83,7 +83,7 @@ function main() {
       page.internal_links_out = (linkMap.outgoing[page.url] || []).length;
     }
 
-    // â”€â”€ Step 3: Optional keyword join â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 3: Optional keyword join Ã¢â€â‚¬Ã¢â€â‚¬
     let keywordsByUrl = {};
     let db = null;
     const needsDb = joinKeywords || joinGsc;
@@ -98,13 +98,13 @@ function main() {
         keywordsByUrl = loadKeywordsByUrl(db);
       }
 
-      // â”€â”€ Step 4: Optional GSC join â”€â”€
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Step 4: Optional GSC join Ã¢â€â‚¬Ã¢â€â‚¬
       let gscByPage = {};
       if (joinGsc && db) {
         gscByPage = loadGscByPage(db);
       }
 
-      // â”€â”€ Step 5: Enrich pages â”€â”€
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Step 5: Enrich pages Ã¢â€â‚¬Ã¢â€â‚¬
       for (const page of pages) {
         // Keywords
         const kwMatches = keywordsByUrl[page.url] || [];
@@ -126,15 +126,15 @@ function main() {
       if (db) db.close();
     }
 
-    // â”€â”€ Step 6: Apply type filter â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 6: Apply type filter Ã¢â€â‚¬Ã¢â€â‚¬
     if (typeFilter && typeFilter !== 'all') {
       pages = pages.filter(p => p.type === typeFilter);
     }
 
-    // â”€â”€ Step 7: Sort by URL â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 7: Sort by URL Ã¢â€â‚¬Ã¢â€â‚¬
     pages.sort((a, b) => a.url.localeCompare(b.url));
 
-    // â”€â”€ Step 8: Build summary â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 8: Build summary Ã¢â€â‚¬Ã¢â€â‚¬
     const summary = buildSummary(pages);
 
     const data = {
@@ -150,7 +150,7 @@ function main() {
   }
 }
 
-// â”€â”€ Page extraction â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Page extraction Ã¢â€â‚¬Ã¢â€â‚¬
 
 function extractPageInfo(filePath, siteRoot) {
   const relativePath = path.relative(siteRoot, filePath).replace(/\\/g, '/');
@@ -197,10 +197,10 @@ function classifyPageType(relativePath) {
 
 function fileToUrl(relativePath) {
   const clean = relativePath.replace(/\.html$/i, '').replace(/\/index$/i, '');
-  return `https://{{DOMAIN}}/${clean || ''}`;
+  return `https://example.com/${clean || ''}`;
 }
 
-// â”€â”€ Link map (mirrors site-links.js buildLinkMap) â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Link map (mirrors site-links.js buildLinkMap) Ã¢â€â‚¬Ã¢â€â‚¬
 
 function buildLinkMap(siteRoot, htmlFiles) {
   const outgoing = {};
@@ -227,7 +227,7 @@ function buildLinkMap(siteRoot, htmlFiles) {
       if (!resolved) continue;
 
       // Only track internal links
-      if (!resolved.includes('{{DOMAIN}}') && !resolved.startsWith('/')) continue;
+      if (!resolved.includes('example.com') && !resolved.startsWith('/')) continue;
 
       const normalizedUrl = normalizeUrl(resolved);
       if (normalizedUrl === pageUrl) continue; // skip self-links
@@ -245,24 +245,24 @@ function buildLinkMap(siteRoot, htmlFiles) {
 
 function resolveHref(href, baseUrl) {
   if (href.startsWith('http://') || href.startsWith('https://')) return href;
-  if (href.startsWith('/')) return `https://{{DOMAIN}}${href}`;
-  // Relative link â€” resolve from base
+  if (href.startsWith('/')) return `https://example.com${href}`;
+  // Relative link Ã¢â‚¬â€ resolve from base
   const basePath = baseUrl.replace(/\/[^/]*$/, '/');
   return basePath + href;
 }
 
 function normalizeUrl(url) {
   try {
-    const u = new URL(url.includes('://') ? url : `https://{{DOMAIN}}${url}`);
+    const u = new URL(url.includes('://') ? url : `https://example.com${url}`);
     let pathname = u.pathname.replace(/\/+$/, '') || '/';
     pathname = pathname.replace(/\.html$/i, '').replace(/\/index$/i, '');
-    return `https://{{DOMAIN}}${pathname}`;
+    return `https://example.com${pathname}`;
   } catch {
     return url;
   }
 }
 
-// â”€â”€ Filesystem walker (mirrors site-pages.js walkDir) â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Filesystem walker (mirrors site-pages.js walkDir) Ã¢â€â‚¬Ã¢â€â‚¬
 
 function walkDir(dir) {
   const results = [];
@@ -278,7 +278,7 @@ function walkDir(dir) {
   return results;
 }
 
-// â”€â”€ DB helpers â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ DB helpers Ã¢â€â‚¬Ã¢â€â‚¬
 
 function loadKeywordsByUrl(db) {
   const rows = db.prepare(`
@@ -319,7 +319,7 @@ function loadGscByPage(db) {
   return byPage;
 }
 
-// â”€â”€ Summary builder â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Summary builder Ã¢â€â‚¬Ã¢â€â‚¬
 
 function buildSummary(pages) {
   const byType = {};
@@ -351,19 +351,19 @@ function buildSummary(pages) {
   };
 }
 
-// â”€â”€ Sample output â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Sample output Ã¢â€â‚¬Ã¢â€â‚¬
 
 function buildSampleOutput() {
   const pages = [
     {
-      url: 'https://{{DOMAIN}}/',
+      url: 'https://example.com/',
       type: 'home',
-      title: '{{SITE_NAME}} â€” SEO for {{NICHE}} Companies',
+      title: 'Website Operations Ã¢â‚¬â€ SEO for website Companies',
       file_path: 'index.html',
       word_count: 1850,
       internal_links_in: 8,
       internal_links_out: 12,
-      target_keywords: ['{{NICHE}} seo', 'seo for {{AUDIENCE}}'],
+      target_keywords: ['website seo', 'seo for small business owners'],
       target_clusters: ['brand'],
       gsc_impressions_28d: 320,
       gsc_clicks_28d: 45,
@@ -371,14 +371,14 @@ function buildSampleOutput() {
       coverage_status: 'has_keywords',
     },
     {
-      url: 'https://{{DOMAIN}}/services/seo-audit',
+      url: 'https://example.com/services/seo-audit',
       type: 'service',
-      title: 'SEO Audit for {{AUDIENCE}}',
+      title: 'SEO Audit for small business owners',
       file_path: 'services/seo-audit/index.html',
       word_count: 1250,
       internal_links_in: 3,
       internal_links_out: 7,
-      target_keywords: ['{{NICHE}} seo audit'],
+      target_keywords: ['website seo audit'],
       target_clusters: ['seo-audit'],
       gsc_impressions_28d: 95,
       gsc_clicks_28d: 0,
@@ -386,14 +386,14 @@ function buildSampleOutput() {
       coverage_status: 'has_keywords',
     },
     {
-      url: 'https://{{DOMAIN}}/services/local-seo',
+      url: 'https://example.com/services/local-seo',
       type: 'service',
-      title: 'Local SEO for {{AUDIENCE}}',
+      title: 'Local SEO for small business owners',
       file_path: 'services/local-seo/index.html',
       word_count: 1100,
       internal_links_in: 4,
       internal_links_out: 5,
-      target_keywords: ['local seo for {{AUDIENCE}}'],
+      target_keywords: ['local seo for small business owners'],
       target_clusters: ['local-seo'],
       gsc_impressions_28d: 210,
       gsc_clicks_28d: 18,
@@ -401,10 +401,10 @@ function buildSampleOutput() {
       coverage_status: 'has_keywords',
     },
     {
-      url: 'https://{{DOMAIN}}/blog/{{NICHE}}-seo-tips',
+      url: 'https://example.com/blog/website-seo-tips',
       type: 'blog',
-      title: '10 {{NICHE}} SEO Tips for 2026',
-      file_path: 'blog/{{NICHE}}-seo-tips/index.html',
+      title: '10 website SEO Tips for 2026',
+      file_path: 'blog/website-seo-tips/index.html',
       word_count: 2100,
       internal_links_in: 2,
       internal_links_out: 9,
@@ -416,7 +416,7 @@ function buildSampleOutput() {
       coverage_status: 'no_keywords',
     },
     {
-      url: 'https://{{DOMAIN}}/contact',
+      url: 'https://example.com/contact',
       type: 'utility',
       title: 'Contact Us',
       file_path: 'contact/index.html',
@@ -435,7 +435,7 @@ function buildSampleOutput() {
   const summary = buildSummary(pages);
 
   return {
-    site_root: '/opt/client-site',
+    site_root: '/opt/website-site',
     summary,
     pages,
   };

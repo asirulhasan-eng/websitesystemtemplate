@@ -1,24 +1,24 @@
 #!/usr/bin/env node
 /**
- * keyword-track.js â€” Manage tracked keywords in the {{SITE_NAME}} SQLite state DB.
+ * keyword-track.js Ã¢â‚¬â€ Manage tracked keywords in the Website Operations SQLite state DB.
  *
  * Add, remove, update, and bulk-import keywords for SERP tracking.
  *
  * Usage:
- *   node keyword-track.js --add "{{AUDIENCE}} near me" [options]
+ *   node keyword-track.js --add "small business owners near me" [options]
  */
 
 const fs = require('node:fs');
-const { parseArgs, requireArg, listArg, resolveDbPath, getOutputFormat } = require('../lib/cli');
+const { parseArgs, requireArg, listArg, boolArg, resolveDbPath, getOutputFormat } = require('../lib/cli');
 const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb, makeId } = require('../lib/state_db');
 const { nowIso } = require('../lib/dates');
 
 const HELP = `
-keyword-track â€” Manage tracked keywords in the SQLite state database.
+keyword-track Ã¢â‚¬â€ Manage tracked keywords in the SQLite state database.
 
 USAGE
-  node keyword-track.js --add "{{AUDIENCE}} near me" [options]
+  node keyword-track.js --add "small business owners near me" [options]
   node keyword-track.js --add-file ./keywords.txt [options]
   node keyword-track.js --remove "old keyword"
   node keyword-track.js --update "existing keyword" --priority high --cluster "core services"
@@ -26,6 +26,7 @@ USAGE
 ACTIONS (pick one)
   --add <keyword>           Add a single keyword to tracking
   --add-file <path>         Bulk add keywords from a file (one per line)
+  --reconcile-from-serp     Add/update tracked keywords from existing serp_checks rows
   --remove <keyword>        Remove a keyword from tracking
   --update <keyword>        Update an existing keyword's metadata
 
@@ -40,15 +41,17 @@ KEYWORD OPTIONS (for --add, --add-file, --update)
 
 OPTIONS
   --db <path>               SQLite database path
+  --dry-run                 Report reconciliation changes without writing
   --json                    Output as JSON (default)
   --table                   Output as table
   --sample                  Show sample output without a database
 
 EXAMPLES
-  node keyword-track.js --add "{{AUDIENCE}} near me" --cluster "core services" --priority high
-  node keyword-track.js --add "emergency {{AUDIENCE}}" --target-url "https://client.com/emergency-{{AUDIENCE}}"
+  node keyword-track.js --add "small business owners near me" --cluster "core services" --priority high
+  node keyword-track.js --add "emergency small business owners" --target-url "https://client.com/emergency-small business owners"
   node keyword-track.js --add-file ./keywords.txt --cluster "drain services"
-  node keyword-track.js --update "{{AUDIENCE}} near me" --priority high --cluster "money keywords"
+  node keyword-track.js --reconcile-from-serp --cluster "serp-tracked" --source serper
+  node keyword-track.js --update "small business owners near me" --priority high --cluster "money keywords"
   node keyword-track.js --remove "outdated keyword"
 
 FILE FORMAT (for --add-file)
@@ -57,8 +60,8 @@ FILE FORMAT (for --add-file)
     keyword<TAB>cluster<TAB>priority<TAB>target_url<TAB>intent_tier<TAB>page_type<TAB>source<TAB>status
 
   Example:
-    {{AUDIENCE}} near me
-    emergency {{AUDIENCE}}\\tcore services\\thigh
+    small business owners near me
+    emergency small business owners\\tcore services\\thigh
     drain cleaning service\\tdrain services\\tmedium\\thttps://example.com/drain\\tmoney\\tservice\\tmanual\\tactive
 `.trim();
 
@@ -76,17 +79,17 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       action: 'add',
       keywords: [
         {
           keyword_id: 'KW-2026-06-03-A1B2C3D4',
-          keyword: '{{AUDIENCE}} near me',
+          keyword: 'small business owners near me',
           cluster: 'core services',
           priority: 'high',
-          target_url: 'https://client.com/{{AUDIENCE}}',
+          target_url: 'https://client.com/small business owners',
           current_position: null,
           best_position: null,
           created_at: nowIso(),
@@ -128,9 +131,9 @@ async function main() {
       throw new Error(`--status must be one of: ${[...VALID_STATUSES].join(', ')}`);
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     // ACTION: ADD single keyword
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     if (args.add) {
       const keyword = args.add;
       const result = addKeyword(db, keyword, { cluster, targetUrl, priority, intentTier, pageType, source, status, now });
@@ -139,9 +142,9 @@ async function main() {
       return;
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     // ACTION: ADD from file
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     if (args['add-file']) {
       const filePath = args['add-file'];
       if (!fs.existsSync(filePath)) {
@@ -218,9 +221,26 @@ async function main() {
       return;
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ACTION: RECONCILE from SERP checks
+    if (boolArg(args, 'reconcile-from-serp')) {
+      const result = reconcileSerpTrackedKeywords(db, {
+        cluster: cluster || 'serp-tracked',
+        priority,
+        intentTier,
+        pageType,
+        sourceArg: args.source || null,
+        status,
+        now,
+        dryRun: boolArg(args, 'dry-run'),
+      });
+      db.close();
+      printOutput(envelope(result, { tool: 'keyword-track' }), getOutputFormat(args));
+      return;
+    }
+
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     // ACTION: REMOVE
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     if (args.remove) {
       const keyword = args.remove;
       const existing = db.prepare('SELECT * FROM keywords WHERE keyword = ?').get(keyword);
@@ -240,9 +260,9 @@ async function main() {
       return;
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     // ACTION: UPDATE
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     if (args.update) {
       const keyword = args.update;
       const existing = db.prepare('SELECT * FROM keywords WHERE keyword = ?').get(keyword);
@@ -310,7 +330,7 @@ async function main() {
       return;
     }
 
-    // â”€â”€ No action specified â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ No action specified Ã¢â€â‚¬Ã¢â€â‚¬
     db.close();
     throw new Error('Specify an action: --add, --add-file, --remove, or --update. Use --help for details.');
 
@@ -352,8 +372,171 @@ function addKeyword(db, keyword, opts) {
   };
 }
 
+function latestSerpKeywordRows(db) {
+  return db.prepare(`
+    SELECT
+      s.keyword,
+      s.provider,
+      s.position,
+      s.url,
+      s.checked_at,
+      (
+        SELECT COUNT(*)
+        FROM serp_checks c
+        WHERE c.keyword = s.keyword
+      ) AS serp_check_count
+    FROM serp_checks s
+    WHERE s.keyword IS NOT NULL
+      AND trim(s.keyword) != ''
+      AND s.serp_check_id = (
+        SELECT s2.serp_check_id
+        FROM serp_checks s2
+        WHERE s2.keyword = s.keyword
+        ORDER BY s2.checked_at DESC, s2.created_at DESC, s2.serp_check_id DESC
+        LIMIT 1
+      )
+    ORDER BY s.keyword ASC
+  `).all();
+}
+
+function safeJson(text, fallback = {}) {
+  try { return JSON.parse(text || '{}'); } catch { return fallback; }
+}
+
+function reconcileSerpTrackedKeywords(db, opts = {}) {
+  const now = opts.now || nowIso();
+  const rows = latestSerpKeywordRows(db);
+  const inserted = [];
+  const updated = [];
+
+  const selectKeyword = db.prepare('SELECT * FROM keywords WHERE keyword = ?');
+  const insertKeyword = db.prepare(`
+    INSERT INTO keywords (
+      keyword_id, keyword, cluster, priority, target_url, current_position,
+      best_position, last_checked_at, created_at, metadata_json,
+      intent_tier, target_page_type, source, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const updateKeyword = db.prepare(`
+    UPDATE keywords SET
+      current_position = ?,
+      best_position = ?,
+      last_checked_at = ?,
+      target_url = COALESCE(target_url, ?),
+      metadata_json = ?,
+      cluster = COALESCE(cluster, ?),
+      priority = COALESCE(priority, ?),
+      intent_tier = COALESCE(intent_tier, ?),
+      target_page_type = COALESCE(target_page_type, ?),
+      source = COALESCE(source, ?),
+      status = COALESCE(status, ?)
+    WHERE keyword = ?
+  `);
+
+  const applyRow = (row) => {
+    const existing = selectKeyword.get(row.keyword);
+    const source = opts.sourceArg || (VALID_SOURCES.has(row.provider) ? row.provider : 'serper');
+    const metadata = safeJson(existing?.metadata_json, {});
+    metadata.source = metadata.source || 'keyword-track-cli';
+    metadata.reconciled_from = 'serp_checks';
+    metadata.reconciled_at = now;
+    metadata.serp_check_count = row.serp_check_count || 0;
+
+    if (!existing) {
+      const kwId = makeId('KW');
+      const summary = {
+        keyword_id: kwId,
+        keyword: row.keyword,
+        cluster: opts.cluster || 'serp-tracked',
+        priority: opts.priority || 'medium',
+        target_url: row.url || null,
+        current_position: row.position,
+        best_position: row.position,
+        last_checked_at: row.checked_at || now,
+        intent_tier: opts.intentTier || 'money',
+        target_page_type: opts.pageType || null,
+        source,
+        status: opts.status || 'active',
+        serp_check_count: row.serp_check_count || 0,
+      };
+      if (!opts.dryRun) {
+        insertKeyword.run(
+          summary.keyword_id,
+          summary.keyword,
+          summary.cluster,
+          summary.priority,
+          summary.target_url,
+          summary.current_position,
+          summary.best_position,
+          summary.last_checked_at,
+          now,
+          JSON.stringify(metadata),
+          summary.intent_tier,
+          summary.target_page_type,
+          summary.source,
+          summary.status,
+        );
+      }
+      inserted.push(summary);
+      return;
+    }
+
+    const nextBest = row.position != null && (existing.best_position == null || row.position < existing.best_position)
+      ? row.position
+      : existing.best_position;
+    const nextTargetUrl = existing.target_url || row.url || null;
+    const nextLastChecked = row.checked_at || existing.last_checked_at || now;
+    const summary = {
+      keyword_id: existing.keyword_id,
+      keyword: row.keyword,
+      current_position: row.position,
+      best_position: nextBest,
+      last_checked_at: nextLastChecked,
+      target_url: nextTargetUrl,
+      serp_check_count: row.serp_check_count || 0,
+    };
+    if (!opts.dryRun) {
+      updateKeyword.run(
+        summary.current_position,
+        summary.best_position,
+        summary.last_checked_at,
+        summary.target_url,
+        JSON.stringify(metadata),
+        opts.cluster || 'serp-tracked',
+        opts.priority || 'medium',
+        opts.intentTier || 'money',
+        opts.pageType || null,
+        source,
+        opts.status || 'active',
+        row.keyword,
+      );
+    }
+    updated.push(summary);
+  };
+
+  if (!opts.dryRun) db.exec('BEGIN IMMEDIATE TRANSACTION');
+  try {
+    for (const row of rows) applyRow(row);
+    if (!opts.dryRun) db.exec('COMMIT');
+  } catch (error) {
+    if (!opts.dryRun) db.exec('ROLLBACK');
+    throw error;
+  }
+
+  return {
+    action: 'reconcile-from-serp',
+    dry_run: !!opts.dryRun,
+    source_table: 'serp_checks',
+    scanned: rows.length,
+    inserted: inserted.length,
+    updated: updated.length,
+    keywords: { inserted, updated },
+  };
+}
+
 if (require.main === module) {
   main();
 }
 
 module.exports = main;
+module.exports.reconcileSerpTrackedKeywords = reconcileSerpTrackedKeywords;

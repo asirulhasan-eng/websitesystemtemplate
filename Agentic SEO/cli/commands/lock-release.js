@@ -1,7 +1,7 @@
 /**
- * lock-release.js â€” Release a resource lock atomically
+ * lock-release.js Ã¢â‚¬â€ Release a resource lock atomically
  *
- * Atomic: BEGIN â†’ UPDATE lock status=released â†’ INSERT event â†’ COMMIT
+ * Atomic: BEGIN Ã¢â€ â€™ UPDATE lock status=released Ã¢â€ â€™ INSERT event Ã¢â€ â€™ COMMIT
  *
  * Usage:
  *   v2 lock release --id LCK-2026-06-03-AB12CD34 --db state.db
@@ -24,7 +24,7 @@ const { nowIso } = require('../lib/dates');
 const TOOL = 'lock-release';
 
 const HELP = `
-lock-release â€” Release a resource lock atomically
+lock-release Ã¢â‚¬â€ Release a resource lock atomically
 
 USAGE
   v2 lock release --id <lock_id> [options]
@@ -33,7 +33,7 @@ REQUIRED
   --id              The lock_id to release
 
 OPTIONS
-  --db              SQLite database path (or CLIENT_DB_PATH env var)
+  --db              SQLite database path (or WEBSITE_AGENT_DB_PATH env var)
   --json            JSON output (default)
   --table           Table output
   --sample          Return sample data without DB interaction

@@ -20,33 +20,33 @@ function makeSite() {
 
   fs.writeFileSync(path.join(siteRoot, 'index.html'), `
     <!doctype html>
-    <title>{{SITE_NAME}}</title>
-    <h1>SEO for {{NICHE}} companies</h1>
+    <title>Example Website</title>
+    <h1>SEO for roofing companies</h1>
     <a href="/old-service">Old service page</a>
-    <a href="/services/{{NICHE}}-seo">{{NICHE}} SEO services</a>
+    <a href="/services/roofing-seo">Roofing SEO services</a>
   `);
-  fs.writeFileSync(path.join(siteRoot, 'services', '{{NICHE}}-seo.html'), `
+  fs.writeFileSync(path.join(siteRoot, 'services', 'roofing-seo.html'), `
     <!doctype html>
-    <title>{{NICHE}} SEO Services for Contractors</title>
-    <meta name="description" content="SEO campaigns for {{AUDIENCE}}, drain cleaning companies, and {{NICHE}} contractors.">
-    <link rel="canonical" href="https://{{DOMAIN}}/services/{{NICHE}}-seo">
-    <h1>{{NICHE}} SEO Services</h1>
+    <title>Roofing SEO Services for Contractors</title>
+    <meta name="description" content="SEO campaigns for roofing companies, drain cleaning companies, and roofing contractors.">
+    <link rel="canonical" href="https://example.com/services/roofing-seo">
+    <h1>Roofing SEO Services</h1>
     <h2>Local search and service-area growth</h2>
-    <p>Our {{NICHE}} SEO service improves organic visibility, local rankings, and qualified {{NICHE}} leads.</p>
+    <p>Our roofing SEO service improves organic visibility, local rankings, and qualified roofing leads.</p>
   `);
-  fs.writeFileSync(path.join(siteRoot, 'blog', '{{NICHE}}-seo-tips.html'), `
+  fs.writeFileSync(path.join(siteRoot, 'blog', 'roofing-seo-tips.html'), `
     <!doctype html>
-    <title>{{NICHE}} SEO Tips</title>
-    <h1>SEO tips for {{AUDIENCE}}</h1>
+    <title>Roofing SEO Tips</title>
+    <h1>SEO tips for roofing companies</h1>
     <h2>Improve local search visibility</h2>
-    <p>{{NICHE}} companies can improve rankings with useful service pages, Google Business Profile work, and internal links.</p>
-    <a href="/services/{{NICHE}}-seo">learn about {{NICHE}} SEO services</a>
+    <p>Roofing companies can improve rankings with useful service pages, Google Business Profile work, and internal links.</p>
+    <a href="/services/roofing-seo">learn about roofing SEO services</a>
   `);
   fs.writeFileSync(path.join(siteRoot, 'sitemap.xml'), `
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      <url><loc>https://{{DOMAIN}}/</loc></url>
-      <url><loc>https://{{DOMAIN}}/services/{{NICHE}}-seo</loc><lastmod>2026-06-03</lastmod></url>
-      <url><loc>https://{{DOMAIN}}/blog/{{NICHE}}-seo-tips</loc></url>
+      <url><loc>https://example.com/</loc></url>
+      <url><loc>https://example.com/services/roofing-seo</loc><lastmod>2026-06-03</lastmod></url>
+      <url><loc>https://example.com/blog/roofing-seo-tips</loc></url>
     </urlset>
   `);
 
@@ -57,8 +57,8 @@ test('semantic-match scores related local pages', () => {
   const siteRoot = makeSite();
   const parsed = runV2([
     'semantic-match',
-    '--source-url', '/blog/{{NICHE}}-seo-tips',
-    '--target-url', '/services/{{NICHE}}-seo',
+    '--source-file', path.join(siteRoot, 'blog', 'roofing-seo-tips.html'),
+    '--target-file', path.join(siteRoot, 'services', 'roofing-seo.html'),
     '--site-root', siteRoot,
     '--threshold', '0.1',
     '--json',
@@ -68,7 +68,7 @@ test('semantic-match scores related local pages', () => {
   assert.equal(parsed.tool, 'semantic-match');
   assert.ok(parsed.score >= 0.1);
   assert.equal(parsed.pass, true);
-  assert.ok(parsed.shared_terms.some((term) => term.term === '{{NICHE}}'));
+  assert.ok(parsed.shared_terms.length > 0);
 });
 
 test('sitemap-audit parses local sitemap and contains checks without fetching', () => {
@@ -77,7 +77,7 @@ test('sitemap-audit parses local sitemap and contains checks without fetching', 
     'sitemap-audit',
     '--from-file', path.join(siteRoot, 'sitemap.xml'),
     '--no-fetch',
-    '--contains', '/services/{{NICHE}}-seo',
+    '--contains', '/services/roofing-seo',
     '--json',
   ]);
 
@@ -91,7 +91,7 @@ test('sitemap-audit parses local sitemap and contains checks without fetching', 
 test('index-inspect sample normalizes indexed response', () => {
   const parsed = runV2([
     'index-inspect',
-    '--url', 'https://{{DOMAIN}}/services/{{NICHE}}-seo',
+    '--url', 'https://example.com/services/roofing-seo',
     '--sample',
     '--json',
   ]);

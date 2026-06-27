@@ -1,11 +1,13 @@
 /**
- * heartbeat.js â€” Heartbeat management for cron jobs and background services
+ * heartbeat.js Ã¢â‚¬â€ Heartbeat management for cron jobs and background services
  *
  * Actions:
- *   start   â€” Register a new job run (INSERT/UPDATE heartbeats + INSERT cron_runs)
- *   finish  â€” Complete a job run (UPDATE heartbeats + UPDATE cron_runs)
- *   beat    â€” Update heartbeat_at timestamp (keep-alive ping)
- *   status  â€” Show all heartbeat statuses
+ *   start   Ã¢â‚¬â€ Register a new job run (INSERT/UPDATE heartbeats + INSERT cron_runs)
+ *   finish  Ã¢â‚¬â€ Complete a job run (UPDATE heartbeats + UPDATE cron_runs)
+ *   beat    Ã¢â‚¬â€ Update heartbeat_at timestamp (keep-alive ping)
+ *   status  Ã¢â‚¬â€ Show all heartbeat statuses
+ *   reconcile-stale
+ *           Ã¢â‚¬â€ Supersede stale running cron_runs rows without changing heartbeat state
  *
  * Usage:
  *   v2 heartbeat start --job daily-gsc-fetch --db state.db
@@ -33,9 +35,10 @@ const { openStateDb, makeId } = require('../lib/state_db');
 const { nowIso } = require('../lib/dates');
 
 const TOOL = 'heartbeat';
+const DEFAULT_STALE_RUNNING_MINUTES = 120;
 
 const HELP = `
-heartbeat â€” Heartbeat management for cron jobs and background services
+heartbeat Ã¢â‚¬â€ Heartbeat management for cron jobs and background services
 
 USAGE
   v2 heartbeat <action> --job <name> [options]
@@ -45,18 +48,29 @@ ACTIONS
   finish   Complete a job run. Updates heartbeats + cron_runs with duration and status.
   beat     Keep-alive ping. Updates heartbeat_at on the heartbeats row.
   status   Show all heartbeat statuses across all registered jobs.
+  reconcile-stale
+           Supersede stale running cron_runs rows without changing heartbeat state.
+           Preserves the latest running row when heartbeat/lock state indicates
+           the job is genuinely active.
 
-REQUIRED (for start/finish/beat)
+REQUIRED (for start/finish/beat/reconcile-stale)
   --job              Job name identifier (e.g., daily-gsc-fetch, weekly-report)
 
 OPTIONS
   --run-id           Cron run ID (auto-generated on start; required for finish)
   --error            Error message to record (on finish with failure)
-  --task-id          Current task_id being processed
+  --preserve-stale-running
+                     On finish, do not supersede older running cron_runs rows.
+                     Use only when a wrapper exits because another tick is
+                     genuinely still active (for example, a held run-lock).
+  --stale-running-minutes
+                     Age threshold for superseding stale running cron_runs rows
+                     on finish (default: 120)
+  --task-id          Current task being processed
   --created-tasks    Number of tasks created (for finish)
   --completed-tasks  Number of tasks completed (for finish)
   --email-sent       Number of emails sent (for finish)
-  --db               SQLite database path (or CLIENT_DB_PATH env var)
+  --db               SQLite database path (or WEBSITE_AGENT_DB_PATH env var)
   --json             JSON output (default)
   --table            Table output
   --csv              CSV output
@@ -124,9 +138,9 @@ module.exports = function heartbeat() {
   }
 
   try {
-    if (!action || !['start', 'finish', 'beat', 'status'].includes(action)) {
+    if (!action || !['start', 'finish', 'beat', 'status', 'reconcile-stale'].includes(action)) {
       printOutput(errorEnvelope(
-        `Invalid or missing action. Use: start | finish | beat | status\nUsage: v2 heartbeat <action> --job <name>`,
+        `Invalid or missing action. Use: start | finish | beat | status | reconcile-stale\nUsage: v2 heartbeat <action> --job <name>`,
         { tool: TOOL }
       ), 'json');
       process.exitCode = 1;
@@ -155,8 +169,36 @@ module.exports = function heartbeat() {
         return;
       }
 
-      // start, finish, beat all require --job
+      // start, finish, beat, reconcile-stale all require --job
       const jobName = requireArg(args, 'job', 'Missing --job (job name identifier)');
+
+      if (action === 'reconcile-stale') {
+        let supersededStaleRuns = 0;
+        let preservedRunId = null;
+        db.exec('BEGIN IMMEDIATE TRANSACTION');
+        try {
+          preservedRunId = runningCronRunToPreserve(db, jobName, now);
+          supersededStaleRuns = supersedeStaleRunningCronRuns(db, {
+            jobName,
+            now,
+            runId: preservedRunId,
+            staleMinutes: parsePositiveInteger(args['stale-running-minutes'], DEFAULT_STALE_RUNNING_MINUTES),
+          });
+          db.exec('COMMIT');
+        } catch (txErr) {
+          db.exec('ROLLBACK');
+          throw txErr;
+        }
+
+        printOutput(envelope({
+          action: 'reconcile-stale',
+          job_name: jobName,
+          superseded_stale_runs: supersededStaleRuns,
+          preserved_active_run_id: preservedRunId,
+          reconciled_at: now,
+        }, { tool: TOOL }), getOutputFormat(args));
+        return;
+      }
 
       if (action === 'start') {
         const runId = makeId('CRN');
@@ -227,6 +269,8 @@ module.exports = function heartbeat() {
         const runId = args['run-id'];
         const errorMsg = args.error || null;
         const finalStatus = errorMsg ? 'failed' : 'completed';
+        const preserveStaleRunning = Boolean(args['preserve-stale-running']);
+        let supersededStaleRuns = 0;
 
         db.exec('BEGIN IMMEDIATE TRANSACTION');
         try {
@@ -282,6 +326,15 @@ module.exports = function heartbeat() {
             );
           }
 
+          if (!preserveStaleRunning) {
+            supersededStaleRuns = supersedeStaleRunningCronRuns(db, {
+              jobName,
+              now,
+              runId: cronRun ? cronRun.cron_run_id : runId || null,
+              staleMinutes: parsePositiveInteger(args['stale-running-minutes'], DEFAULT_STALE_RUNNING_MINUTES),
+            });
+          }
+
           db.exec('COMMIT');
         } catch (txErr) {
           db.exec('ROLLBACK');
@@ -294,6 +347,8 @@ module.exports = function heartbeat() {
           run_id: runId || null,
           status: finalStatus,
           error: errorMsg,
+          superseded_stale_runs: supersededStaleRuns,
+          stale_running_preserved: preserveStaleRunning,
           finished_at: now,
         }, { tool: TOOL }), getOutputFormat(args));
         return;
@@ -308,12 +363,79 @@ module.exports = function heartbeat() {
   }
 };
 
+function parsePositiveInteger(value, fallback) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const parsed = Number.parseInt(String(value), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function runningCronRunToPreserve(db, jobName, now) {
+  const heartbeat = db.prepare('SELECT status FROM heartbeats WHERE job_name = ?').get(jobName);
+  const freshActiveLock = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM locks
+    WHERE status = 'active'
+      AND (owner_agent = ? OR resource_id = ?)
+      AND (expires_at IS NULL OR expires_at > ?)
+  `).get(jobName, jobName, now);
+
+  if (!(heartbeat && heartbeat.status === 'running') && !(freshActiveLock && freshActiveLock.count > 0)) {
+    return null;
+  }
+
+  const latestRunning = db.prepare(`
+    SELECT cron_run_id
+    FROM cron_runs
+    WHERE job_name = ? AND status = 'running'
+    ORDER BY started_at DESC
+    LIMIT 1
+  `).get(jobName);
+  return latestRunning ? latestRunning.cron_run_id : null;
+}
+
+function supersedeStaleRunningCronRuns(db, { jobName, now, runId, staleMinutes }) {
+  const cutoff = new Date(new Date(now).getTime() - staleMinutes * 60 * 1000).toISOString();
+  const reason = `superseded by later heartbeat finish after ${staleMinutes}m stale-running threshold`;
+  const result = db.prepare(`
+    UPDATE cron_runs
+    SET status = 'superseded',
+        finished_at = ?,
+        duration_seconds = CASE
+          WHEN started_at IS NOT NULL THEN (julianday(?) - julianday(started_at)) * 86400.0
+          ELSE duration_seconds
+        END,
+        error_summary = COALESCE(error_summary, ?),
+        metadata_json = json_set(
+          CASE
+            WHEN json_valid(COALESCE(metadata_json, '{}')) THEN COALESCE(metadata_json, '{}')
+            ELSE '{}'
+          END,
+          '$.superseded_by_run_id', ?,
+          '$.superseded_at', ?,
+          '$.superseded_reason', ?
+        )
+    WHERE job_name = ?
+      AND status = 'running'
+      AND started_at IS NOT NULL
+      AND started_at < ?
+      AND (? IS NULL OR cron_run_id != ?)
+  `).run(now, now, reason, runId || null, now, reason, jobName, cutoff, runId || null, runId || null);
+  return result.changes || 0;
+}
+
 // Helper for sample mode
 function daysAgoStr(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
   return d.toISOString();
 }
+
+module.exports = Object.assign(module.exports, {
+  DEFAULT_STALE_RUNNING_MINUTES,
+  parsePositiveInteger,
+  runningCronRunToPreserve,
+  supersedeStaleRunningCronRuns,
+});
 
 if (require.main === module) {
   module.exports();

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * news-search.js â€” Fresh news search via Serper's /news endpoint.
+ * news-search.js Ã¢â‚¬â€ Fresh news search via Serper's /news endpoint.
  *
  * The Industry Radar (cron/run-industry-radar.sh / processes/industry-radar.md)
  * uses this to gather dated headlines per beat (SEO / GBP / PPC / Google core
- * updates / local SEO / {{NICHE}} industry) instead of relying on the AI's
+ * updates / local SEO / website industry) instead of relying on the AI's
  * built-in web search, which proved unreliable. Deterministic, source-cited,
  * date-filtered results the radar can act on.
  *
@@ -20,7 +20,7 @@ const { serperNews, compactNews, daysToRecency } = require('../lib/serper');
 const TOOL = 'news-search';
 
 const HELP = `
-news-search â€” Fresh, dated news headlines via Serper (/news).
+news-search Ã¢â‚¬â€ Fresh, dated news headlines via Serper (/news).
 
 USAGE
   node news-search.js --q "<query>" [options]
@@ -31,7 +31,7 @@ REQUIRED
   --q <query>            Search query (required unless --sample)
 
 OPTIONS
-  --days <N>             Freshness window in days â†’ Serper tbs recency bucket
+  --days <N>             Freshness window in days Ã¢â€ â€™ Serper tbs recency bucket
                          (<=1 day, <=7 week, <=31 month, else year). Default: 7.
   --tbs <qdr:*>          Pass a Serper recency token directly (overrides --days).
   --num <N>              Max results to return (default: 10).
@@ -49,7 +49,7 @@ Requires SERPER_API_KEY in the environment or an env file.
 
 function sampleData() {
   return {
-    query: 'google core update {{AUDIENCE}}',
+    query: 'google core update small business owners',
     freshness: 'qdr:w',
     count: 2,
     results: [
@@ -65,7 +65,7 @@ function sampleData() {
         position: 2,
         title: 'How Local Businesses Should Respond to the Latest Core Update',
         link: 'https://www.localseo.example/core-update-local-business',
-        snippet: 'Local service businesses, including {{AUDIENCE}} and HVAC, should audit content quality and E-E-A-T signals...',
+        snippet: 'Local service businesses, including small business owners and HVAC, should audit content quality and E-E-A-T signals...',
         date: '1 day ago',
         source: 'Local SEO Example',
       },

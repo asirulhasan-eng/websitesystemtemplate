@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * brain-init â€” Scaffold the Obsidian Agent Brain on a fresh vault.
+ * brain-init Ã¢â‚¬â€ Scaffold the Obsidian Agent Brain on a fresh vault.
  *
  * Creates the memory folders (Decisions / Lessons / Observations), an index
- * note, and â€” if a seed directory exists at processes/brain-seed/01-Agent-Brain
- * â€” copies any missing policy notes. Never overwrites existing notes.
+ * note, and Ã¢â‚¬â€ if a seed directory exists at processes/brain-seed/01-Agent-Brain
+ * Ã¢â‚¬â€ copies any missing policy notes. Never overwrites existing notes.
  *
- *   v2 brain init --vault /opt/client-obsidian
+ *   v2 brain init --vault /opt/website-obsidian
  */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -25,7 +25,7 @@ USAGE
   v2 brain init [--vault <path>] [--seed-dir <path>]
 
 OPTIONS
-  --vault <path>     Obsidian vault root. Defaults to CLIENT_BRAIN_VAULT.
+  --vault <path>     Obsidian vault root. Defaults to WEBSITE_AGENT_BRAIN_VAULT.
   --seed-dir <path>  Directory of seed policy notes to copy if missing.
                      Default: processes/brain-seed/01-Agent-Brain.
   --json | --table   Output format.
@@ -37,21 +37,21 @@ title: Memory Brain
 type: brain
 brain_domain: index
 status: active
-managed_by: client-agent
+managed_by: website-agent
 ---
 
-# ðŸ§  {{SITE_NAME}} Memory Brain
+# Ã°Å¸Â§Â  Website Operations Memory Brain
 
 This folder is the agent's **human-readable memory**. It is read before decisions
 and written as work happens.
 
-- **Decisions/** â€” what was decided each session and *why*.
-- **Lessons/** â€” causeâ†’effect learnings ("X moved rankings", "Y backfired").
-- **Observations/** â€” notable signals (gaps, competitor moves) worth remembering.
-- **Policy notes** (No-Go Sources, Operating Rules, Risk Lanes, â€¦) â€” long-lived rules.
+- **Decisions/** Ã¢â‚¬â€ what was decided each session and *why*.
+- **Lessons/** Ã¢â‚¬â€ causeÃ¢â€ â€™effect learnings ("X moved rankings", "Y backfired").
+- **Observations/** Ã¢â‚¬â€ notable signals (gaps, competitor moves) worth remembering.
+- **Policy notes** (No-Go Sources, Operating Rules, Risk Lanes, Ã¢â‚¬Â¦) Ã¢â‚¬â€ long-lived rules.
 
 > SQLite remains the source of truth for live state (task status, deployments).
-> The Brain holds reasoning, policy, and lessons â€” never live metrics/status.
+> The Brain holds reasoning, policy, and lessons Ã¢â‚¬â€ never live metrics/status.
 
 Recall with \`v2 brain recall --query "..."\`. Record with \`v2 brain note add ...\`.
 `;

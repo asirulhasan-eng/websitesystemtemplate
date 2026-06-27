@@ -71,7 +71,7 @@ function inferLocks(input) {
 }
 
 function urlToLikelyFile(url, options = {}) {
-  const siteRoot = options.siteRoot || process.env.CLIENT_SITE_ROOT || "/opt/client-site";
+  const siteRoot = options.siteRoot || process.env.WEBSITE_AGENT_SITE_ROOT || "/opt/website-site";
   try {
     const parsed = new URL(url);
     const hasTrailingSlash = parsed.pathname.endsWith("/");

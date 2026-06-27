@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * brain-recall â€” Recall relevant human-readable memory from the Obsidian Brain.
+ * brain-recall Ã¢â‚¬â€ Recall relevant human-readable memory from the Obsidian Brain.
  *
  * This is the "remember when needed" half of the memory system. Processes call
  * it before deciding work to surface prior decisions, lessons, and observations
  * that bear on the current keyword / page / topic.
  *
- *   v2 brain recall --query "seo for {{AUDIENCE}} ranking drop"
+ *   v2 brain recall --query "seo for small business owners ranking drop"
  *   v2 brain recall --type lesson --tag serp --limit 5 --markdown
  *   v2 brain recall --task TSK-2026-06-03-ABCD1234
  */

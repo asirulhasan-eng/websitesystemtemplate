@@ -1,5 +1,5 @@
 /**
- * email-send.js â€” Send email notifications
+ * email-send.js Ã¢â‚¬â€ Send email notifications
  *
  * Uses lib/smtp.js for direct SMTP delivery. Supports plain text and HTML bodies,
  * file-based content, and built-in templates.
@@ -10,7 +10,7 @@
  *   v2 email send --subject "Weekly" --template weekly --data '{"tasks":5}'
  *
  * Options:
- *   --to             Recipient email (default: {{ADMIN_EMAIL}})
+ *   --to             Recipient email (default: owner@example.com)
  *   --subject        Required. Email subject line
  *   --body           Plain text body
  *   --body-file      Read body from file
@@ -33,9 +33,9 @@ const { loadToolEnv } = require('../lib/env');
 const { nowIso } = require('../lib/dates');
 
 const TOOL = 'email-send';
-const DEFAULT_TO = '{{ADMIN_EMAIL}}';
+const DEFAULT_TO = 'owner@example.com';
 const LEGACY_ADMIN_RECIPIENTS = new Set([
-  'admin@{{DOMAIN}}',
+  'owner@example.com',
   'admin@ppumbingseo.agency',
 ]);
 
@@ -45,7 +45,7 @@ function normalizeRecipient(value) {
 }
 
 const HELP = `
-email-send â€” Send email notifications via SMTP
+email-send Ã¢â‚¬â€ Send email notifications via SMTP
 
 USAGE
   v2 email send --subject <subject> [options]
@@ -54,7 +54,7 @@ REQUIRED
   --subject         Email subject line
 
 OPTIONS
-  --to              Recipient email address (default: {{ADMIN_EMAIL}})
+  --to              Recipient email address (default: owner@example.com)
   --body            Plain text body content
   --body-file       Read plain text body from a file path
   --html            HTML body content (inline)
@@ -62,7 +62,7 @@ OPTIONS
   --template        Use built-in template: daily | weekly | alert
   --data            JSON string with data for template rendering
   --priority        Email priority: high | normal (default: normal)
-  --from-name       Sender display name (default from env: {{SITE_NAME}} Agent)
+  --from-name       Sender display name (default from env: Website Operations Agent)
   --json            JSON output (default)
   --sample          Return sample response without actually sending
   --help            Show this help text
@@ -74,9 +74,9 @@ EXAMPLES
   v2 email send --to team@example.com --subject "Test" --body "Hello" --sample
 
 TEMPLATES
-  daily   â€” Formatted daily activity summary
-  weekly  â€” Week-over-week comparison with metrics
-  alert   â€” Urgent alert with severity and recommended actions
+  daily   Ã¢â‚¬â€ Formatted daily activity summary
+  weekly  Ã¢â‚¬â€ Week-over-week comparison with metrics
+  alert   Ã¢â‚¬â€ Urgent alert with severity and recommended actions
 
 ENVIRONMENT VARIABLES
   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_USE_TLS
@@ -108,8 +108,8 @@ function renderTemplate(templateName, data) {
     case 'daily':
       return {
         text: [
-          `{{SITE_NAME}} Daily Report â€” ${d.date || new Date().toISOString().slice(0, 10)}`,
-          'â•'.repeat(50),
+          `Website Operations Daily Report Ã¢â‚¬â€ ${d.date || new Date().toISOString().slice(0, 10)}`,
+          'Ã¢â€¢Â'.repeat(50),
           '',
           `Tasks Completed: ${d.tasks_completed ?? 'N/A'}`,
           `Tasks Created:   ${d.tasks_created ?? 'N/A'}`,
@@ -123,24 +123,24 @@ function renderTemplate(templateName, data) {
           '',
           d.notes ? `Notes:\n${d.notes}` : '',
           '',
-          'â€” {{SITE_NAME}} Agent',
+          'Ã¢â‚¬â€ Website Operations Agent',
         ].filter(l => l !== undefined).join('\n'),
       };
 
     case 'weekly':
       return {
         text: [
-          `{{SITE_NAME}} Weekly Report`,
-          'â•'.repeat(50),
+          `Website Operations Weekly Report`,
+          'Ã¢â€¢Â'.repeat(50),
           '',
-          `Period: ${d.start_date || 'N/A'} â€” ${d.end_date || 'N/A'}`,
+          `Period: ${d.start_date || 'N/A'} Ã¢â‚¬â€ ${d.end_date || 'N/A'}`,
           '',
           `Tasks Completed:   ${d.tasks_completed ?? 'N/A'}`,
           `Tasks Created:     ${d.tasks_created ?? 'N/A'}`,
           `Deployments:       ${d.deployments ?? 'N/A'}`,
           '',
           `Keywords Tracked:  ${d.keywords_tracked ?? 'N/A'}`,
-          `Avg Position Î”:    ${d.avg_position_delta ?? 'N/A'}`,
+          `Avg Position ÃŽâ€:    ${d.avg_position_delta ?? 'N/A'}`,
           `Top Movers:        ${d.top_movers ?? 'N/A'}`,
           '',
           `GSC Clicks (week):       ${d.gsc_clicks ?? 'N/A'}`,
@@ -148,15 +148,15 @@ function renderTemplate(templateName, data) {
           '',
           d.highlights ? `Highlights:\n${d.highlights}` : '',
           '',
-          'â€” {{SITE_NAME}} Agent',
+          'Ã¢â‚¬â€ Website Operations Agent',
         ].filter(l => l !== undefined).join('\n'),
       };
 
     case 'alert':
       return {
         text: [
-          `âš  {{SITE_NAME}} Alert: ${d.severity || 'WARNING'}`,
-          'â•'.repeat(50),
+          `Ã¢Å¡Â  Website Operations Alert: ${d.severity || 'WARNING'}`,
+          'Ã¢â€¢Â'.repeat(50),
           '',
           `Alert Type: ${d.alert_type || 'system'}`,
           `Severity:   ${d.severity || 'warning'}`,
@@ -167,7 +167,7 @@ function renderTemplate(templateName, data) {
           '',
           d.recommended_action ? `Recommended Action:\n${d.recommended_action}` : '',
           '',
-          'â€” {{SITE_NAME}} Agent (automated alert)',
+          'Ã¢â‚¬â€ Website Operations Agent (automated alert)',
         ].filter(l => l !== undefined).join('\n'),
       };
 
@@ -192,7 +192,7 @@ module.exports = async function emailSend() {
       priority: args.priority || 'normal',
       template: args.template || null,
       sent_at: nowIso(),
-      message: 'Sample mode â€” email not actually sent',
+      message: 'Sample mode Ã¢â‚¬â€ email not actually sent',
     }, { tool: TOOL }), getOutputFormat(args));
     return;
   }

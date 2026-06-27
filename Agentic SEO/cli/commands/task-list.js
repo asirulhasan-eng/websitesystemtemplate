@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * task-list.js â€” Query tasks from the {{SITE_NAME}} SQLite state DB.
+ * task-list.js Ã¢â‚¬â€ Query tasks from the Website Operations SQLite state DB.
  *
  * Builds dynamic SQL with flexible filtering, sorting, and pagination.
  * Supports JSON, table, and CSV output formats.
@@ -12,9 +12,10 @@
 const { parseArgs, numberArg, boolArg, listArg, resolveDbPath, getOutputFormat } = require('../lib/cli');
 const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb } = require('../lib/state_db');
+const { COMPLETED_TASK_STATUSES } = require('../lib/statuses');
 
 const HELP = `
-task-list â€” Query and filter tasks from the SQLite state database.
+task-list Ã¢â‚¬â€ Query and filter tasks from the SQLite state database.
 
 USAGE
   node task-list.js [options]
@@ -28,12 +29,16 @@ FILTERS
   --priority-max <n>        Maximum priority_score (inclusive)
   --keyword <text>          Substring match on target_keyword (case-insensitive)
   --url <text>              Substring match on target_url (case-insensitive)
+  --id <task_id>            Filter by exact task_id
   --source <source>         Filter by source field
   --created-after <date>    Tasks created after this ISO date
   --created-before <date>   Tasks created before this ISO date
   --updated-after <date>    Tasks updated after this ISO date
   --stale-days <n>          Tasks not updated in the last N days
   --has-tag <tag>           Filter tasks whose metadata_json contains this tag
+  --legacy-auditor-substrate-backlog
+                            Approved source=auditor legacy substrate/recovery
+                            tasks older than 90m that need promotion/parking
 
 SORTING & PAGINATION
   --sort <field>            Sort by: priority | created | updated | status
@@ -74,19 +79,19 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       results: [
         {
           task_id: 'TSK-2026-06-03-A1B2C3D4',
-          title: 'Add schema markup to /{{AUDIENCE}}',
+          title: 'Add schema markup to /small business owners',
           status: 'candidate',
           risk_level: 'safe',
           priority_score: 500,
           source: 'gsc_analysis',
-          target_url: 'https://client.com/{{AUDIENCE}}',
-          target_keyword: '{{AUDIENCE}} near me',
+          target_url: 'https://client.com/small business owners',
+          target_keyword: 'small business owners near me',
           created_at: '2026-06-01T10:00:00.000Z',
           updated_at: '2026-06-02T14:30:00.000Z',
         },
@@ -118,26 +123,32 @@ async function main() {
     const conditions = [];
     const params = [];
 
-    // â”€â”€ Status filter â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Status filter Ã¢â€â‚¬Ã¢â€â‚¬
     const statuses = listArg(args, 'status');
     if (statuses.length > 0) {
       conditions.push(`status IN (${statuses.map(() => '?').join(', ')})`);
       params.push(...statuses);
+
+      const activeStatuses = statuses.filter((status) => !COMPLETED_TASK_STATUSES.has(status));
+      if (activeStatuses.length > 0) {
+        conditions.push(`NOT (status IN (${activeStatuses.map(() => '?').join(', ')}) AND completed_at IS NOT NULL)`);
+        params.push(...activeStatuses);
+      }
     }
 
-    // â”€â”€ Type filter (stored in metadata_json) â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Type filter (stored in metadata_json) Ã¢â€â‚¬Ã¢â€â‚¬
     if (args.type) {
       conditions.push(`json_extract(metadata_json, '$.task_type') = ?`);
       params.push(args.type);
     }
 
-    // â”€â”€ Risk level â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Risk level Ã¢â€â‚¬Ã¢â€â‚¬
     if (args['risk-level']) {
       conditions.push('risk_level = ?');
       params.push(args['risk-level']);
     }
 
-    // â”€â”€ Priority range â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Priority range Ã¢â€â‚¬Ã¢â€â‚¬
     if (args['priority-min'] !== undefined) {
       conditions.push('priority_score >= ?');
       params.push(Number(args['priority-min']));
@@ -147,25 +158,31 @@ async function main() {
       params.push(Number(args['priority-max']));
     }
 
-    // â”€â”€ Keyword substring â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Keyword substring Ã¢â€â‚¬Ã¢â€â‚¬
     if (args.keyword) {
       conditions.push('target_keyword LIKE ?');
       params.push(`%${args.keyword}%`);
     }
 
-    // â”€â”€ URL substring â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ URL substring Ã¢â€â‚¬Ã¢â€â‚¬
     if (args.url) {
       conditions.push('target_url LIKE ?');
       params.push(`%${args.url}%`);
     }
 
-    // â”€â”€ Source â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Exact task id Ã¢â€â‚¬Ã¢â€â‚¬
+    if (args.id) {
+      conditions.push('task_id = ?');
+      params.push(args.id);
+    }
+
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Source Ã¢â€â‚¬Ã¢â€â‚¬
     if (args.source) {
       conditions.push('source = ?');
       params.push(args.source);
     }
 
-    // â”€â”€ Date filters â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Date filters Ã¢â€â‚¬Ã¢â€â‚¬
     if (args['created-after']) {
       conditions.push('created_at >= ?');
       params.push(args['created-after']);
@@ -179,7 +196,7 @@ async function main() {
       params.push(args['updated-after']);
     }
 
-    // â”€â”€ Stale days â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Stale days Ã¢â€â‚¬Ã¢â€â‚¬
     if (args['stale-days']) {
       const staleDays = Number(args['stale-days']);
       const cutoff = new Date(Date.now() - staleDays * 86400000).toISOString();
@@ -187,17 +204,51 @@ async function main() {
       params.push(cutoff);
     }
 
-    // â”€â”€ Tag filter â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Tag filter Ã¢â€â‚¬Ã¢â€â‚¬
     if (args['has-tag']) {
       conditions.push(`json_extract(metadata_json, '$.tags') LIKE ?`);
       params.push(`%${args['has-tag']}%`);
+    }
+
+    // Legacy auditor substrate/recovery backlog: old Auditor tasks created before
+    // narrower self_improvement task types existed. They are approved and safe, but
+    // metadata_json.task_type='general_operational' makes the ops worker dispatch
+    // them to safe-fix, which has no deterministic handler for agent-substrate
+    // recovery. Surface them so the self-improvement worker can park/promote one
+    // instead of falsely idling.
+    if (boolArg(args, 'legacy-auditor-substrate-backlog')) {
+      const staleThreshold = new Date(Date.now() - 90 * 60 * 1000).toISOString();
+      const now = new Date().toISOString();
+      const substrateText = `LOWER(COALESCE(target_file, '') || ' ' || COALESCE(title, '') || ' ' || COALESCE(description, '') || ' ' || COALESCE(metadata_json, ''))`;
+      conditions.push("status = 'approved'");
+      conditions.push("source = 'auditor'");
+      conditions.push("risk_level = 'safe'");
+      conditions.push('(scheduled_for IS NULL OR scheduled_for <= ?)');
+      params.push(now);
+      conditions.push('COALESCE(updated_at, created_at) < ?');
+      params.push(staleThreshold);
+      conditions.push("COALESCE(json_extract(metadata_json, '$.task_type'), '') = 'general_operational'");
+      conditions.push(`(
+        ${substrateText} LIKE '%/opt/website-agent/%'
+        OR ${substrateText} LIKE '% cli/%'
+        OR ${substrateText} LIKE '% cron/%'
+        OR ${substrateText} LIKE '% processes/%'
+        OR ${substrateText} LIKE '%hermes/skills/client/%'
+        OR ${substrateText} LIKE '%substrate%'
+        OR ${substrateText} LIKE '%recovery%'
+        OR ${substrateText} LIKE '%worker%'
+        OR ${substrateText} LIKE '%pipeline%'
+        OR ${substrateText} LIKE '%feedback%'
+        OR ${substrateText} LIKE '%smtp%'
+        OR ${substrateText} LIKE '%auth%'
+      )`);
     }
 
     const whereClause = conditions.length > 0
       ? `WHERE ${conditions.join(' AND ')}`
       : '';
 
-    // â”€â”€ Count-only mode â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Count-only mode Ã¢â€â‚¬Ã¢â€â‚¬
     if (boolArg(args, 'count-only')) {
       const countSql = `SELECT COUNT(*) as total FROM tasks ${whereClause}`;
       const row = db.prepare(countSql).get(...params);
@@ -206,21 +257,21 @@ async function main() {
       return;
     }
 
-    // â”€â”€ Sort â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Sort Ã¢â€â‚¬Ã¢â€â‚¬
     const sortKey = SORT_MAP[args.sort] || 'priority_score';
     const sortDir = boolArg(args, 'asc') ? 'ASC' : 'DESC';
 
-    // â”€â”€ Pagination â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Pagination Ã¢â€â‚¬Ã¢â€â‚¬
     const limit = numberArg(args, 'limit', 50);
     const offset = numberArg(args, 'offset', 0);
 
-    // â”€â”€ Build query â”€â”€
-    // Whitelist projectable columns â€” --fields is interpolated into SELECT,
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Build query Ã¢â€â‚¬Ã¢â€â‚¬
+    // Whitelist projectable columns Ã¢â‚¬â€ --fields is interpolated into SELECT,
     // so unvalidated input would be a SQL injection vector.
     const ALLOWED_FIELDS = new Set([
       'task_id', 'title', 'description', 'status', 'risk_level', 'priority_score',
       'source', 'target_url', 'target_file', 'target_keyword', 'approval_required',
-      'created_at', 'updated_at', 'completed_at', 'metadata_json',
+      'scheduled_for', 'created_at', 'updated_at', 'completed_at', 'metadata_json',
     ]);
     const requestedFields = listArg(args, 'fields');
     const invalidFields = requestedFields.filter((f) => !ALLOWED_FIELDS.has(f));

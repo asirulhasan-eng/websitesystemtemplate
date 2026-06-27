@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * brain-note â€” Write a human-readable memory note into the Obsidian Agent Brain.
+ * brain-note Ã¢â‚¬â€ Write a human-readable memory note into the Obsidian Agent Brain.
  *
  * Memory is recorded the same way every other state change is: a row + an
  * Outbox job inside one atomic SQLite transaction. The Outbox worker
  * (`v2 outbox obsidian`) is the only writer to the vault, so this command never
- * touches the filesystem directly â€” it queues a `write_obsidian_brain_note` job.
+ * touches the filesystem directly Ã¢â‚¬â€ it queues a `write_obsidian_brain_note` job.
  *
- *   v2 brain note add --type decision --title "Defend 'SEO for {{AUDIENCE}}'" \
+ *   v2 brain note add --type decision --title "Defend 'SEO for small business owners'" \
  *     --body "Held position 3; chose not to touch the page this week." \
  *     --task TSK-... --tags "serp,defend" --links "SEO Strategy"
  */

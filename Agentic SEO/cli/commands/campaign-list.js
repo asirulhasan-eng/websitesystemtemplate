@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * campaign-list.js â€” List money keyword campaigns from the {{SITE_NAME}} state DB.
+ * campaign-list.js Ã¢â‚¬â€ List money keyword campaigns from the Website Operations state DB.
  *
  * Displays campaigns with optional task progress counts and filtering.
  */
@@ -12,7 +12,7 @@ const { openStateDb } = require('../lib/state_db');
 const TOOL = 'campaign-list';
 
 const HELP = `
-campaign-list â€” List money keyword campaigns.
+campaign-list Ã¢â‚¬â€ List money keyword campaigns.
 
 USAGE
   v2 campaign list --db <path> [options]
@@ -51,7 +51,7 @@ module.exports = function campaignList() {
         {
           campaign_id: 'CMP-2026-06-04-A1B2C3D4',
           cluster: 'seo-audit',
-          target_keyword: '{{NICHE}} website seo audit service',
+          target_keyword: 'website website seo audit service',
           target_url: '/services/seo-audit',
           decision: 'create_page',
           status: 'active',

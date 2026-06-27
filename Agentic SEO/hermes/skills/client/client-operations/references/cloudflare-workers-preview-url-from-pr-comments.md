@@ -14,7 +14,7 @@ From `/opt/client-site`:
 gh pr view <PR_NUMBER> --json number,url,headRefName,baseRefName,mergeable,state --jq .
 
 # Pull Cloudflare bot comments; look for "Commit Preview URL" and "Branch Preview URL"
-gh api repos/asirulhasan-eng/client-site/issues/<PR_NUMBER>/comments \
+gh api repos/YOUR_GITHUB_ORG/client-site/issues/<PR_NUMBER>/comments \
   --jq '.[] | select(.user.login | test("cloudflare"; "i")) | {user:.user.login, body:.body, url:.html_url, created_at:.created_at}'
 ```
 

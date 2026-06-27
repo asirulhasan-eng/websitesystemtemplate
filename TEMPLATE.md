@@ -99,7 +99,7 @@ PLUMBINGSEO_TASK_EXECUTOR_*    (2 vars) → CLIENT_TASK_EXECUTOR_*
 |---|---|
 | `Website/` | **Replace entirely** with the new client's static site (e.g. WordPress → Simply Static export). Preserve the *blog-post template structure* (head/schema/header/footer) that `scaffold-blog.ps1` clones, or update the script to match the new site's markup. |
 | `Obsidian Agent Brain/` | **Reset to seed.** Keep the folder taxonomy (`00-Dashboard`, `01-Agent-Brain`, `02-Tasks`, …); delete plumbing content. Re-seed from `Agentic SEO/processes/brain-seed/`. |
-| SQLite DB (`/opt/*-sqlite/seo-agent.db`) | Fresh DB for the new client; never carry over plumbing tasks/rankings. |
+| SQLite DB (`/opt/*-sqlite/website-agent.db`) | Fresh DB for the new client; never carry over plumbing tasks/rankings. |
 
 ### TIER 1 — Core config (EDIT these — intended knobs)
 

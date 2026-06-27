@@ -1,9 +1,9 @@
 /**
- * email-check.js â€” Check inbox for approvals/replies via IMAP
+ * email-check.js Ã¢â‚¬â€ Check inbox for approvals/replies via IMAP
  *
  * Usage:
  *   v2 email check --json
- *   v2 email check --days 3 --from {{ADMIN_EMAIL}}
+ *   v2 email check --days 3 --from owner@example.com
  *   v2 email check --subject-contains "approve" --unread-only
  *
  * Options:
@@ -28,7 +28,7 @@ const { nowIso, daysAgo } = require('../lib/dates');
 const TOOL = 'email-check';
 
 const HELP = `
-email-check â€” Check inbox for approvals and replies via IMAP
+email-check Ã¢â‚¬â€ Check inbox for approvals and replies via IMAP
 
 USAGE
   v2 email check [options]
@@ -48,7 +48,7 @@ OPTIONS
 
 EXAMPLES
   v2 email check --json
-  v2 email check --days 3 --from admin@example.com --table
+  v2 email check --days 3 --from owner@example.com --table
   v2 email check --subject-contains "approve" --unread-only
   v2 email check --days 7 --mark-read --json
 
@@ -74,22 +74,22 @@ module.exports = async function emailCheck() {
   if (args.sample) {
     const sampleMessages = [
       {
-        from: '{{ADMIN_EMAIL}}',
-        to: 'agent@{{DOMAIN}}',
-        subject: 'Re: [Approval Required] Update meta tags for /services/{{NICHE}}',
+        from: 'owner@example.com',
+        to: 'agent@example.com',
+        subject: 'Re: [Approval Required] Update meta tags for /services/website',
         date: '2026-06-03T10:00:00.000Z',
-        body_preview: 'APPROVED â€” go ahead with the changes.',
-        message_id: '<sample1@{{DOMAIN}}>',
+        body_preview: 'APPROVED Ã¢â‚¬â€ go ahead with the changes.',
+        message_id: '<sample1@example.com>',
         has_approval_token: true,
         is_approval: true,
       },
       {
-        from: '{{ADMIN_EMAIL}}',
-        to: 'agent@{{DOMAIN}}',
+        from: 'owner@example.com',
+        to: 'agent@example.com',
         subject: 'Re: Daily SEO Report',
         date: '2026-06-03T08:00:00.000Z',
         body_preview: 'Looks good, keep it up.',
-        message_id: '<sample2@{{DOMAIN}}>',
+        message_id: '<sample2@example.com>',
         has_approval_token: false,
         is_approval: false,
       },
@@ -125,7 +125,12 @@ module.exports = async function emailCheck() {
 
       // Build IMAP search criteria
       const sinceDate = daysAgo(days);
-      const formattedDate = new Date(`${sinceDate}T00:00:00Z`).toUTCString().replace(/\d{2}:\d{2}:\d{2}\s+\w+$/, '').trim();
+      const dateObj = new Date(`${sinceDate}T00:00:00Z`);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const day = String(dateObj.getUTCDate()).padStart(2, '0');
+      const month = months[dateObj.getUTCMonth()];
+      const year = dateObj.getUTCFullYear();
+      const formattedDate = `${day}-${month}-${year}`;
       let criteria = `SINCE "${formattedDate}"`;
       if (unreadOnly) criteria += ' UNSEEN';
       if (fromFilter) criteria += ` FROM "${fromFilter}"`;

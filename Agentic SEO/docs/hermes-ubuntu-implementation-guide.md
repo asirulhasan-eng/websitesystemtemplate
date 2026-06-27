@@ -95,10 +95,10 @@ Run as the `hermes` user:
 ```bash
 sudo -iu hermes
 
-git clone git@github.com:asirulhasan-eng/client-agent.git /opt/client-agent
-git clone git@github.com:asirulhasan-eng/client-site.git /opt/client-site
-git clone git@github.com:asirulhasan-eng/client-sqlite.git /opt/client-sqlite
-git clone git@github.com:asirulhasan-eng/client-obsidian.git /opt/client-obsidian
+git clone git@github.com:YOUR_GITHUB_ORG/client-agent.git /opt/client-agent
+git clone git@github.com:YOUR_GITHUB_ORG/client-site.git /opt/client-site
+git clone git@github.com:YOUR_GITHUB_ORG/client-state.git /opt/client-sqlite
+git clone git@github.com:YOUR_GITHUB_ORG/client-obsidian.git /opt/client-obsidian
 ```
 
 Inside the agent repo:

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * intelligence-search â€” Search historical analysis reports.
+ * intelligence-search Ã¢â‚¬â€ Search historical analysis reports.
  *
  * This is how the system learns from past analysis: weekly reviews, the planner,
  * and humans can recall what a module found before making a new decision.
  *
- *   v2 intelligence search --query "{{NICHE}} SEO pricing" --json
+ *   v2 intelligence search --query "website SEO pricing" --json
  *   v2 intelligence search --module gsc-performance --days 30 --json
  *   v2 intelligence search --severity critical --days 14 --json
  *   v2 intelligence search --query competitor --modules competitor-watch,serp-monitor \
@@ -19,7 +19,7 @@ const { normalizeSeverity, isKnownModule } = require("../lib/intelligence");
 const TOOL = "intelligence-search";
 
 const HELP = `
-intelligence-search â€” Full-text search over historical analysis reports.
+intelligence-search Ã¢â‚¬â€ Full-text search over historical analysis reports.
 
 USAGE
   v2 intelligence search [--query <text>] [filters] [options]

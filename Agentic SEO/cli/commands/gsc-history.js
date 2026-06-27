@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * gsc-history.js â€” Query gsc_snapshots table from SQLite
+ * gsc-history.js Ã¢â‚¬â€ Query gsc_snapshots table from SQLite
  *
  * Dynamically builds SQL queries against stored GSC snapshot data.
  * Supports filtering, aggregation, grouping, and trend detection.
@@ -19,7 +19,7 @@ const { daysAgo, nowIso } = require('../lib/dates');
 const TOOL = 'gsc-history';
 
 const HELP = `
-gsc-history â€” Query stored GSC snapshot data from SQLite
+gsc-history Ã¢â‚¬â€ Query stored GSC snapshot data from SQLite
 
 USAGE
   node gsc-history.js --db <path> [options]
@@ -59,7 +59,7 @@ OUTPUT
   --csv                      CSV output
 
 EXAMPLES
-  node gsc-history.js --db ./seo.db --keyword {{NICHE}} --table
+  node gsc-history.js --db ./seo.db --keyword website --table
   node gsc-history.js --db ./seo.db --days 30 --group-by keyword --aggregate avg
   node gsc-history.js --db ./seo.db --latest --sort impressions --limit 20
   node gsc-history.js --db ./seo.db --improving --min-impressions 10
@@ -73,7 +73,7 @@ function buildQuery(args) {
   const aggregate = args.aggregate || 'avg';
   const latest = boolArg(args, 'latest');
 
-  // â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Filters Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.keyword) {
     conditions.push('LOWER(query) LIKE ?');
     params.push(`%${args.keyword.toLowerCase()}%`);
@@ -115,7 +115,7 @@ function buildQuery(args) {
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-  // â”€â”€ Latest per keyword â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Latest per keyword Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   if (latest) {
     const VALID_LATEST_SORT = new Set(['snapshot_id', 'query', 'page', 'clicks', 'impressions', 'ctr', 'position', 'date_range_start', 'date_range_end', 'captured_at']);
     const sortField = VALID_LATEST_SORT.has(args.sort) ? args.sort : 'impressions';
@@ -140,7 +140,7 @@ function buildQuery(args) {
     return { sql: buildLatestQuery(conditions, args), params: [...params, ...params, limit] };
   }
 
-  // â”€â”€ Grouped aggregation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Grouped aggregation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   if (groupBy) {
     const aggFn = ['avg', 'sum', 'min', 'max'].includes(aggregate) ? aggregate.toUpperCase() : 'AVG';
     const safeAggregate = ['avg', 'sum', 'min', 'max'].includes(aggregate) ? aggregate : 'avg';
@@ -183,7 +183,7 @@ function buildQuery(args) {
     return { sql, params: [...params, ...havingParams, limit] };
   }
 
-  // â”€â”€ Plain query â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Plain query Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   const VALID_PLAIN_SORT = new Set(['snapshot_id', 'query', 'page', 'clicks', 'impressions', 'ctr', 'position', 'date_range_start', 'date_range_end', 'captured_at']);
   const sortField = VALID_PLAIN_SORT.has(args.sort) ? args.sort : 'captured_at';
   const sortDir = sortField === 'position' ? 'ASC' : 'DESC';
@@ -270,7 +270,7 @@ function main() {
   }
 
   try {
-    if (!args.db && !process.env.CLIENT_DB_PATH && !process.env.SEO_AGENT_DB) {
+    if (!args.db && !process.env.WEBSITE_AGENT_DB_PATH && !process.env.SEO_AGENT_DB) {
       throw new Error('--db <path> is required. Provide the SQLite database path.');
     }
 

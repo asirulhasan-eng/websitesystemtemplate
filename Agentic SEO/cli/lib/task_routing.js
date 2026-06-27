@@ -32,6 +32,15 @@ const PAGE_CONTENT_EDIT_TYPES = new Set([
   'money_page_refresh',
 ]);
 
+const SELF_IMPROVEMENT_TYPES = new Set([
+  'self_improvement',
+  'process_update',
+  'prompt_update',
+  'cron_repair',
+  'executor_repair',
+  'db_reconciliation',
+]);
+
 // Authoring a NEW service page from scratch needs the Hermes content engine, which
 // lives in the blog_content worker. Route these to blog_content with a dedicated
 // service-page draft bucket — NOT the generic ops lane, whose executors only apply
@@ -52,6 +61,10 @@ const OPERATIONAL_TASK_TYPES = new Set([
   'cwv_fix',
   'page_speed_fix',
 ]);
+
+const DISPATCHABLE_RISK_LEVELS = new Set(['safe', 'semi_safe', 'high_risk']);
+const LEGACY_PREVIEW_STATUSES = new Set(['preview_ready', 'preview_pushed']);
+const LEGACY_PREVIEW_LANE = 'parked_legacy_preview';
 
 function safeJsonWithFlag(value) {
   if (!value) return { metadata: {}, invalid: false };
@@ -97,6 +110,7 @@ function routeTask(task, context = {}) {
   ].filter(Boolean).join(' '));
 
   if (invalid) flags.push('invalid_metadata_json');
+  if (!DISPATCHABLE_RISK_LEVELS.has(clean(task.risk_level))) flags.push('invalid_risk_level');
   if (targetText.includes('switch.monster')) flags.push('no_go_switch_monster');
   if (hasMetadataTargetMismatch(task, metadata)) flags.push('metadata_target_mismatch');
 
@@ -105,7 +119,20 @@ function routeTask(task, context = {}) {
 
   const hasApprovedApproval = Boolean(context.has_approved_approval);
   const explicitApprovalRequired = taskRequiresExplicitApproval(taskType, context);
-  if (explicitApprovalRequired && Number(task.approval_required || 0) === 1 && !hasApprovedApproval) {
+  const previewOnlyDraft = Boolean(
+    metadata.preview_only_draft
+    || metadata.preview_only
+    || metadata.draft_only
+    || (metadata.evidence && typeof metadata.evidence === 'object' && (
+      metadata.evidence.preview_only_draft
+      || metadata.evidence.preview_only
+      || metadata.evidence.draft_only
+    ))
+  );
+  // New blog posts require explicit owner approval for PUBLICATION. If a task is
+  // explicitly marked preview/draft-only, it may enter the blog_content worker to
+  // write a reviewable branch/PR, while production deployment remains blocked.
+  if (explicitApprovalRequired && Number(task.approval_required || 0) === 1 && !hasApprovedApproval && !previewOnlyDraft) {
     flags.push('approval_required_missing_approval');
   }
 
@@ -127,7 +154,11 @@ function routeTask(task, context = {}) {
   let executionLane = 'general_operational';
   let routeConfidence = 'medium';
 
-  if (BLOG_CONTENT_TYPES.has(taskType) || SERVICE_PAGE_CREATE_TYPES.has(taskType)
+  if (SELF_IMPROVEMENT_TYPES.has(taskType)) {
+    executionLane = 'self_improvement';
+    routeConfidence = 'high';
+    routeReason.push(`task_type:${taskType}`);
+  } else if (BLOG_CONTENT_TYPES.has(taskType) || SERVICE_PAGE_CREATE_TYPES.has(taskType)
       || PAGE_CONTENT_EDIT_TYPES.has(taskType) || title.startsWith('create blog:')) {
     // Blog drafts, new-service-page authoring, and existing-page content fixes all
     // run through the Hermes worker (blog_content lane); bucketForTask separates them.
@@ -170,10 +201,23 @@ function routeTask(task, context = {}) {
     routeReason.push(`task_type:${taskType}`);
   }
 
+  if (executionLane === 'blog_content' && LEGACY_PREVIEW_STATUSES.has(clean(task.status))) {
+    // preview_ready/preview_pushed are legacy manual-review states from the old
+    // branch/PR blog workflow. The current policy is sequential no-manual-gate
+    // publishing: only status='approved' enters the blog_content worker, one post
+    // at a time. Park legacy previews outside the executable blog lane so
+    // task-audit/queue-health do not report them as runnable ambiguity.
+    executionLane = LEGACY_PREVIEW_LANE;
+    routeConfidence = 'high';
+    flags.push('legacy_preview_manual_gate_parked');
+    routeReason.push(`status:${clean(task.status)}_parked_no_manual_gate`);
+  }
+
   let workflowBucket = bucketForTask(task, taskType, executionLane, context);
   if (flags.includes('approval_required_missing_approval')) workflowBucket = 'approval_needed';
   if (flags.includes('metadata_target_mismatch')) workflowBucket = 'needs_lane_review';
   if (flags.includes('invalid_metadata_json')) workflowBucket = 'needs_lane_review';
+  if (flags.includes('invalid_risk_level')) workflowBucket = 'needs_lane_review';
   if (flags.includes('no_go_switch_monster')) workflowBucket = 'blocked_no_go';
   // Park a same-lever change behind the research window, unless a harder gate
   // already claimed it (a blocked / approval / data-quality task never runs anyway).
@@ -212,6 +256,9 @@ function taskRequiresExplicitApproval(taskType, context = {}) {
 }
 
 function bucketForTask(task, taskType, executionLane, context = {}) {
+  if (executionLane === 'self_improvement') return 'meta_repair';
+  if (executionLane === LEGACY_PREVIEW_LANE) return 'legacy_preview_parked';
+
   if (executionLane === 'blog_content') {
     if (task.status === 'preview_ready' || task.status === 'preview_pushed') {
       const deploymentStatus = clean(context.deployment_status);
@@ -314,6 +361,10 @@ module.exports = {
   SERVICE_PAGE_TASK_TYPES,
   PAGE_CONTENT_EDIT_TYPES,
   SERVICE_PAGE_CREATE_TYPES,
+  SELF_IMPROVEMENT_TYPES,
+  DISPATCHABLE_RISK_LEVELS,
+  LEGACY_PREVIEW_STATUSES,
+  LEGACY_PREVIEW_LANE,
   canonicalTaskType,
   dedupeKeyForTask,
   hasActiveTaskLock,

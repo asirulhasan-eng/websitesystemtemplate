@@ -38,7 +38,7 @@ module.exports = function brainHealth() {
       ok: true,
       generated_at: new Date().toISOString(),
       tool: TOOL,
-      vault_root: "/opt/client-obsidian",
+      vault_root: "/opt/website-obsidian",
       compiled_exists: true,
       stale: false,
       no_go_terms_count: 2,

@@ -1,7 +1,7 @@
 {
-  "name": "client-v2",
+  "name": "website-agent-v2",
   "version": "0.1.0",
-  "description": "AI-brain CLI tools for {{SITE_NAME}} â€” pure data utilities with no decision logic",
+  "description": "AI-brain CLI tools for Website Operations Ã¢â‚¬â€ pure data utilities with no decision logic",
   "private": true,
   "license": "UNLICENSED",
   "type": "commonjs",
@@ -12,7 +12,7 @@
     "v2": "./bin/v2.js"
   },
   "scripts": {
-    "test": "node --test test/*.test.js",
-    "test:verbose": "node --test --test-reporter spec test/*.test.js"
+    "test": "node --test ../test/*.test.js test/*.test.js",
+    "test:verbose": "node --test --test-reporter spec ../test/*.test.js test/*.test.js"
   }
 }

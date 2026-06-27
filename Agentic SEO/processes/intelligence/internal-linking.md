@@ -7,7 +7,7 @@ description: "Monthly link-topology analysis: orphans, under-linked service page
 schedule: "0 1 1 * *"
 trigger:
   schedule: "0 1 1 * *"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   monthly_day: 1
@@ -32,9 +32,9 @@ deeper architecture playbook is `processes/internal-linking-architecture.md`.
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
-SITE="--site-root /opt/client-site"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
+SITE="--site-root /opt/website-site"
 
 node $V2 site-links $SITE --json
 node $V2 site-links --orphans $SITE --json
@@ -43,18 +43,18 @@ node $V2 link-check --internal $SITE --json
 ```
 
 ## AI Analysis
-- **Orphans** â€” pages with zero/near-zero internal inlinks (especially money/service pages).
-- **Under-linked priority pages** â€” high-value pages with too few internal links pointing to them.
-- **Hub opportunities** â€” strong pages that should link out to related service pages to pass equity.
-- **Anchor diversity** â€” over-optimized or repetitive anchor text; missing descriptive anchors.
-- **Broken internal links** â€” from `link-check`.
+- **Orphans** Ã¢â‚¬â€ pages with zero/near-zero internal inlinks (especially money/service pages).
+- **Under-linked priority pages** Ã¢â‚¬â€ high-value pages with too few internal links pointing to them.
+- **Hub opportunities** Ã¢â‚¬â€ strong pages that should link out to related service pages to pass equity.
+- **Anchor diversity** Ã¢â‚¬â€ over-optimized or repetitive anchor text; missing descriptive anchors.
+- **Broken internal links** Ã¢â‚¬â€ from `link-check`.
 
-Rank by impact (value of the page Ã— severity of the gap). Recall Brain memory for prior
+Rank by impact (value of the page Ãƒâ€” severity of the gap). Recall Brain memory for prior
 linking decisions (`brain recall --query "internal linking"`).
 
 Severity:
-- `warning` â€” a money/service page is orphaned or badly under-linked, or broken internal links exist.
-- `normal` â€” minor tidy-ups only.
+- `warning` Ã¢â‚¬â€ a money/service page is orphaned or badly under-linked, or broken internal links exist.
+- `normal` Ã¢â‚¬â€ minor tidy-ups only.
 
 ### Coverage Block (REQUIRED in every report)
 Include a `coverage` object in your report JSON:
@@ -79,7 +79,7 @@ node $V2 intelligence report \
   --headline "<e.g. '2 service pages orphaned; 5 hub-link opportunities'>" \
   --report-json '{
     "opportunities":[{"type":"content_gap","keyword":"/services/<page>","business_value":"high","recommendation":"Add internal links from <hub pages> with descriptive anchors"}],
-    "threats":[{"type":"serp_change","keyword":"/services/<page>","severity":"warning","recommendation":"Orphaned money page â€” add inlinks"}],
+    "threats":[{"type":"serp_change","keyword":"/services/<page>","severity":"warning","recommendation":"Orphaned money page Ã¢â‚¬â€ add inlinks"}],
     "observations":["3 broken internal links found","Anchor text for /pricing is repetitive"],
     "recommendations":[{"priority":"high","action":"Planner: queue internal-linking fixes for orphaned service pages","evidence":"0 inlinks"}],
     "data":{"orphans":[],"under_linked":[],"hub_opportunities":[],"broken_links":[]},

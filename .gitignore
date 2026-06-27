@@ -36,6 +36,10 @@ npm-debug.log*
 cron/logs/
 Agentic SEO/cron/logs/
 
+# ---- Generated agent outputs ----
+Agentic SEO/tools/out/
+Agentic SEO/cli/tools/out/
+
 # ---- Provisioner output (per-client copies) ----
 provision/sites/
 

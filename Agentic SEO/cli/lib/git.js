@@ -73,8 +73,8 @@ function add(cwd, files) {
 }
 
 function commit(cwd, message, options = {}) {
-  const name = options.name || process.env.SEO_AGENT_GIT_NAME || "{{SITE_NAME}} Agent";
-  const email = options.email || process.env.SEO_AGENT_GIT_EMAIL || "agent@{{DOMAIN}}";
+  const name = options.name || process.env.SEO_AGENT_GIT_NAME || "Website Operations Agent";
+  const email = options.email || process.env.SEO_AGENT_GIT_EMAIL || "agent@example.com";
   return git(cwd, ["-c", `user.name=${name}`, "-c", `user.email=${email}`, "commit", "-m", message]);
 }
 

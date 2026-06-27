@@ -7,7 +7,7 @@ description: "Weekly clustering of emerging GSC queries into potential new servi
 schedule: "0 1 * * 1"
 trigger:
   schedule: "0 1 * * 1"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   weekdays: [1]
@@ -31,9 +31,9 @@ any page. Cluster demand and hand the planner ranked new-page candidates.
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
-SITE="--site-root /opt/client-site"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
+SITE="--site-root /opt/website-site"
 
 node $V2 gsc-fetch --days 28 --min-impressions 8 $DB --json
 node $V2 site-pages $SITE --json
@@ -56,10 +56,10 @@ node $V2 keyword list $DB --json
   Skip or convert to a refresh/internal-link recommendation when the gate returns
   `refresh_existing_blog`. Only keep a new supporting-blog opportunity when it returns
   `create_new_blog`, or when `differentiate_or_refresh` has a documented distinct intent split.
-- Estimate **business value** per cluster: commercial intent Ã— demand (impressions/trend) Ã—
-  fit with the {{NICHE}}-SEO service line.
+- Estimate **business value** per cluster: commercial intent Ãƒâ€” demand (impressions/trend) Ãƒâ€”
+  fit with the website-SEO service line.
 - Suggest a **page type** (new service page vs supporting blog) and a working title/angle.
-- Recall Brain memory (`brain recall --query "<cluster topic>"`) â€” was this proposed/rejected before?
+- Recall Brain memory (`brain recall --query "<cluster topic>"`) Ã¢â‚¬â€ was this proposed/rejected before?
 
 Severity is `normal` (these are opportunities, not threats). Headline = count of strong candidates.
 

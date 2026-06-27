@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * site-links.js â€” Analyze internal link structure of the website
+ * site-links.js Ã¢â‚¬â€ Analyze internal link structure of the website
  *
  * Helps AI understand link equity distribution, find orphan pages,
  * and identify internal linking opportunities.
@@ -15,7 +15,7 @@ function main() {
   if (args.help) { printHelp(); return; }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     if (!fs.existsSync(siteRoot)) throw new Error(`Site root not found: ${siteRoot}`);
 
     // Build full internal link map
@@ -76,7 +76,7 @@ function buildLinkMap(siteRoot) {
       if (!resolved) continue;
 
       // Only track internal links
-      if (!resolved.includes('{{DOMAIN}}') && !resolved.startsWith('/')) continue;
+      if (!resolved.includes('example.com') && !resolved.startsWith('/')) continue;
 
       const normalizedUrl = normalizeUrl(resolved);
       if (normalizedUrl === pageUrl) continue; // skip self-links
@@ -197,18 +197,18 @@ function linkSummary(linkMap) {
 
 function resolveHref(href, baseUrl) {
   if (href.startsWith('http://') || href.startsWith('https://')) return href;
-  if (href.startsWith('/')) return `https://{{DOMAIN}}${href}`;
-  // Relative link â€” resolve from base
+  if (href.startsWith('/')) return `https://example.com${href}`;
+  // Relative link Ã¢â‚¬â€ resolve from base
   const basePath = baseUrl.replace(/\/[^/]*$/, '/');
   return basePath + href;
 }
 
 function normalizeUrl(url) {
   try {
-    const u = new URL(url.includes('://') ? url : `https://{{DOMAIN}}${url}`);
+    const u = new URL(url.includes('://') ? url : `https://example.com${url}`);
     let pathname = u.pathname.replace(/\/+$/, '') || '/';
     pathname = pathname.replace(/\.html$/i, '').replace(/\/index$/i, '');
-    return `https://{{DOMAIN}}${pathname}`;
+    return `https://example.com${pathname}`;
   } catch {
     return url;
   }
@@ -216,7 +216,7 @@ function normalizeUrl(url) {
 
 function fileToUrl(relativePath) {
   const clean = relativePath.replace(/\.html$/i, '').replace(/\/index$/i, '');
-  return `https://{{DOMAIN}}/${clean || ''}`;
+  return `https://example.com/${clean || ''}`;
 }
 
 function walkDir(dir) {
@@ -235,7 +235,7 @@ function walkDir(dir) {
 
 function printHelp() {
   console.log(`
-site-links â€” Analyze internal link structure
+site-links Ã¢â‚¬â€ Analyze internal link structure
 
 Usage:
   v2 site-links [options]
@@ -249,7 +249,7 @@ Modes:
   --link-map               Full internal link adjacency map
 
 Options:
-  --site-root <path>       Website repo root (default: /opt/client-site)
+  --site-root <path>       Website repo root (default: /opt/website-site)
   --limit <N>              Max results for most/least-linked (default: 20)
 
 Output:
@@ -259,7 +259,7 @@ Output:
 
 Examples:
   v2 site-links --json                          # Summary stats
-  v2 site-links --url /services/{{NICHE}}-seo    # Links to/from page
+  v2 site-links --url /services/website-seo    # Links to/from page
   v2 site-links --orphans --json                # Find orphan pages
   v2 site-links --most-linked --limit 10 --table
   v2 site-links --least-linked --json

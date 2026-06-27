@@ -13,7 +13,7 @@ const { assertTaskExecutionAllowed } = require("../lib/guardrails");
 const { previewUrlForBranch } = require("../lib/preview_urls");
 
 /**
- * Lane 2 â€“ Semi-Safe Pipeline Orchestrator (Â§10)
+ * Lane 2 Ã¢â‚¬â€œ Semi-Safe Pipeline Orchestrator (Ã‚Â§10)
  *
  * Runs the full semi-safe flow for a single task:
  *   1. Load & verify task (risk_level = semi_safe OR approved)
@@ -36,12 +36,12 @@ function main() {
   }
 
   const taskId = requireArg(args, "task");
-  const dbPath = args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db";
-  const siteRoot = path.resolve(process.cwd(), args["site-root"] || "D:\\Projects\\{{NICHE}} SEO Agency");
+  const dbPath = args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db";
+  const siteRoot = path.resolve(process.cwd(), args["site-root"] || "D:\\Projects\\website SEO Agency");
   const domain = args.domain || null;
   const db = openStateDb(dbPath);
 
-  // â”€â”€ Step 1: Load task, verify risk_level â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Step 1: Load task, verify risk_level Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   const task = db.prepare("SELECT * FROM tasks WHERE task_id = ?").get(taskId);
   if (!task) throw new Error(`Task not found: ${taskId}`);
   const brain = loadBrain({ vaultRoot: args["brain-vault"] || args.vault, mode: "execution", autoCompile: args.compile !== false }).brain;
@@ -82,12 +82,12 @@ function main() {
   let acquiredLocks = [];
 
   try {
-    // â”€â”€ Step 2: Acquire locks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 2: Acquire locks Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     if (lockSpecs.length > 0) {
       acquiredLocks = acquireLocks(lockSpecs, dbPath, taskId, "semi_safe_pipeline");
     }
 
-    // â”€â”€ Step 3: Plan first; monitoring/investigation-only tasks do not need branches.
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 3: Plan first; monitoring/investigation-only tasks do not need branches.
     const planOutput = runNode("task-execute-safe.js", [
       "--task", taskId,
       "--db", dbPath,
@@ -101,10 +101,10 @@ function main() {
       return recordNoPreviewRequired(db, task, taskId, planResult, args);
     }
 
-    // â”€â”€ Step 4: Create agent branch only for proposed content/page edits â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 4: Create agent branch only for proposed content/page edits Ã¢â€â‚¬
     git.checkoutNewBranch(siteRoot, branch);
 
-    // â”€â”€ Step 5: Execute edits â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 5: Execute edits Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const execArgs = [
       "--task", taskId,
       "--db", dbPath,
@@ -117,19 +117,19 @@ function main() {
     ];
     const execOutput = runNode("task-execute-safe.js", execArgs);
 
-    // â”€â”€ Step 6: Local validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 6: Local validation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const crawlArgs = ["--site-root", siteRoot];
     if (domain) crawlArgs.push("--domain", domain);
     crawlArgs.push("--db", dbPath);
     const crawlOutput = runNode("crawl.js", crawlArgs);
 
-    // â”€â”€ Step 6: Push branch (optional) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 6: Push branch (optional) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     let pushOutput = null;
     if (args.push) {
       pushOutput = git.push(siteRoot, "origin", branch, true);
     }
 
-    // â”€â”€ Step 7: Record preview deployment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 7: Record preview deployment Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const commitSha = git.shortHead(siteRoot);
     const deployArgs = [
       "start",
@@ -149,7 +149,7 @@ function main() {
     let cloudflareWaitOutput = null;
     let cloudflareWaitError = null;
 
-    // â”€â”€ Step 8: Discover and validate live Cloudflare preview (optional) â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 8: Discover and validate live Cloudflare preview (optional) Ã¢â€â‚¬
     let validationOutput = null;
     let validationSkippedReason = null;
     if (args.validate && args.push) {
@@ -195,7 +195,7 @@ function main() {
       }
     }
 
-    // â”€â”€ Step 9: Record pipeline result in SQLite â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 9: Record pipeline result in SQLite Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const now = nowIso();
     assertTaskStatus("preview_ready");
     db.exec("BEGIN IMMEDIATE TRANSACTION");
@@ -263,7 +263,7 @@ function main() {
       throw error;
     }
 
-    // â”€â”€ Step 10: Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Step 10: Output Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const output = {
       generated_at: nowIso(),
       tool: "run_semi_safe_pipeline",
@@ -283,7 +283,7 @@ function main() {
       validation_skipped_reason: validationSkippedReason,
       cloudflare_wait: cloudflareWaitOutput,
       cloudflare_wait_error: cloudflareWaitError,
-      message: "Preview ready â€” awaiting human approval before merge.",
+      message: "Preview ready Ã¢â‚¬â€ awaiting human approval before merge.",
     };
 
     const outPath = args.out || path.join(process.cwd(), "tools", "out", "pipelines", `semi-safe-${taskId}-${Date.now()}.json`);
@@ -321,7 +321,7 @@ function main() {
     }
     throw error;
   } finally {
-    // â”€â”€ Release locks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Release locks Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     releaseLocks(acquiredLocks, dbPath);
     db.close();
   }
@@ -531,15 +531,15 @@ Usage:
   node tools/run_semi_safe_pipeline.js --task CAND-2026-05-26-ABC12345 --apply --push --validate
 
 Description:
-  Lane 2 semi-safe pipeline orchestrator (Â§10). Runs the full semi-safe flow
-  for a single task: load â†’ lock â†’ branch â†’ edit â†’ validate â†’ push â†’ deploy â†’ record.
+  Lane 2 semi-safe pipeline orchestrator (Ã‚Â§10). Runs the full semi-safe flow
+  for a single task: load Ã¢â€ â€™ lock Ã¢â€ â€™ branch Ã¢â€ â€™ edit Ã¢â€ â€™ validate Ã¢â€ â€™ push Ã¢â€ â€™ deploy Ã¢â€ â€™ record.
   The task must have risk_level='semi_safe' or status='approved'.
   After completion the task is set to 'preview_ready' and awaits human approval.
 
 Options:
   --task id            (Required) Task ID to process.
-  --db path            SQLite DB path. Default: tools/out/state/seo-agent.db
-  --site-root path     Website repo path. Default: D:\\Projects\\{{NICHE}} SEO Agency
+  --db path            SQLite DB path. Default: tools/out/state/website-agent.db
+  --site-root path     Website repo path. Default: D:\\Projects\\website SEO Agency
   --domain name        Domain for preview URL construction.
   --apply              Required confirmation: run planned edits and commit them.
   --push               Push the agent branch to origin after commit.

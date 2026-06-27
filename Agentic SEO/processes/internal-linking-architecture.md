@@ -3,10 +3,10 @@ id: internal-linking-architecture
 name: "Semantic Internal Linking Architecture"
 version: 1
 schedule: "0 4 8 * *"
-description: "Build and maintain internal links to grow topical authority â€” driven by user value and semantic relevance, not raw link counts. Finds orphan money pages, verifies source/destination topical overlap before linking, and enforces varied, contextual anchors."
+description: "Build and maintain internal links to grow topical authority Ã¢â‚¬â€ driven by user value and semantic relevance, not raw link counts. Finds orphan money pages, verifies source/destination topical overlap before linking, and enforces varied, contextual anchors."
 trigger:
-  schedule: "0 4 8 * *"            # Monthly, 8th of month, 04:00 {{TIMEZONE_ABBR}}
-  timezone: "{{TIMEZONE}}"
+  schedule: "0 4 8 * *"            # Monthly, 8th of month, 04:00 BST
+  timezone: "Asia/Dhaka"
   can_run_manually: true
   conditions:
     - "Run after publishing new content"
@@ -30,7 +30,7 @@ outputs:
 
 # Semantic Internal Linking Architecture
 
-> Maintain internal links to build topical authority â€” but link for the **reader** and for **semantic
+> Maintain internal links to build topical authority Ã¢â‚¬â€ but link for the **reader** and for **semantic
 > relevance**, never to hit a number. A low incoming-link count is a candidate signal, not a reason
 > to link. Forced or irrelevant links dilute authority and blur topical signals.
 
@@ -56,20 +56,20 @@ v2 lock list --json
 # Full internal link graph
 v2 site-links --json
 
-# Orphans (zero incoming internal links) â€” prioritize money/service orphans
+# Orphans (zero incoming internal links) Ã¢â‚¬â€ prioritize money/service orphans
 v2 site-links --orphans --json
 
 # Least-linked pages
 v2 site-links --least-linked --limit 15 --json
 ```
 *Tool note: `v2 site-links` is the aspirational wrapper. Today, derive the graph from
-`node tools/crawl_local_site.js --site-root <repo> --base-url https://{{DOMAIN}}`, which
+`node tools/crawl_local_site.js --site-root <repo> --base-url https://example.com`, which
 records internal links per page.*
 
 Identify, in priority order:
-1. **Orphan money/service pages** â€” highest priority. A money page with no internal links is a leak.
+1. **Orphan money/service pages** Ã¢â‚¬â€ highest priority. A money page with no internal links is a leak.
 2. **Recently published content** not yet linked from relevant existing pages.
-3. **Pages with < 3 incoming links** â€” candidates *only*; each must pass the semantic gate (Step 2).
+3. **Pages with < 3 incoming links** Ã¢â‚¬â€ candidates *only*; each must pass the semantic gate (Step 2).
 
 ---
 
@@ -79,7 +79,7 @@ Identify, in priority order:
 > the source and destination are genuinely about related topics and the link helps the reader move to
 > a natural next step.
 
-For each proposed (source â†’ destination) pair:
+For each proposed (source Ã¢â€ â€™ destination) pair:
 
 ```bash
 # Score topical overlap between source and destination
@@ -95,13 +95,13 @@ destination and that a real reader would click it.
 Accept the link **only if all** hold:
 - Source and destination share **meaningful topical overlap** (high semantic-match score / clear LLM yes).
 - The link is a **natural next step** for the reader at that point in the source page.
-- The anchor can be **contextual and varied** (see Step 3) â€” if the only natural anchor is a forced
+- The anchor can be **contextual and varied** (see Step 3) Ã¢â‚¬â€ if the only natural anchor is a forced
   exact-match keyword, reconsider whether the link belongs.
 - You are not creating cannibalization (don't cross-link two pages competing for the same query in a
-  way that confuses the canonical target â€” see `content-gap-analysis.md`).
+  way that confuses the canonical target Ã¢â‚¬â€ see `content-gap-analysis.md`).
 
 Reject (and log) links that fail the gate. A rejected low-link page stays under-linked on purpose
-until a relevant source exists â€” that is the correct outcome.
+until a relevant source exists Ã¢â‚¬â€ that is the correct outcome.
 
 ---
 
@@ -110,7 +110,7 @@ until a relevant source exists â€” that is the correct outcome.
 Vary anchors; never bulk-insert identical exact-match anchors (over-optimization risk):
 
 - Use a **mix** of descriptive, partial-match, and natural-phrase anchors across source pages.
-- Let the **surrounding sentence** carry relevance â€” the anchor doesn't have to be the keyword.
+- Let the **surrounding sentence** carry relevance Ã¢â‚¬â€ the anchor doesn't have to be the keyword.
 - **Avoid sitewide exact-match** links (e.g. a footer/template link with the same money anchor on
   every page).
 - Cap exact-match anchors to one or two of the highest-relevance source pages per destination.
@@ -126,7 +126,7 @@ Apply the right link direction for each page type:
   service pages (they are link destinations, not sources of authority outflow).
 - **Blog posts** should link *to* the service or strategic page they support, where it helps the
   reader (the monetization path).
-- **Hub / pillar pages** link out to their supporting cluster, and the cluster links back to the hub â€”
+- **Hub / pillar pages** link out to their supporting cluster, and the cluster links back to the hub Ã¢â‚¬â€
   but only within a genuine topical cluster.
 - **Avoid** linking unrelated pages just to raise a count, and avoid deep orphan chains.
 
@@ -135,29 +135,29 @@ Apply the right link direction for each page type:
 ## Step 5: Create Tasks
 
 > **Executable evidence contract (required).** The deterministic ops executor
-> (`task-execute-safe` â†’ semi-safe lane) reads `evidence.links` and inserts each link
+> (`task-execute-safe` Ã¢â€ â€™ semi-safe lane) reads `evidence.links` and inserts each link
 > automatically. For a task to auto-run you MUST give it:
 > - **`--target-url` / `--target-file` = the SOURCE page being edited** (where the link is
 >   inserted), NOT the orphan destination. Resolving one orphan from 3 sources = **3 tasks**,
 >   one per source page.
-> - **`evidence.links: [{ "anchor_text": "...", "to_url": "..." }]`** â€” one entry per link to add.
+> - **`evidence.links: [{ "anchor_text": "...", "to_url": "..." }]`** Ã¢â‚¬â€ one entry per link to add.
 >   - `to_url` = the destination's **final, non-redirecting** URL.
 >   - `anchor_text` = a phrase **that already appears as plain text on the source page**. The
 >     executor only converts an existing, unlinked mention into a link inside a paragraph that
->     has no link yet â€” it never fabricates new sentences. If no natural mention exists, pick a
+>     has no link yet Ã¢â‚¬â€ it never fabricates new sentences. If no natural mention exists, pick a
 >     different source page, or omit `links` so the task surfaces for manual/AI handling instead
 >     of silently no-op'ing.
 > - Type `internal_link_opportunity` or `internal_linking` (both route to `general_operational`).
 > - Keep the strategic fields (`semantic_matches`, `page_type`, `incoming_links`) for the audit
->   trail â€” they don't affect execution but document why the link passed the gate.
+>   trail Ã¢â‚¬â€ they don't affect execution but document why the link passed the gate.
 
 ```bash
 # One task PER SOURCE PAGE. This one edits the local-SEO service page to link to the orphan.
-v2 task create --title "Internal link: /services/local-seo-for-{{AUDIENCE}}/ â†’ reputation-management" \
+v2 task create --title "Internal link: /services/local-seo-for-small business owners/ Ã¢â€ â€™ reputation-management" \
   --type internal_link_opportunity --priority 800 --risk-level semi_safe \
-  --target-url "https://{{DOMAIN}}/services/local-seo-for-{{AUDIENCE}}/" \
+  --target-url "https://example.com/services/local-seo-for-small business owners/" \
   --description "Orphan money page /services/reputation-management/ (0 incoming links). Add ONE contextual link from this source, which passed the semantic gate (0.82). Anchor must already appear on the source page; vary anchors across sources (no repeated exact-match)." \
-  --evidence '{"source":"site-links","page_type":"service","incoming_links":0,"semantic_matches":[{"source":"/services/local-seo-for-{{AUDIENCE}}/","score":0.82}],"links":[{"anchor_text":"online reputation","to_url":"https://{{DOMAIN}}/services/reputation-management/"}]}' \
+  --evidence '{"source":"site-links","page_type":"service","incoming_links":0,"semantic_matches":[{"source":"/services/local-seo-for-small business owners/","score":0.82}],"links":[{"anchor_text":"online reputation","to_url":"https://example.com/services/reputation-management/"}]}' \
   --json
 ```
 

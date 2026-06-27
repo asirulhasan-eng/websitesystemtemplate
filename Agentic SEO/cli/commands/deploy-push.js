@@ -1,5 +1,5 @@
 /**
- * deploy-push.js â€” Push a branch to a remote
+ * deploy-push.js Ã¢â‚¬â€ Push a branch to a remote
  *
  * Usage:
  *   v2 deploy push --site-root /opt/site --branch agent/seo-update
@@ -14,6 +14,7 @@
  *   --set-upstream   Set upstream tracking branch
  *   --db             If provided, update deployment record
  *   --deployment-id  Existing deployment_id to update
+ *   --task           Associated task_id when creating a push deployment record
  *   --json           JSON output (default)
  *   --table          Table output
  *   --sample         Return sample data without git operations
@@ -28,7 +29,7 @@ const { nowIso } = require('../lib/dates');
 const TOOL = 'deploy-push';
 
 const HELP = `
-deploy-push â€” Push a branch to a remote
+deploy-push Ã¢â‚¬â€ Push a branch to a remote
 
 USAGE
   v2 deploy push --site-root <path> [options]
@@ -43,13 +44,14 @@ OPTIONS
   --set-upstream    Set upstream tracking branch
   --db              If provided, updates deployment record in SQLite
   --deployment-id   Existing deployment_id to update after push
+  --task            Associated task_id when creating a new push deployment record
   --json            JSON output (default)
   --table           Table output
   --sample          Return sample data without git operations
   --help            Show this help text
 
 EXAMPLES
-  v2 deploy push --site-root /opt/client-site --branch agent/seo-update
+  v2 deploy push --site-root /opt/website-site --branch agent/seo-update
   v2 deploy push --site-root . --force --set-upstream
   v2 deploy push --site-root /opt/site --remote upstream --branch main
 
@@ -115,6 +117,7 @@ module.exports = function deployPush() {
     const commitSha = shortHead(siteRoot);
 
     // Optionally update deployment in DB
+    let recordedDeploymentId = null;
     if (args.db) {
       const { openStateDb, makeId } = require('../lib/state_db');
       const db = openStateDb(resolveDbPath(args));
@@ -123,22 +126,24 @@ module.exports = function deployPush() {
 
       try {
         if (deploymentId) {
+          recordedDeploymentId = deploymentId;
           db.prepare(`
-            UPDATE deployments SET status = ?, metadata_json = json_set(
-              COALESCE(metadata_json, '{}'), '$.pushed_at', ?, '$.remote', ?, '$.force', ?
+            UPDATE deployments SET status = ?, commit_sha = ?, metadata_json = json_set(
+              COALESCE(metadata_json, '{}'), '$.pushed_at', ?, '$.remote', ?, '$.force', ?, '$.push_commit_sha', ?
             ) WHERE deployment_id = ?
-          `).run('pushed', now, remote, forceFlag ? 'true' : 'false', deploymentId);
+          `).run('pushed', commitSha, now, remote, forceFlag ? 'true' : 'false', commitSha, deploymentId);
         } else {
           const newId = makeId('DEP');
+          recordedDeploymentId = newId;
           db.prepare(`
             INSERT INTO deployments (
-              deployment_id, branch_name, commit_sha, deployment_type,
+              deployment_id, task_id, branch_name, commit_sha, deployment_type,
               status, started_at, metadata_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           `).run(
-            newId, branch, commitSha, 'push',
+            newId, args.task || null, branch, commitSha, 'push',
             'pushed', now,
-            JSON.stringify({ remote, force: forceFlag })
+            JSON.stringify({ remote, force: forceFlag, pushed_at: now, push_commit_sha: commitSha })
           );
         }
       } finally {
@@ -150,6 +155,7 @@ module.exports = function deployPush() {
       branch,
       remote,
       commit_sha: commitSha,
+      deployment_id: recordedDeploymentId,
       pushed: true,
       force: forceFlag,
       message: `Branch "${branch}" pushed to ${remote} successfully`,

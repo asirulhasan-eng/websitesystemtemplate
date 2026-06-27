@@ -1,13 +1,13 @@
 /**
- * keyword-trend.js â€” Keyword position trends over time
+ * keyword-trend.js Ã¢â‚¬â€ Keyword position trends over time
  *
  * Queries GSC snapshots and SERP checks to show position history for a keyword.
  * Supports ASCII sparklines in table mode, competitor data, and multiple output formats.
  *
  * Usage:
- *   v2 keyword trend --keyword "{{AUDIENCE}} near me" --db state.db --table
+ *   v2 keyword trend --keyword "small business owners near me" --db state.db --table
  *   v2 keyword trend --keyword "drain cleaning" --days 60 --source gsc --json
- *   v2 keyword trend --keyword "{{NICHE}} seo" --with-competitors --sparkline --table
+ *   v2 keyword trend --keyword "website seo" --with-competitors --sparkline --table
  *
  * Options:
  *   --keyword         Required. The keyword to analyze
@@ -31,7 +31,7 @@ const { nowIso, daysAgo } = require('../lib/dates');
 const TOOL = 'keyword-trend';
 
 const HELP = `
-keyword-trend â€” Keyword position trends over time
+keyword-trend Ã¢â‚¬â€ Keyword position trends over time
 
 USAGE
   v2 keyword trend --keyword <keyword> --db <path> [options]
@@ -44,7 +44,7 @@ OPTIONS
   --source          Data source: gsc | serp | both (default: both)
   --with-competitors Include competitor positions from SERP check data
   --sparkline       Show ASCII sparkline of position history in table mode
-  --db              SQLite database path (or CLIENT_DB_PATH env var)
+  --db              SQLite database path (or WEBSITE_AGENT_DB_PATH env var)
   --json            JSON output (default)
   --table           Table output
   --csv             CSV output
@@ -52,10 +52,10 @@ OPTIONS
   --help            Show this help text
 
 EXAMPLES
-  v2 keyword trend --keyword "{{AUDIENCE}} near me" --db state.db --table --sparkline
+  v2 keyword trend --keyword "small business owners near me" --db state.db --table --sparkline
   v2 keyword trend --keyword "drain cleaning" --days 60 --source gsc --json
-  v2 keyword trend --keyword "{{NICHE}} seo" --with-competitors --table
-  v2 keyword trend --keyword "emergency {{AUDIENCE}}" --source serp --csv
+  v2 keyword trend --keyword "website seo" --with-competitors --table
+  v2 keyword trend --keyword "emergency small business owners" --source serp --csv
 
 OUTPUT
   Each row includes: date, source, position, clicks (GSC), impressions (GSC),
@@ -63,7 +63,7 @@ OUTPUT
 
 SPARKLINE
   When --sparkline is used with --table, an ASCII sparkline column shows
-  the position trend using characters: â–â–‚â–ƒâ–„â–…â–†â–‡â–ˆ (lower = better position).
+  the position trend using characters: Ã¢â€“ÂÃ¢â€“â€šÃ¢â€“Æ’Ã¢â€“â€žÃ¢â€“â€¦Ã¢â€“â€ Ã¢â€“â€¡Ã¢â€“Ë† (lower = better position).
 `.trim();
 
 /**
@@ -72,7 +72,7 @@ SPARKLINE
  */
 function sparkline(values) {
   if (!values || values.length === 0) return '';
-  const chars = 'â–â–‚â–ƒâ–„â–…â–†â–‡â–ˆ';
+  const chars = 'Ã¢â€“ÂÃ¢â€“â€šÃ¢â€“Æ’Ã¢â€“â€žÃ¢â€“â€¦Ã¢â€“â€ Ã¢â€“â€¡Ã¢â€“Ë†';
   const validValues = values.filter(v => v !== null && v !== undefined && !isNaN(v));
   if (validValues.length === 0) return '';
 
@@ -107,12 +107,12 @@ module.exports = function keywordTrend() {
       clicks: Math.floor(Math.random() * 20) + 5,
       impressions: Math.floor(Math.random() * 200) + 100,
       ctr: Math.round((Math.random() * 0.05 + 0.02) * 10000) / 100,
-      url: 'https://{{DOMAIN}}/services/{{NICHE}}',
-      domain: '{{DOMAIN}}',
+      url: 'https://example.com/services/website',
+      domain: 'example.com',
     }));
 
     const result = {
-      keyword: '{{AUDIENCE}} near me',
+      keyword: 'small business owners near me',
       days: 30,
       source: 'both',
       data_points: sampleRows.length,
@@ -251,7 +251,7 @@ module.exports = function keywordTrend() {
       } else if (fmt === 'csv') {
         printOutput(allRows, fmt);
       } else {
-        // Table mode â€” show summary + data
+        // Table mode Ã¢â‚¬â€ show summary + data
         console.log(`\nKeyword: ${keyword}`);
         console.log(`Period: last ${days} days (since ${sinceDate})`);
         console.log(`Source: ${source} | Data points: ${allRows.length}`);

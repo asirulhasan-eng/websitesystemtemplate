@@ -1,5 +1,5 @@
 /**
- * lock-list.js â€” List resource locks with filtering
+ * lock-list.js Ã¢â‚¬â€ List resource locks with filtering
  *
  * Usage:
  *   v2 lock list --db state.db --table
@@ -31,7 +31,7 @@ const { nowIso } = require('../lib/dates');
 const TOOL = 'lock-list';
 
 const HELP = `
-lock-list â€” List resource locks with filtering
+lock-list Ã¢â‚¬â€ List resource locks with filtering
 
 USAGE
   v2 lock list [options]
@@ -44,7 +44,7 @@ OPTIONS
   --owner           Filter by owner_agent
   --resource        Filter by resource_id (partial match with LIKE)
   --limit           Maximum rows to return (default: 100)
-  --db              SQLite database path (or CLIENT_DB_PATH env var)
+  --db              SQLite database path (or WEBSITE_AGENT_DB_PATH env var)
   --json            JSON output (default)
   --table           Table output
   --csv             CSV output
@@ -78,7 +78,7 @@ module.exports = function lockList() {
         {
           lock_id: 'LCK-2026-06-03-SAMPLE1',
           lock_type: 'file_lock',
-          resource_id: '/services/{{NICHE}}.html',
+          resource_id: '/services/website.html',
           task_id: 'TSK-2026-06-03-AB12CD34',
           owner_agent: 'content-agent',
           status: 'active',
@@ -90,7 +90,7 @@ module.exports = function lockList() {
         {
           lock_id: 'LCK-2026-06-03-SAMPLE2',
           lock_type: 'keyword_lock',
-          resource_id: '{{AUDIENCE}} near me',
+          resource_id: 'small business owners near me',
           task_id: null,
           owner_agent: 'v2-cli',
           status: 'active',

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * serp-compare.js â€” Compare SERP positions over time
+ * serp-compare.js Ã¢â‚¬â€ Compare SERP positions over time
  *
  * Compares current SERP positions against historical data from serp_checks,
  * detecting position changes, URL changes, and competitor movements.
@@ -19,7 +19,7 @@ const { daysAgo } = require('../lib/dates');
 const TOOL = 'serp-compare';
 
 const HELP = `
-serp-compare â€” Compare SERP positions over time
+serp-compare Ã¢â‚¬â€ Compare SERP positions over time
 
 USAGE
   node serp-compare.js --db <path> [options]
@@ -48,63 +48,63 @@ OUTPUT COLUMNS
 EXAMPLES
   node serp-compare.js --sample --table
   node serp-compare.js --db ./seo.db --days-ago 7 --table
-  node serp-compare.js --db ./seo.db --date 2026-05-15 --keyword {{NICHE}}
+  node serp-compare.js --db ./seo.db --date 2026-05-15 --keyword website
   node serp-compare.js --db ./seo.db --all-tracked --days-ago 30
 `.trim();
 
 function getSampleData() {
   return [
     {
-      keyword: '{{NICHE}} seo',
+      keyword: 'website seo',
       current_position: 4,
       previous_position: 6,
       position_change: 2,
-      current_url: 'https://{{DOMAIN}}/',
-      previous_url: 'https://{{DOMAIN}}/',
+      current_url: 'https://example.com/',
+      previous_url: 'https://example.com/',
       url_changed: false,
       new_competitors: ['searchenginejournal.com'],
       lost_competitors: ['yelp.com'],
     },
     {
-      keyword: 'seo for {{AUDIENCE}}',
+      keyword: 'seo for small business owners',
       current_position: 5,
       previous_position: 4,
       position_change: -1,
-      current_url: 'https://{{DOMAIN}}/seo-for-{{AUDIENCE}}',
-      previous_url: 'https://{{DOMAIN}}/seo-for-{{AUDIENCE}}',
+      current_url: 'https://example.com/seo-for-small business owners',
+      previous_url: 'https://example.com/seo-for-small business owners',
       url_changed: false,
       new_competitors: [],
       lost_competitors: [],
     },
     {
-      keyword: '{{AUDIENCE}} website design',
+      keyword: 'small business owners website design',
       current_position: 7,
       previous_position: 12,
       position_change: 5,
-      current_url: 'https://{{DOMAIN}}/web-design',
-      previous_url: 'https://{{DOMAIN}}/web-design',
+      current_url: 'https://example.com/web-design',
+      previous_url: 'https://example.com/web-design',
       url_changed: false,
       new_competitors: ['hookagency.com'],
       lost_competitors: ['thumbtack.com', 'homeadvisor.com'],
     },
     {
-      keyword: '{{AUDIENCE}} lead generation',
+      keyword: 'small business owners lead generation',
       current_position: 15,
       previous_position: null,
       position_change: null,
-      current_url: 'https://{{DOMAIN}}/leads',
+      current_url: 'https://example.com/leads',
       previous_url: null,
       url_changed: true,
       new_competitors: [],
       lost_competitors: [],
     },
     {
-      keyword: '{{NICHE}} marketing agency',
+      keyword: 'website marketing agency',
       current_position: null,
       previous_position: 9,
       position_change: null,
       current_url: null,
-      previous_url: 'https://{{DOMAIN}}/marketing',
+      previous_url: 'https://example.com/marketing',
       url_changed: true,
       new_competitors: [],
       lost_competitors: [],
@@ -118,7 +118,7 @@ function getLatestChecks(db, keywords) {
   // Get the most recent check per keyword
   const placeholders = keywords.map(() => '?').join(',');
   // Group and join on LOWER(keyword) so rows stored with inconsistent casing
-  // (e.g. "{{NICHE}} SEO" vs "{{NICHE}} seo") are treated as the same keyword.
+  // (e.g. "website SEO" vs "website seo") are treated as the same keyword.
   const sql = `
     SELECT s1.keyword, s1.position, s1.url, s1.snapshot_json, s1.checked_at
     FROM serp_checks s1
@@ -221,7 +221,7 @@ function main() {
   }
 
   try {
-    // â”€â”€ Sample mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     if (boolArg(args, 'sample')) {
       const sampleResults = getSampleData();
       const output = envelope({
@@ -239,8 +239,8 @@ function main() {
       return;
     }
 
-    // â”€â”€ DB mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    if (!args.db && !process.env.CLIENT_DB_PATH && !process.env.SEO_AGENT_DB) {
+    // Ã¢â€â‚¬Ã¢â€â‚¬ DB mode Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    if (!args.db && !process.env.WEBSITE_AGENT_DB_PATH && !process.env.SEO_AGENT_DB) {
       throw new Error('--db <path> is required, or use --sample for demo data');
     }
 
@@ -290,7 +290,7 @@ function main() {
       return bChange - aChange;
     });
 
-    // â”€â”€ Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Output Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const output = envelope({
       comparison_date: comparisonDate,
       days_ago: daysAgoNum,

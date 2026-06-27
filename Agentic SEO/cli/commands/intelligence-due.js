@@ -61,6 +61,7 @@ module.exports = function intelligenceDue() {
         due_csv: due.map((d) => d.module_id).join(","),
         due_detail: due,
         skipped: [],
+        escalations: [],
       }, { tool: TOOL }), getOutputFormat(args));
       return;
     }
@@ -68,6 +69,7 @@ module.exports = function intelligenceDue() {
     const dbPath = resolveDbPath(args);
     const db = openStateDb(dbPath);
     let lastRows;
+    let reportRows;
     try {
       lastRows = db.prepare(`
         SELECT module_id, MAX(run_at) AS last_run
@@ -75,14 +77,20 @@ module.exports = function intelligenceDue() {
         WHERE status != 'failed'
         GROUP BY module_id
       `).all();
+      reportRows = db.prepare(`
+        SELECT module_id, status, run_at, error
+        FROM analysis_reports
+        ORDER BY module_id ASC, run_at DESC, created_at DESC
+      `).all();
     } finally {
       db.close();
     }
 
     const lastRuns = {};
     for (const row of lastRows) lastRuns[row.module_id] = row.last_run;
+    const lastFailures = failureStateFromRows(reportRows);
 
-    const { due, skipped } = computeDueModules({ session, lastRuns });
+    const { due, skipped, escalations } = computeDueModules({ session, lastRuns, lastFailures });
 
     printOutput(envelope({
       session,
@@ -90,12 +98,37 @@ module.exports = function intelligenceDue() {
       due_csv: due.map((d) => d.module_id).join(","),
       due_detail: due,
       skipped,
+      escalations,
     }, { tool: TOOL }), getOutputFormat(args));
   } catch (error) {
     printOutput(errorEnvelope(error, { tool: TOOL }), "json");
     process.exitCode = 1;
   }
 };
+
+function failureStateFromRows(rows = []) {
+  const state = {};
+  const done = new Set();
+  for (const row of rows) {
+    if (!row || done.has(row.module_id)) continue;
+    if (row.status === 'failed') {
+      if (!state[row.module_id]) {
+        state[row.module_id] = {
+          consecutive_failures: 0,
+          last_failed_at: row.run_at || null,
+          last_error: row.error || null,
+        };
+      }
+      state[row.module_id].consecutive_failures += 1;
+      if (!state[row.module_id].last_error && row.error) state[row.module_id].last_error = row.error;
+    } else {
+      done.add(row.module_id);
+    }
+  }
+  return state;
+}
+
+module.exports.failureStateFromRows = failureStateFromRows;
 
 if (require.main === module) {
   module.exports();

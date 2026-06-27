@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * page-meta.js â€” Extract structured metadata from one or more pages
+ * page-meta.js Ã¢â‚¬â€ Extract structured metadata from one or more pages
  *
  * Lighter-weight than page-read: focuses only on SEO-relevant metadata.
  * Supports batch processing via --batch glob.
@@ -15,7 +15,7 @@ function main() {
   if (args.help) { printHelp(); return; }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     const seoOnly = Boolean(args['seo-only']);
     let results;
 
@@ -126,7 +126,7 @@ function extractPageMeta(filePath, siteRoot, seoOnly = false) {
 
 function fileToUrl(relativePath) {
   const clean = relativePath.replace(/\.html$/i, '').replace(/\/index$/i, '');
-  return `https://{{DOMAIN}}/${clean || ''}`;
+  return `https://example.com/${clean || ''}`;
 }
 
 function extractTag(html, tag) {
@@ -197,7 +197,7 @@ function stripHtml(text) {
 
 function printHelp() {
   console.log(`
-page-meta â€” Extract structured metadata from site pages
+page-meta Ã¢â‚¬â€ Extract structured metadata from site pages
 
 Usage:
   v2 page-meta --url <url> [options]
@@ -228,9 +228,9 @@ Output Fields:
   file_size_bytes, last_modified (from git)
 
 Examples:
-  v2 page-meta --url https://{{DOMAIN}}/services/{{NICHE}}-seo --json
+  v2 page-meta --url https://example.com/services/website-seo --json
   v2 page-meta --batch "services/*.html" --seo-only --table
-  v2 page-meta --file blog/seo-for-{{AUDIENCE}}.html --json
+  v2 page-meta --file blog/seo-for-small business owners.html --json
 `);
 }
 

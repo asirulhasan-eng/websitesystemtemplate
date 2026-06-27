@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * page-read.js â€” Read page content from the local website repo
+ * page-read.js Ã¢â‚¬â€ Read page content from the local website repo
  *
  * Returns the raw or processed content of a page, useful for AI to
  * analyze page quality, keyword presence, and content structure.
@@ -15,7 +15,7 @@ function main() {
   if (args.help) { printHelp(); return; }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     let filePath;
 
     if (args.file) {
@@ -224,7 +224,7 @@ function matchAll(text, regex) {
 
 function printHelp() {
   console.log(`
-page-read â€” Read and analyze page content from the local website repo
+page-read Ã¢â‚¬â€ Read and analyze page content from the local website repo
 
 Usage:
   v2 page-read --url <url> [options]
@@ -233,12 +233,12 @@ Usage:
 Source:
   --url <url>              Page URL (resolves to local file)
   --file <path>            Local file path directly
-  --site-root <path>       Website repo root (default: /opt/client-site)
+  --site-root <path>       Website repo root (default: /opt/website-site)
 
 Content Mode:
   --raw                    Output raw HTML
   --text                   Output extracted text only (no tags)
-  --sections               Output structured sections (h2 â†’ content)
+  --sections               Output structured sections (h2 Ã¢â€ â€™ content)
   --full                   Output everything: meta + sections + links + images (default)
 
 Analysis:
@@ -251,9 +251,9 @@ Output:
   --csv                    CSV output
 
 Examples:
-  v2 page-read --url https://{{DOMAIN}}/services/{{NICHE}}-seo --json
-  v2 page-read --file services/{{NICHE}}-seo.html --keyword-density "{{NICHE}} seo" --json
-  v2 page-read --url /blog/seo-for-{{AUDIENCE}} --text --json
+  v2 page-read --url https://example.com/services/website-seo --json
+  v2 page-read --file services/website-seo.html --keyword-density "website seo" --json
+  v2 page-read --url /blog/seo-for-small business owners --text --json
   v2 page-read --file index.html --sections --table
 `);
 }

@@ -43,7 +43,7 @@ v2 gsc-fetch --days 90 --query-contains "<head_term>" --json --db $DB
 v2 serp-check --keywords "<head_term>" --include-features --json --db $DB
 ```
 
-## Step 2: Decide â€” Create vs Upgrade
+## Step 2: Decide Ã¢â‚¬â€ Create vs Upgrade
 
 ### Create New Page (decision: `create_page`)
 Choose this when:
@@ -61,7 +61,7 @@ Choose this when:
 ## Step 3: Generate Content Brief
 
 Analyze the SERP top-10 results to determine:
-- **Angle**: What unique value can {{DOMAIN}} offer?
+- **Angle**: What unique value can example.com offer?
 - **Sections**: What H2/H3 topics do top-ranking pages cover?
 - **Word count target**: Based on top-10 average (minimum 800 for service, 1200 for blog)
 - **Internal links IN**: Which existing pages should link TO this new page? (high-authority service pages, related blog posts)
@@ -138,18 +138,18 @@ Document these as the campaign's child task roadmap (the planner will enqueue th
 
 5. **Performance review** (Step 6, 2 weeks after deploy):
    - Check position via `v2 gsc-fetch --days 14 --query-contains "<head_term>"`
-   - If position improved â†’ campaign success metric check
-   - If no improvement â†’ evaluate content quality, backlink opportunities
+   - If position improved Ã¢â€ â€™ campaign success metric check
+   - If no improvement Ã¢â€ â€™ evaluate content quality, backlink opportunities
 
 ## Guardrails
-- `new_page_create` is `semi_safe` â€” auto-approved per guardrails.json
-- `content_optimization` is `safe` â€” auto-approved
-- `internal_link_add` is `safe` â€” auto-approved
+- `new_page_create` is `semi_safe` Ã¢â‚¬â€ auto-approved per guardrails.json
+- `content_optimization` is `safe` Ã¢â‚¬â€ auto-approved
+- `internal_link_add` is `safe` Ã¢â‚¬â€ auto-approved
 - Campaign child tasks use existing risk classification. No new risk categories.
 - All page creation goes through preview branch + validation before production deploy.
 
 ## Success Criteria
 - Campaign is marked `completed` when:
   - Target page exists and is indexed
-  - Head term ranks in position â‰¤ success_metric threshold
+  - Head term ranks in position Ã¢â€°Â¤ success_metric threshold
   - OR 60 days have passed (mark as `paused` for review)

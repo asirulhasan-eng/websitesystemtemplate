@@ -6,14 +6,69 @@ const { localDateOnly, nowIso } = require("./dates");
 const { inferLocks, urlToLikelyFile } = require("./tasks");
 const { assertTaskStatus } = require("./statuses");
 
-function openStateDb(dbPath) {
-  const resolved = path.resolve(process.cwd(), dbPath);
-  ensureDir(path.dirname(resolved));
-  const db = new DatabaseSync(resolved);
-  initSchema(db);
-  migrateSchema(db);
+const DEFAULT_BUSY_TIMEOUT_MS = 15000;
+const DEFAULT_OPEN_ATTEMPTS = 4;
+const DEFAULT_OPEN_RETRY_BASE_MS = 250;
 
-  return db;
+function openStateDb(dbPath, options = {}) {
+  const normalized = String(dbPath || "").replace(/\\/g, "/");
+  if (!normalized || !path.isAbsolute(normalized)) {
+    throw new Error(
+      `Refusing to open non-absolute SQLite DB path: ${dbPath || "(empty)"}. ` +
+      "Set WEBSITE_AGENT_DB_PATH=/opt/website-state/website-agent.db or pass an absolute --db path.",
+    );
+  }
+  const resolved = path.resolve(normalized);
+  ensureDir(path.dirname(resolved));
+  const busyTimeoutMs = positiveInt(
+    options.busyTimeoutMs ?? process.env.WEBSITE_AGENT_DB_BUSY_TIMEOUT_MS,
+    DEFAULT_BUSY_TIMEOUT_MS,
+  );
+  const maxAttempts = positiveInt(
+    options.openAttempts ?? process.env.WEBSITE_AGENT_DB_OPEN_ATTEMPTS,
+    DEFAULT_OPEN_ATTEMPTS,
+  );
+  const retryBaseMs = positiveInt(
+    options.openRetryBaseMs ?? process.env.WEBSITE_AGENT_DB_OPEN_RETRY_BASE_MS,
+    DEFAULT_OPEN_RETRY_BASE_MS,
+  );
+
+  let lastError = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let db = null;
+    try {
+      db = new DatabaseSync(resolved, { timeout: busyTimeoutMs });
+      db.exec(`PRAGMA busy_timeout = ${busyTimeoutMs}`);
+      initSchema(db);
+      migrateSchema(db);
+      return db;
+    } catch (error) {
+      lastError = error;
+      if (db) {
+        try { db.close(); } catch { /* ignore close failures after a locked open */ }
+      }
+      if (!isTransientSqliteLockError(error) || attempt >= maxAttempts) {
+        throw error;
+      }
+      sleepSync(retryBaseMs * (2 ** (attempt - 1)));
+    }
+  }
+
+  throw lastError;
+}
+
+function positiveInt(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+}
+
+function isTransientSqliteLockError(error) {
+  const text = `${error && error.code ? error.code : ""} ${error && error.message ? error.message : error}`;
+  return /SQLITE_(BUSY|LOCKED)|database is locked|database table is locked/i.test(text);
+}
+
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
 // Retrofit databases created before later schema additions. `CREATE TABLE IF
@@ -108,6 +163,12 @@ function migrateSchema(db) {
       }
       if (!alertColumns.has("occurrence_count")) {
         db.exec("ALTER TABLE monitor_alerts ADD COLUMN occurrence_count INTEGER DEFAULT 1");
+      }
+      if (!alertColumns.has("last_notified_at")) {
+        db.exec("ALTER TABLE monitor_alerts ADD COLUMN last_notified_at TEXT");
+      }
+      if (!alertColumns.has("resolved_at")) {
+        db.exec("ALTER TABLE monitor_alerts ADD COLUMN resolved_at TEXT");
       }
       if (!alertColumns.has("resolution_note")) {
         db.exec("ALTER TABLE monitor_alerts ADD COLUMN resolution_note TEXT");
@@ -259,6 +320,7 @@ function initSchema(db) {
       resolved_at TEXT,
       resolution_note TEXT,
       notified_at TEXT,
+      last_notified_at TEXT,
       metadata_json TEXT
     );
 
@@ -1043,6 +1105,7 @@ function makeId(prefix) {
 module.exports = {
   openStateDb,
   initSchema,
+  isTransientSqliteLockError,
   insertTaskCandidatesAtomic,
   updateTaskStatusAtomic,
   insertEventAtomic,

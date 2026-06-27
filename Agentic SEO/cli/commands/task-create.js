@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * task-create.js â€” Create a task in the {{SITE_NAME}} SQLite state DB.
+ * task-create.js Ã¢â‚¬â€ Create a task in the Website Operations SQLite state DB.
  *
- * Atomically inserts: task row â†’ event row â†’ outbox job in one transaction.
+ * Atomically inserts: task row Ã¢â€ â€™ event row Ã¢â€ â€™ outbox job in one transaction.
  * Supports all task fields including JSON evidence, metadata, locks, and tags.
  *
  * Usage:
@@ -17,7 +17,7 @@ const { assertTaskStatus } = require('../lib/statuses');
 const { routeTaskCreationThroughGuardrails, makeApprovalToken } = require('../lib/guardrails');
 
 const HELP = `
-task-create â€” Create a new task in the SQLite state database.
+task-create Ã¢â‚¬â€ Create a new task in the SQLite state database.
 
 USAGE
   node task-create.js --title "Fix meta descriptions" [options]
@@ -25,8 +25,10 @@ USAGE
 REQUIRED
   --title <text>            Task title (required)
 
-OPTIONAL â€” Task Fields
-  --type <type>             Task type (e.g. meta_fix, new_page, content_refresh)
+OPTIONAL Ã¢â‚¬â€ Task Fields
+  --type <type>             Task type (e.g. meta_fix, new_page, content_refresh).
+                            Self-improvement types: self_improvement, process_update,
+                            prompt_update, cron_repair, executor_repair, db_reconciliation.
   --priority <1-1000>       Priority score (default: 100)
   --risk-level <level>      Risk level: safe | semi_safe | high_risk (default: semi_safe)
   --status <status>         Initial status (default: candidate)
@@ -36,7 +38,7 @@ OPTIONAL â€” Task Fields
   --target-keyword <kw>     Target keyword
   --description <text>      Task description
 
-OPTIONAL â€” Structured Data
+OPTIONAL Ã¢â‚¬â€ Structured Data
   --evidence <json>         Evidence JSON object (merged into metadata)
   --metadata <json>         Additional metadata JSON object
   --locks <json>            Lock requirements as JSON array
@@ -44,13 +46,13 @@ OPTIONAL â€” Structured Data
   --parent-task <id>        Parent task ID (stored in metadata)
   --tags <list>             Comma-separated tags (stored in metadata)
 
-OPTIONAL â€” Scheduling (deferred follow-ups)
+OPTIONAL Ã¢â‚¬â€ Scheduling (deferred follow-ups)
   --scheduled-for <iso>     Do not let workers pick this task until this UTC time.
   --scheduled-in-days <n>   Defer eligibility by N days from now (e.g. 14).
                             A deferred task is still created status='approved';
                             it just stays invisible to the picker until due.
 
-OPTIONAL â€” Behavior
+OPTIONAL Ã¢â‚¬â€ Behavior
   --no-event                Skip inserting the event row
   --no-outbox               Skip inserting the outbox job
   --allow-missing-blog-cannibalization-check
@@ -61,9 +63,9 @@ OPTIONAL â€” Behavior
   --sample                  Show sample output without touching the database
 
 EXAMPLES
-  node task-create.js --title "Add schema markup to /{{AUDIENCE}}" \\
+  node task-create.js --title "Add schema markup to /small business owners" \\
     --type schema_markup --priority 500 --risk-level safe \\
-    --target-url "https://client.com/{{AUDIENCE}}" \\
+    --target-url "https://client.com/small business owners" \\
     --source manual --tags "schema,quick-win"
 
   node task-create.js --title "Refresh drain cleaning page" \\
@@ -74,10 +76,26 @@ EXAMPLES
 `.trim();
 
 const VALID_RISK_LEVELS = new Set(['safe', 'semi_safe', 'high_risk']);
+const SELF_IMPROVEMENT_TYPES = new Set([
+  'self_improvement',
+  'process_update',
+  'prompt_update',
+  'cron_repair',
+  'executor_repair',
+  'db_reconciliation',
+]);
+const SELF_IMPROVEMENT_ALLOWED_PREFIXES = [
+  'cli/',
+  'cron/',
+  'processes/',
+  'hermes/skills/client/',
+  'processes/brain-seed/',
+];
+const SELF_IMPROVEMENT_FORBIDDEN_RE = /(^|\/)(Website)(\/|$)|(^|\/)(secrets?)(\/|$)|guardrails\.json$|(^|\/)(no-go|no_go)(\.|\/|$)|(^|\/)(dns|domain|ssl|robots|sitemap)(\.|\/|$)/i;
 
 // Collapse runs of whitespace to a single space and trim. Producers sometimes
 // derive a keyword/title from a competitor H1 with punctuation stripped, which
-// leaves double spaces (e.g. "ppc marketing for {{AUDIENCE}} 2026  guide ..."); that
+// leaves double spaces (e.g. "ppc marketing for small business owners 2026  guide ..."); that
 // pollutes keyword tracking/SERP checks and dedupe. Normalize at the write edge.
 function normalizeWhitespace(value) {
   if (value === null || value === undefined) return null;
@@ -93,28 +111,28 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sampleId = 'TSK-2026-06-03-A1B2C3D4';
     const sample = {
       task: {
         task_id: sampleId,
-        title: 'Add schema markup to /{{AUDIENCE}}',
-        description: 'Add LocalBusiness + {{AUDIENCE}} schema to the {{AUDIENCE}} service page',
+        title: 'Add schema markup to /small business owners',
+        description: 'Add LocalBusiness + small business owners schema to the small business owners service page',
         status: 'candidate',
         risk_level: 'safe',
         priority_score: 500,
         source: 'manual',
-        target_url: 'https://client.com/{{AUDIENCE}}',
-        target_file: '{{AUDIENCE}}/index.html',
-        target_keyword: '{{AUDIENCE}} near me',
+        target_url: 'https://client.com/small business owners',
+        target_file: 'small business owners/index.html',
+        target_keyword: 'small business owners near me',
         created_at: nowIso(),
         updated_at: nowIso(),
         metadata_json: JSON.stringify({
           task_type: 'schema_markup',
           tags: ['schema', 'quick-win'],
           evidence: { current_position: 12, impressions: 450 },
-          locks: [{ lock_type: 'file_lock', resource_id: '{{AUDIENCE}}/index.html' }],
+          locks: [{ lock_type: 'file_lock', resource_id: 'small business owners/index.html' }],
         }),
       },
       event_id: 'EVT-2026-06-03-E1F2G3H4',
@@ -125,7 +143,7 @@ async function main() {
   }
 
   try {
-    // â”€â”€ Validate inputs â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Validate inputs Ã¢â€â‚¬Ã¢â€â‚¬
     const title = normalizeWhitespace(requireArg(args, 'title', 'Missing required argument: --title'));
 
     const taskType = args.type || null;
@@ -170,7 +188,7 @@ async function main() {
       allowMissing: allowMissingBlogCannibalizationCheck,
     });
 
-    // â”€â”€ Build metadata â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Build metadata Ã¢â€â‚¬Ã¢â€â‚¬
     let metadata = {
       ...extraMetadata,
       task_type: taskType,
@@ -196,7 +214,13 @@ async function main() {
     approvalRequired = guardrailRoute.approvalRequired;
     metadata = guardrailRoute.metadata;
 
-    // â”€â”€ Open DB and insert atomically â”€â”€
+    assertApprovedSelfImprovementContract({
+      taskType,
+      status,
+      metadata,
+    });
+
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Open DB and insert atomically Ã¢â€â‚¬Ã¢â€â‚¬
     const dbPath = resolveDbPath(args);
     const db = openStateDb(dbPath);
 
@@ -349,7 +373,7 @@ async function main() {
       throw txError;
     }
 
-    // â”€â”€ Fetch the created task back â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Fetch the created task back Ã¢â€â‚¬Ã¢â€â‚¬
     const created = db.prepare('SELECT * FROM tasks WHERE task_id = ?').get(taskId);
     db.close();
 
@@ -405,6 +429,47 @@ function assertNewBlogCannibalizationEvidence({ title, taskType, evidence, allow
     'Run `v2 content blog-cannibalization --topic "<topic>" --target-keyword "<keyword>" --support-url "<url>" --site-root <site>` first, ' +
     'or pass --allow-missing-blog-cannibalization-check only for an intentional legacy/recovery import.'
   );
+}
+
+function assertApprovedSelfImprovementContract({ taskType, status, metadata }) {
+  if (status !== 'approved' || !SELF_IMPROVEMENT_TYPES.has(taskType)) return;
+
+  const evidence = metadata && metadata.evidence && typeof metadata.evidence === 'object'
+    ? metadata.evidence
+    : {};
+  const targetFiles = evidence.target_files;
+  if (!Array.isArray(targetFiles) || targetFiles.length === 0) {
+    throw new Error(
+      'approved self-improvement tasks require evidence.target_files with at least one canonical repo-relative path under ' +
+      SELF_IMPROVEMENT_ALLOWED_PREFIXES.join(', ')
+    );
+  }
+
+  const invalidTargets = targetFiles.filter((target) => !isCanonicalSelfImprovementTarget(target));
+  if (invalidTargets.length > 0) {
+    throw new Error(
+      `approved self-improvement evidence.target_files contains out-of-scope or non-canonical paths: ${invalidTargets.join(', ')}`
+    );
+  }
+
+  const nonTestTargets = targetFiles.filter((target) => !String(target).startsWith('test/'));
+  if (nonTestTargets.length > 8) {
+    throw new Error('approved self-improvement tasks may declare at most 8 non-test target_files; split broad repairs before approval');
+  }
+
+  const acceptance = typeof evidence.acceptance === 'string' ? evidence.acceptance.trim() : '';
+  if (acceptance.length < 20) {
+    throw new Error('approved self-improvement tasks require evidence.acceptance with a concrete acceptance contract');
+  }
+}
+
+function isCanonicalSelfImprovementTarget(target) {
+  if (typeof target !== 'string') return false;
+  const value = target.trim();
+  if (!value || value !== target) return false;
+  if (value.includes('\\') || value.startsWith('/') || value.startsWith('./') || value.includes('../') || value.includes('/../')) return false;
+  if (SELF_IMPROVEMENT_FORBIDDEN_RE.test(value)) return false;
+  return SELF_IMPROVEMENT_ALLOWED_PREFIXES.some((prefix) => value.startsWith(prefix));
 }
 
 if (require.main === module) {

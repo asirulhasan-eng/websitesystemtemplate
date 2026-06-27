@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * db-query.js â€” Run arbitrary SQL queries against the {{SITE_NAME}} SQLite state DB.
+ * db-query.js Ã¢â‚¬â€ Run arbitrary SQL queries against the Website Operations SQLite state DB.
  *
  * Supports SELECT by default, and write queries with --allow-write.
  * Can read SQL from a file, bind parameters, and show EXPLAIN QUERY PLAN.
@@ -15,7 +15,7 @@ const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb } = require('../lib/state_db');
 
 const HELP = `
-db-query â€” Run arbitrary SQL queries against the SQLite state database.
+db-query Ã¢â‚¬â€ Run arbitrary SQL queries against the SQLite state database.
 
 USAGE
   node db-query.js --sql "SELECT * FROM tasks LIMIT 10"
@@ -38,17 +38,17 @@ OPTIONS
   --sample                  Show sample output without a database
 
 SAFETY
-  â€¢ By default, only SELECT and EXPLAIN queries are allowed.
-  â€¢ Non-SELECT queries require --allow-write flag.
-  â€¢ PRAGMA and ATTACH are blocked for safety.
-  â€¢ Use --explain to check query plans before running expensive queries.
+  Ã¢â‚¬Â¢ By default, only SELECT and EXPLAIN queries are allowed.
+  Ã¢â‚¬Â¢ Non-SELECT queries require --allow-write flag.
+  Ã¢â‚¬Â¢ PRAGMA and ATTACH are blocked for safety.
+  Ã¢â‚¬Â¢ Use --explain to check query plans before running expensive queries.
 
 EXAMPLES
   node db-query.js --sql "SELECT task_id, title, status FROM tasks WHERE status = 'candidate' LIMIT 10"
   node db-query.js --sql "SELECT * FROM tasks WHERE priority_score > ?" --params '[500]' --table
   node db-query.js --sql "UPDATE tasks SET status = ? WHERE task_id = ?" --params '["approved","TSK-001"]' --allow-write
   node db-query.js --file ./complex-report.sql --csv
-  node db-query.js --sql "SELECT * FROM tasks WHERE target_keyword LIKE ?" --params '["%{{AUDIENCE}}%"]' --explain
+  node db-query.js --sql "SELECT * FROM tasks WHERE target_keyword LIKE ?" --params '["%small business owners%"]' --explain
 `.trim();
 
 const BLOCKED_PATTERNS = [
@@ -93,7 +93,7 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       sql: 'SELECT task_id, title, status FROM tasks LIMIT 3',
@@ -110,7 +110,7 @@ async function main() {
   }
 
   try {
-    // â”€â”€ Resolve SQL â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Resolve SQL Ã¢â€â‚¬Ã¢â€â‚¬
     let sql;
     if (args.file) {
       const filePath = args.file;
@@ -126,7 +126,7 @@ async function main() {
       throw new Error('SQL query is empty');
     }
 
-    // â”€â”€ Safety checks â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Safety checks Ã¢â€â‚¬Ã¢â€â‚¬
     if (isBlockedQuery(sql)) {
       throw new Error('Blocked: PRAGMA, ATTACH, DROP, ALTER, and CREATE statements are not allowed via db-query. Use the SQLite DB directly.');
     }
@@ -136,19 +136,19 @@ async function main() {
       throw new Error('Write queries (INSERT/UPDATE/DELETE) require --allow-write flag');
     }
 
-    // â”€â”€ Parse bind params â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Parse bind params Ã¢â€â‚¬Ã¢â€â‚¬
     const params = jsonArg(args, 'params', []);
     if (!Array.isArray(params)) {
       throw new Error('--params must be a JSON array');
     }
 
-    // â”€â”€ Open DB â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Open DB Ã¢â€â‚¬Ã¢â€â‚¬
     const dbPath = resolveDbPath(args);
     const db = openStateDb(dbPath);
 
     const startTime = Date.now();
 
-    // â”€â”€ EXPLAIN mode â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ EXPLAIN mode Ã¢â€â‚¬Ã¢â€â‚¬
     if (boolArg(args, 'explain')) {
       const explainSql = `EXPLAIN QUERY PLAN ${sql}`;
       const plan = db.prepare(explainSql).all(...params);
@@ -163,7 +163,7 @@ async function main() {
       return;
     }
 
-    // â”€â”€ Execute query â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Execute query Ã¢â€â‚¬Ã¢â€â‚¬
     let result;
 
     if (isSelectQuery(sql)) {

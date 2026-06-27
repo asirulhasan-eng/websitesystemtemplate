@@ -1,3 +1,4 @@
+const net = require("node:net");
 const tls = require("node:tls");
 const { createBudgetTracker } = require("./http");
 
@@ -21,7 +22,13 @@ class ImapClient {
     if (!budget.allowed) {
       throw new Error(budget.message);
     }
-    this.socket = tls.connect({ host: this.host, port: this.port, servername: this.host });
+    const tlsOptions = { host: this.host, port: this.port };
+    if (!net.isIP(this.host)) {
+      tlsOptions.servername = this.host;
+    } else {
+      tlsOptions.rejectUnauthorized = false;
+    }
+    this.socket = tls.connect(tlsOptions);
     this.socket.setEncoding("utf8");
     this.socket.on("data", (chunk) => {
       this.buffer += chunk;

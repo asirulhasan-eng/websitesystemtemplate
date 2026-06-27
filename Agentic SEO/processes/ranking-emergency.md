@@ -6,7 +6,7 @@ schedule: "event:ranking_drop"
 description: "Investigate and respond to a confirmed ranking, indexation, or traffic emergency on an important keyword. Checks for manual actions/security issues first, separates deindexing from algorithmic demotion, and gates emergency deploys behind smoke tests + rollback."
 trigger:
   schedule: "event:ranking_drop"
-  timezone: "{{TIMEZONE}}"
+  timezone: "Asia/Dhaka"
   can_run_manually: true
   conditions:
     - "Affected keyword has >=50 impressions/week"
@@ -21,7 +21,7 @@ guardrails:
     - robots_disallow_all
     - sitemap_structure_change
   # Reversible high-impact changes (url_change, redirect_setup, navigation_change,
-  # homepage_edit) are auto-approved â€” they go through branch/PR + deploy-rollback
+  # homepage_edit) are auto-approved Ã¢â‚¬â€ they go through branch/PR + deploy-rollback
   # pipeline and can be reverted. See config/guardrails.json.
   max_duration_minutes: 90
   abort_on_error: false
@@ -42,14 +42,14 @@ outputs:
 # Ranking Emergency Response
 
 > Rapid response protocol for significant ranking drops on important keywords.
-> Speed matters here â€” but so does accurate diagnosis. Don't panic-react.
+> Speed matters here Ã¢â‚¬â€ but so does accurate diagnosis. Don't panic-react.
 
 ## Trigger
 
-- **Automatic:** Daily Opportunity Scan detects a money keyword drop of â‰¥3 positions (7-day avg vs 28-day avg)
+- **Automatic:** Daily Opportunity Scan detects a money keyword drop of Ã¢â€°Â¥3 positions (7-day avg vs 28-day avg)
 - **Automatic:** SERP check shows a tracked money keyword dropped off page 1
 - **Manual:** Human reports a ranking concern
-- **Threshold:** Only triggers for keywords with â‰¥50 impressions/week (ignore low-volume noise)
+- **Threshold:** Only triggers for keywords with Ã¢â€°Â¥50 impressions/week (ignore low-volume noise)
 
 ## Pre-Flight Checks
 
@@ -73,33 +73,33 @@ v2 gsc-fetch --days 7 --min-impressions 5 --json
 v2 gsc-fetch --days 28 --min-impressions 5 --json
 
 # Live SERP check
-v2 serp-check --keywords "affected keyword" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "affected keyword" --domain example.com --json
 
 # Historical trend
 v2 gsc-history --keyword "affected keyword" --days 90 --json
 v2 serp-history --keyword "affected keyword" --days 30 --json
 ```
 
-### AI Analysis â€” Confirm the Emergency
+### AI Analysis Ã¢â‚¬â€ Confirm the Emergency
 
 Before escalating, verify:
 
 1. **Is the drop real or noise?**
-   - Single-day fluctuations of Â±2 positions are NORMAL. Don't react.
+   - Single-day fluctuations of Ã‚Â±2 positions are NORMAL. Don't react.
    - Weekend data can be volatile (lower search volume = noisy positions).
-   - If the 7-day average moved by â‰¥3 positions from the 28-day average, it's likely real.
-   - If the SERP check shows a different position than yesterday but is within Â±2 of the 7-day GSC average, it may be personalization or localization.
+   - If the 7-day average moved by Ã¢â€°Â¥3 positions from the 28-day average, it's likely real.
+   - If the SERP check shows a different position than yesterday but is within Ã‚Â±2 of the 7-day GSC average, it may be personalization or localization.
 
 2. **Is this a broad or isolated change?**
    - Did MULTIPLE keywords drop, or just one?
-   - If multiple keywords across different pages dropped â†’ likely algorithm update or site-wide issue
-   - If one keyword on one page dropped â†’ likely page-specific or competitor-specific
+   - If multiple keywords across different pages dropped Ã¢â€ â€™ likely algorithm update or site-wide issue
+   - If one keyword on one page dropped Ã¢â€ â€™ likely page-specific or competitor-specific
 
 3. **How severe is it?**
 
 | Severity | Criteria | Response Urgency |
 |----------|----------|-----------------|
-| **CRITICAL** | Money keyword dropped from page 1 to page 2+ (positions 1-10 â†’ 11+) | Immediate â€” within hours |
+| **CRITICAL** | Money keyword dropped from page 1 to page 2+ (positions 1-10 Ã¢â€ â€™ 11+) | Immediate Ã¢â‚¬â€ within hours |
 | **HIGH** | Money keyword dropped 3-5 positions but still on page 1 | Same day |
 | **MEDIUM** | Supporting keyword dropped significantly | Within 2-3 days |
 | **LOW** | Non-money keyword fluctuation | Normal triage cycle |
@@ -120,8 +120,8 @@ Before escalating, verify:
 
 ### 2.0: First-Response Penalty & Indexation Checks (do these FIRST)
 
-Before assuming an algorithm update or competitor â€” and **especially** if a money page dropped off
-page 1 entirely â€” rule out the two causes that demand a completely different response: a Google
+Before assuming an algorithm update or competitor Ã¢â‚¬â€ and **especially** if a money page dropped off
+page 1 entirely Ã¢â‚¬â€ rule out the two causes that demand a completely different response: a Google
 penalty, and the page being deindexed. These are fast, decisive checks.
 
 ```bash
@@ -130,7 +130,7 @@ v2 manual-actions-check --json
 v2 security-issues-check --json
 
 # Is the affected URL actually still indexed?
-v2 index-inspect --url "https://{{DOMAIN}}/affected-page/" --json
+v2 index-inspect --url "https://example.com/affected-page/" --json
 ```
 Tool behavior: `v2 index-inspect` uses the GSC URL Inspection API when credentials are configured
 and otherwise returns a clearly marked live technical fallback. `v2 manual-actions-check` and
@@ -144,8 +144,8 @@ reports are either checked in GSC or normalized from evidence.
 |---------|---------|--------|
 | **Manual action present** | Google has manually penalized the site/page | STOP normal diagnosis. Follow the manual-action remediation path: read the cited reason, fix the violation, file a reconsideration request. Do not make unrelated changes. |
 | **Security issue present** | Hacked content / malware flagged | Treat as a security incident first: clean the site, then request review. Rankings recover after the flag clears. |
-| **URL Inspection: not indexed / blocked / noindex / canonical elsewhere** | The page is **deindexed**, not merely demoted | Jump to the **Deindexed** branch in Step 3 â€” fix the technical/indexation cause immediately. |
-| **URL Inspection: indexed, no manual/security action** | Page is still indexed â†’ this is a **demotion**, not a penalty/deindex | Continue with 2aâ€“2d to find the demotion cause. |
+| **URL Inspection: not indexed / blocked / noindex / canonical elsewhere** | The page is **deindexed**, not merely demoted | Jump to the **Deindexed** branch in Step 3 Ã¢â‚¬â€ fix the technical/indexation cause immediately. |
+| **URL Inspection: indexed, no manual/security action** | Page is still indexed Ã¢â€ â€™ this is a **demotion**, not a penalty/deindex | Continue with 2aÃ¢â‚¬â€œ2d to find the demotion cause. |
 
 ### 2a: Check for Algorithm Updates
 
@@ -172,15 +172,15 @@ This is crucial context. Many ranking drops are caused by Google algorithm updat
 
 ```bash
 # Crawl the affected page
-v2 crawl --url "https://{{DOMAIN}}/affected-page/" --json
+v2 crawl --url "https://example.com/affected-page/" --json
 
 # Check page metadata
-v2 page-meta --url "https://{{DOMAIN}}/affected-page/" --json
+v2 page-meta --url "https://example.com/affected-page/" --json
 
 # Check page content
-v2 page-read --url "https://{{DOMAIN}}/affected-page/" --json
+v2 page-read --url "https://example.com/affected-page/" --json
 
-# Check deployment history â€” was anything deployed recently?
+# Check deployment history Ã¢â‚¬â€ was anything deployed recently?
 v2 deploy status --json
 ```
 
@@ -215,7 +215,7 @@ v2 db query --sql "SELECT * FROM tasks WHERE target_url LIKE '%affected-page%' A
 ### 2d: Check for Competitor Movements
 
 ```bash
-v2 serp-check --keywords "affected keyword" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "affected keyword" --domain example.com --json
 ```
 
 **Competitor-related causes:**
@@ -229,21 +229,21 @@ v2 serp-check --keywords "affected keyword" --domain {{DOMAIN}} --json
 
 ## Step 3: Diagnose Root Cause
 
-### AI Analysis â€” Root Cause Determination
+### AI Analysis Ã¢â‚¬â€ Root Cause Determination
 
 > **First fork the diagnosis: is this DEINDEXING or DEMOTION?**
 > These look identical in a rank report (the page is gone) but have opposite responses. Conflating
 > them is the most expensive mistake in an emergency. Use the Step 2.0 URL Inspection result to fork:
 >
-> - **DEINDEXED** â€” the page is no longer eligible to rank at all. It returned a 404/5xx, is blocked
+> - **DEINDEXED** Ã¢â‚¬â€ the page is no longer eligible to rank at all. It returned a 404/5xx, is blocked
 >   in robots.txt, carries a `noindex`, failed a Googlebot crawl/render, or Google chose a different
->   canonical. **This is a bug. Fix it immediately** â€” content quality is irrelevant until the page
+>   canonical. **This is a bug. Fix it immediately** Ã¢â‚¬â€ content quality is irrelevant until the page
 >   is indexable again.
-> - **DEMOTED** â€” the page is still indexed but ranks lower. It was outcompeted, hit by a core/quality
+> - **DEMOTED** Ã¢â‚¬â€ the page is still indexed but ranks lower. It was outcompeted, hit by a core/quality
 >   update, lost links, or the SERP intent/layout shifted. **Do not panic-edit.** The response is
 >   analysis and measured improvement, never a frantic rewrite.
 
-#### Branch A â€” DEINDEXED (page not eligible to rank)
+#### Branch A Ã¢â‚¬â€ DEINDEXED (page not eligible to rank)
 
 | Sub-cause | Signals | Response |
 |-----------|---------|----------|
@@ -257,23 +257,23 @@ Response for all of Branch A: fix the technical/indexation cause, redeploy (see 
 protocol below), then request re-indexing in GSC and monitor for the page to return to the index.
 If the situation is complex, hand off to the `indexation-recovery` playbook.
 
-#### Branch B â€” DEMOTED (still indexed, ranks lower)
+#### Branch B Ã¢â‚¬â€ DEMOTED (still indexed, ranks lower)
 
 | Root Cause | Probability Signals | Response Strategy |
 |-----------|---------------------|-------------------|
-| **Algorithm / core update** | Multiple keywords/pages moved together, industry reports, timing matches | Wait and observe (1-2 weeks), then compare quality to what now outranks you â€” no panic changes |
+| **Algorithm / core update** | Multiple keywords/pages moved together, industry reports, timing matches | Wait and observe (1-2 weeks), then compare quality to what now outranks you Ã¢â‚¬â€ no panic changes |
 | **Content change (our side)** | Recent deployment or task modified the page | Review the change; revert if it was a mistake |
 | **Competitor improvement** | New competitor in top 5, or an existing competitor's page improved | Analyze their improvements, plan a better (not copied) response |
-| **Intent shift** | The *type* of result ranking changed (serviceâ†”guideâ†”local) | Adjust page/content strategy to the new intent |
-| **SERP layout change** | Featured snippet/PAA/local pack/AI Overview pushed organic down | Adapt â€” optimize for the new feature; CTR may matter more than position |
-| **Seasonal shift** | Cyclical keyword trend, matches prior-year pattern | Normal â€” adjust expectations |
+| **Intent shift** | The *type* of result ranking changed (serviceÃ¢â€ â€guideÃ¢â€ â€local) | Adjust page/content strategy to the new intent |
+| **SERP layout change** | Featured snippet/PAA/local pack/AI Overview pushed organic down | Adapt Ã¢â‚¬â€ optimize for the new feature; CTR may matter more than position |
+| **Seasonal shift** | Cyclical keyword trend, matches prior-year pattern | Normal Ã¢â‚¬â€ adjust expectations |
 | **Link loss** | Major referring domain removed | Investigate, build replacement links |
 
 ### Multiple Cause Assessment
 
 Sometimes multiple factors combine (e.g. a deploy that both demoted content *and* introduced a
-`noindex`). Always clear Branch A causes first â€” an unindexable page can't rank no matter how good
-the content is â€” then address Branch B causes by probability.
+`noindex`). Always clear Branch A causes first Ã¢â‚¬â€ an unindexable page can't rank no matter how good
+the content is Ã¢â‚¬â€ then address Branch B causes by probability.
 
 ---
 
@@ -322,7 +322,7 @@ FIX IMMEDIATELY.
 ```
 
 > **Emergency-release protocol.** A fast fix may skip full *editorial* review because it only
-> restores a broken state â€” but it must **never** skip validation. Every emergency deploy still
+> restores a broken state Ã¢â‚¬â€ but it must **never** skip validation. Every emergency deploy still
 > requires: (1) a diff summary of exactly what changed, (2) a smoke test on the preview/live URL,
 > (3) a live status/indexability re-check, (4) a known rollback command, and (5) a post-deploy
 > monitoring task. "Deploy immediately with no checks" is how a one-line fix becomes a second outage.
@@ -334,19 +334,19 @@ v2 lock acquire --type content --resource "affected-page" --json
 # Apply the fix on a branch (specific edit depends on the issue)
 v2 deploy branch --branch "fix/remove-noindex-affected-page" --message "Emergency fix: Remove accidental noindex from [page]" --json
 
-# 1. SMOKE TEST before promoting â€” verify the fix and that nothing else broke
-v2 health-check --url "https://preview.{{DOMAIN}}/affected-page/" --json
-node tools/check_url_health.js --url "https://preview.{{DOMAIN}}/affected-page/"
+# 1. SMOKE TEST before promoting Ã¢â‚¬â€ verify the fix and that nothing else broke
+v2 health-check --url "https://preview.example.com/affected-page/" --json
+node tools/check_url_health.js --url "https://preview.example.com/affected-page/"
 # Confirm: 200 status, no noindex, canonical correct, key content present
 
 # 2. Promote only after the smoke test passes
 v2 deploy promote --branch "fix/remove-noindex-affected-page" --message "Deploy emergency fix" --json
 
 # 3. Post-deploy live re-check
-node tools/check_url_health.js --url "https://{{DOMAIN}}/affected-page/"
+node tools/check_url_health.js --url "https://example.com/affected-page/"
 
 # 4. Rollback is pre-staged in case the deploy regresses
-#    node tools/rollback_deployment.js --deployment-id <id> --db tools/out/state/seo-agent.db --apply --push
+#    node tools/rollback_deployment.js --deployment-id <id> --db tools/out/state/website-agent.db --apply --push
 
 v2 lock release --id <lock-id> --json
 ```
@@ -357,7 +357,7 @@ v2 task create \
   --type technical_fix \
   --priority 900 \
   --risk-level safe \
-  --target-url "https://{{DOMAIN}}/affected-page/" \
+  --target-url "https://example.com/affected-page/" \
   --description "Detected [technical issue] causing ranking drop. Fix deployed. Monitoring for recovery." \
   --evidence "Page was returning [issue]. Rankings dropped [X] positions. Fix deployed at [time]." \
   --json
@@ -369,22 +369,22 @@ v2 task create \
 ASSESS whether to revert or adjust.
 
 1. Review what was changed and why
-2. If the change was a mistake â†’ revert immediately
+2. If the change was a mistake Ã¢â€ â€™ revert immediately
 3. If the change was intentional but caused a drop:
    a. Check if the new content is genuinely better for users
-   b. If yes, wait 2 weeks â€” Google may need time to re-evaluate
+   b. If yes, wait 2 weeks Ã¢â‚¬â€ Google may need time to re-evaluate
    c. If no, revert and re-plan the optimization
 ```
 
 ### Response: Competitor Improvement
 
 ```
-STRATEGIC RESPONSE â€” don't rush.
+STRATEGIC RESPONSE Ã¢â‚¬â€ don't rush.
 
 1. Analyze what the competitor did differently
 2. Determine if our content needs improvement regardless of the competitor
 3. Plan improvements to our content quality, depth, and uniqueness
-4. Don't copy the competitor â€” beat them with a better angle
+4. Don't copy the competitor Ã¢â‚¬â€ beat them with a better angle
 5. Consider complementary strategies: better schema, featured snippet optimization, E-E-A-T signals
 ```
 
@@ -394,7 +394,7 @@ v2 task create \
   --type content_optimization \
   --priority 800 \
   --risk-level semi_safe \
-  --target-url "https://{{DOMAIN}}/affected-page/" \
+  --target-url "https://example.com/affected-page/" \
   --target-keyword "affected keyword" \
   --description "Competitor [name/domain] has moved above us for '[keyword]'. Their page: [url]. Analysis: they improved [specific aspects]. Our response plan: [specific improvements that make our content better, not a copy]." \
   --evidence "Our position: [X] (was [Y]). Competitor position: [Z]. Their content appears to have [specific advantages]." \
@@ -407,17 +407,17 @@ v2 task create \
 
 ### Immediate Actions (within 2 hours of detection)
 
-1. âœ… Confirmed the drop is real (not noise)
-2. âœ… Diagnosed the root cause
-3. âœ… For technical issues: deployed fix
-4. âœ… Created appropriate task(s)
-5. âœ… Notified admin if severity is CRITICAL
+1. Ã¢Å“â€¦ Confirmed the drop is real (not noise)
+2. Ã¢Å“â€¦ Diagnosed the root cause
+3. Ã¢Å“â€¦ For technical issues: deployed fix
+4. Ã¢Å“â€¦ Created appropriate task(s)
+5. Ã¢Å“â€¦ Notified admin if severity is CRITICAL
 
 ```bash
 # Critical alert
 v2 email send \
-  --to {{ADMIN_EMAIL}} \
-  --subject "ðŸš¨ RANKING EMERGENCY: '[keyword]' dropped from position [X] to [Y]" \
+  --to owner@example.com \
+  --subject "Ã°Å¸Å¡Â¨ RANKING EMERGENCY: '[keyword]' dropped from position [X] to [Y]" \
   --body "Root cause assessment: [CAUSE]\nAction taken: [ACTION]\nMonitoring plan: [PLAN]\n\nAffected page: [URL]\nBusiness impact: [estimated click/traffic loss per week]" \
   --json
 ```
@@ -429,7 +429,7 @@ Set up follow-up checks:
 ```bash
 # Check every day for the next 7 days
 v2 task create \
-  --title "Monitor: '[keyword]' ranking recovery â€” Day [1-7]" \
+  --title "Monitor: '[keyword]' ranking recovery Ã¢â‚¬â€ Day [1-7]" \
   --type monitoring \
   --priority 800 \
   --risk-level safe \
@@ -450,7 +450,7 @@ v2 task create \
 
 ```bash
 # Daily monitoring check
-v2 serp-check --keywords "affected keyword" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "affected keyword" --domain example.com --json
 v2 gsc-fetch --days 3 --min-impressions 3 --json
 ```
 
@@ -478,21 +478,21 @@ After the emergency is resolved (position recovered or stabilized), document:
 
 | Situation | Emergency? | Action |
 |-----------|-----------|--------|
-| Money keyword drops from #3 to #15 | YES â€” CRITICAL | Full emergency response |
-| Money keyword drops from #5 to #8 | YES â€” HIGH | Investigate same day |
-| Money keyword drops from #1 to #2 | NO â€” NOISE | Monitor, don't react |
-| Supporting keyword drops 5 positions | NO â€” MEDIUM | Task triage handles it |
+| Money keyword drops from #3 to #15 | YES Ã¢â‚¬â€ CRITICAL | Full emergency response |
+| Money keyword drops from #5 to #8 | YES Ã¢â‚¬â€ HIGH | Investigate same day |
+| Money keyword drops from #1 to #2 | NO Ã¢â‚¬â€ NOISE | Monitor, don't react |
+| Supporting keyword drops 5 positions | NO Ã¢â‚¬â€ MEDIUM | Task triage handles it |
 | Keyword we've never tracked drops | NO | Daily scan handles it |
-| Multiple keywords drop simultaneously | YES â€” likely algorithm update | Follow algorithm update protocol |
-| One keyword drops but impressions are stable | MAYBE â€” could be localized | Check if it's a SERP layout change |
-| Position drops but clicks are stable | NO â€” likely SERP change | Monitor, may not need action |
-| Position stable but clicks drop significantly | YES â€” CTR problem | Check meta tags, SERP features, competition |
+| Multiple keywords drop simultaneously | YES Ã¢â‚¬â€ likely algorithm update | Follow algorithm update protocol |
+| One keyword drops but impressions are stable | MAYBE Ã¢â‚¬â€ could be localized | Check if it's a SERP layout change |
+| Position drops but clicks are stable | NO Ã¢â‚¬â€ likely SERP change | Monitor, may not need action |
+| Position stable but clicks drop significantly | YES Ã¢â‚¬â€ CTR problem | Check meta tags, SERP features, competition |
 
 ### What NOT to Do in a Ranking Emergency
 
-- âŒ Don't rewrite the entire page in a panic
-- âŒ Don't change the URL structure
-- âŒ Don't add a bunch of new keywords to the page
-- âŒ Don't buy spammy backlinks
-- âŒ Don't make multiple major changes simultaneously (you won't know which one helped)
-- âŒ Don't ignore it and hope it comes back on its own (it might, but you should understand why)
+- Ã¢ÂÅ’ Don't rewrite the entire page in a panic
+- Ã¢ÂÅ’ Don't change the URL structure
+- Ã¢ÂÅ’ Don't add a bunch of new keywords to the page
+- Ã¢ÂÅ’ Don't buy spammy backlinks
+- Ã¢ÂÅ’ Don't make multiple major changes simultaneously (you won't know which one helped)
+- Ã¢ÂÅ’ Don't ignore it and hope it comes back on its own (it might, but you should understand why)

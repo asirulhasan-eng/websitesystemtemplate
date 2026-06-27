@@ -11,7 +11,7 @@ trigger:
 # Task Triage
 
 > Review, prioritize, and manage the task queue to ensure the most impactful work gets done first.
-> This is the brain's project management function â€” it decides what to work on and in what order.
+> This is the brain's project management function Ã¢â‚¬â€ it decides what to work on and in what order.
 
 ## Trigger
 
@@ -55,7 +55,7 @@ Create a mental model of the queue:
 | Critical priority | ? | Should be 0-2 at any time |
 | High priority | ? | Should be 3-7 at any time |
 | Medium priority | ? | Can grow larger, but review if >15 |
-| Low priority | ? | Backlog â€” review monthly |
+| Low priority | ? | Backlog Ã¢â‚¬â€ review monthly |
 | In-progress | ? | Should be 1-3 at any time (bandwidth limited) |
 | Stale (no update >7 days) | ? | Needs attention |
 | Total open | ? | If >25, queue is overloaded |
@@ -66,7 +66,7 @@ Create a mental model of the queue:
 
 For every open task, evaluate using the **BIRD framework**:
 
-### B â€” Business Impact
+### B Ã¢â‚¬â€ Business Impact
 
 | Score | Criteria |
 |-------|----------|
@@ -76,7 +76,7 @@ For every open task, evaluate using the **BIRD framework**:
 | 2 | Improves site quality but limited direct revenue impact. |
 | 1 | Nice to have. Cosmetic or very long-tail. |
 
-### I â€” Implementation Effort
+### I Ã¢â‚¬â€ Implementation Effort
 
 | Score | Criteria |
 |-------|----------|
@@ -86,7 +86,7 @@ For every open task, evaluate using the **BIRD framework**:
 | 4 | Major: new page creation, content strategy change. 4-8 hours. |
 | 5 | Massive: site restructure, major technical change, multi-page project. 1+ days. |
 
-### R â€” Risk Level
+### R Ã¢â‚¬â€ Risk Level
 
 | Score | Criteria |
 |-------|----------|
@@ -96,7 +96,7 @@ For every open task, evaluate using the **BIRD framework**:
 | 4 | High risk: URL changes, redirects, major restructuring of ranking content. |
 | 5 | Critical risk: changes to the site's primary money pages. Requires human approval. |
 
-### D â€” Dependencies & Blockers
+### D Ã¢â‚¬â€ Dependencies & Blockers
 
 | Score | Criteria |
 |-------|----------|
@@ -104,11 +104,11 @@ For every open task, evaluate using the **BIRD framework**:
 | 2 | Depends on data that's already available. Minor prep needed. |
 | 3 | Depends on another task completing first. |
 | 4 | Depends on external factor (e.g., client approval, API access). |
-| 5 | Blocked â€” cannot proceed until blocker is resolved. |
+| 5 | Blocked Ã¢â‚¬â€ cannot proceed until blocker is resolved. |
 
 ### BIRD Composite Score
 
-**Priority Score = (Business Ã— 0.40) + ((6 - Effort) Ã— 0.25) + ((6 - Risk) Ã— 0.20) + ((6 - Dependencies) Ã— 0.15)**
+**Priority Score = (Business Ãƒâ€” 0.40) + ((6 - Effort) Ãƒâ€” 0.25) + ((6 - Risk) Ãƒâ€” 0.20) + ((6 - Dependencies) Ãƒâ€” 0.15)**
 
 This produces a score from 1 to 5. Higher = do first.
 
@@ -121,9 +121,9 @@ Based on the BIRD score and current context, place each task into one of these c
 ### Category 1: Execute Now (Queue for immediate processing)
 
 **Criteria:**
-- BIRD score â‰¥ 3.8
+- BIRD score Ã¢â€°Â¥ 3.8
 - OR: Critical priority tasks regardless of score
-- OR: Quick wins (Business â‰¥ 3, Effort = 1, Risk â‰¤ 2, Dependencies = 1)
+- OR: Quick wins (Business Ã¢â€°Â¥ 3, Effort = 1, Risk Ã¢â€°Â¤ 2, Dependencies = 1)
 
 **Action:** Update task to `in_progress` if bandwidth allows (max 3 concurrent tasks), or keep at top of queue.
 
@@ -147,7 +147,7 @@ v2 task update --id <task-id> --note "Triage: Needs fresh SERP data and competit
 Then gather the needed data:
 
 ```bash
-v2 serp-check --keywords "<relevant-keyword>" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "<relevant-keyword>" --domain example.com --json
 v2 gsc-fetch --days 7 --min-impressions 3 --json
 ```
 
@@ -176,7 +176,7 @@ v2 task update --id <task-id> --priority 200 --note "Triage: Deferred. Low busin
 **Action:** Close the task with explanation.
 
 ```bash
-v2 task update --id <task-id> --status cancelled --note "Triage: Cancelled. Keyword '{{AUDIENCE}} SEO tips' has dropped to <5 impressions/week. Original opportunity no longer exists. Created task #45 for the replacement keyword '{{AUDIENCE}} SEO strategy' instead." --json
+v2 task update --id <task-id> --status cancelled --note "Triage: Cancelled. Keyword 'small business owners SEO tips' has dropped to <5 impressions/week. Original opportunity no longer exists. Created task #45 for the replacement keyword 'small business owners SEO strategy' instead." --json
 ```
 
 ---
@@ -190,7 +190,7 @@ Any task that hasn't been updated in >7 days needs attention.
 v2 db query --sql "SELECT id, title, priority, status, updated_at FROM tasks WHERE status IN ('open', 'in_progress') AND updated_at < datetime('now', '-7 days') ORDER BY priority DESC" --json
 ```
 
-### AI Analysis â€” Stale Task Review
+### AI Analysis Ã¢â‚¬â€ Stale Task Review
 
 For each stale task:
 
@@ -206,12 +206,12 @@ v2 gsc-history --keyword "<task-keyword>" --days 30 --json
 
 **If still valid and not blocked:**
 ```bash
-v2 task update --id <task-id> --note "Triage: Stale for 10 days. Opportunity still valid â€” keyword at position 8 with 150 imp/week. Bumping priority for next execution cycle." --json
+v2 task update --id <task-id> --note "Triage: Stale for 10 days. Opportunity still valid Ã¢â‚¬â€ keyword at position 8 with 150 imp/week. Bumping priority for next execution cycle." --json
 ```
 
 **If no longer valid:**
 ```bash
-v2 task update --id <task-id> --status cancelled --note "Triage: Stale for 15 days. Re-checked data â€” keyword has dropped to position 35 with 8 imp/week. Opportunity no longer viable." --json
+v2 task update --id <task-id> --status cancelled --note "Triage: Stale for 15 days. Re-checked data Ã¢â‚¬â€ keyword has dropped to position 35 with 8 imp/week. Opportunity no longer viable." --json
 ```
 
 ---
@@ -225,27 +225,27 @@ After categorizing, verify the queue is healthy:
 | Rule | Threshold | Action if Violated |
 |------|-----------|-------------------|
 | In-progress tasks | Max 3 | Don't start new work until something completes |
-| Critical priority tasks | Max 2 | If >2 critical, something is wrong â€” are we over-reacting? |
+| Critical priority tasks | Max 2 | If >2 critical, something is wrong Ã¢â‚¬â€ are we over-reacting? |
 | Total open tasks | Max 25 | Start aggressively deferring/cancelling low-value tasks |
 | New tasks per day | Avg 2-4 | If consistently >5/day, daily scan thresholds are too loose |
-| Task completion rate | â‰¥1/day avg | If not completing tasks, investigate bottleneck |
+| Task completion rate | Ã¢â€°Â¥1/day avg | If not completing tasks, investigate bottleneck |
 
 ### Priority Collision Resolution
 
 When multiple tasks have similar BIRD scores, use these tiebreakers:
 
-1. **Money keyword > supporting keyword** â€” Always prioritize direct revenue keywords
-2. **Defense > offense** â€” Protecting a position 3 ranking is more urgent than trying to move from position 8 to position 5
-3. **Quick win > long project** â€” If two tasks have similar impact, do the faster one first
-4. **Trending up > stable** â€” Help the keyword that's already gaining momentum
-5. **Service page > blog post** â€” Service pages convert directly; blog posts are supporting
-6. **Existing content fix > new content** â€” Fixing existing content is less risky and often faster
+1. **Money keyword > supporting keyword** Ã¢â‚¬â€ Always prioritize direct revenue keywords
+2. **Defense > offense** Ã¢â‚¬â€ Protecting a position 3 ranking is more urgent than trying to move from position 8 to position 5
+3. **Quick win > long project** Ã¢â‚¬â€ If two tasks have similar impact, do the faster one first
+4. **Trending up > stable** Ã¢â‚¬â€ Help the keyword that's already gaining momentum
+5. **Service page > blog post** Ã¢â‚¬â€ Service pages convert directly; blog posts are supporting
+6. **Existing content fix > new content** Ã¢â‚¬â€ Fixing existing content is less risky and often faster
 
 ---
 
 ## Step 6: Generate Triage Report
 
-### AI Analysis â€” Compose Triage Summary
+### AI Analysis Ã¢â‚¬â€ Compose Triage Summary
 
 ```bash
 v2 report format --template task-triage --data '{"date":"2026-06-03","total_open":18,"execute_now":3,"needs_data":2,"deferred":4,"cancelled":1,"stale_resolved":2,"top_3_next":[...]}' --json
@@ -275,7 +275,7 @@ Send an email alert if:
 
 ```bash
 v2 email send \
-  --to {{ADMIN_EMAIL}} \
+  --to owner@example.com \
   --subject "Task Queue Alert: [REASON]" \
   --body "The task triage process has flagged a concern: [DETAILS]. Current queue: [COUNT] open tasks, [CRITICAL_COUNT] critical. Please review." \
   --json

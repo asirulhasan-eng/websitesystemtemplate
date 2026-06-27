@@ -35,6 +35,24 @@ const COMPLETED_TASK_STATUSES = new Set([
   "rollback",
 ]);
 
+// Must cover every status updateTaskState writes, plus worker-side terminal/review
+// statuses that should wake the feedback analyst.
+const FEEDBACK_ACTIVITY_STATUSES = Object.freeze([
+  "preview_ready",
+  "preview_pushed",
+  "preview_validated",
+  "executed",
+  "deployed",
+  "deployed_to_production",
+  "completed",
+  "failed",
+  "needs_review",
+  "skipped",
+  "cancelled",
+  "rollback",
+  "monitored",
+]);
+
 function isTaskStatus(status) {
   return TASK_STATUS_SET.has(status);
 }
@@ -54,6 +72,7 @@ module.exports = {
   TASK_STATUSES,
   TASK_STATUS_SET,
   COMPLETED_TASK_STATUSES,
+  FEEDBACK_ACTIVITY_STATUSES,
   isTaskStatus,
   assertTaskStatus,
   isCompletedTaskStatus,

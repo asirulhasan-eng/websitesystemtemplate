@@ -47,7 +47,7 @@ module.exports = async function speedAudit() {
   }
 
   try {
-    const url = args.sample ? (args.url || "https://{{DOMAIN}}/") : requireArg(args, "url");
+    const url = args.sample ? (args.url || "https://example.com/") : requireArg(args, "url");
     const categories = normalizeCategories(listArg(args, "category", ["performance"]));
     const strategies = normalizeStrategies(args.strategy);
     const minScore = args["min-score"] !== undefined ? numberArg(args, "min-score", 0) : null;
@@ -214,7 +214,7 @@ function sampleRun(strategy, categories) {
     strategy,
     response_time_ms: 1234,
     analysis_utc: "2026-06-03T00:00:00.000Z",
-    final_url: "https://{{DOMAIN}}/",
+    final_url: "https://example.com/",
     lighthouse_version: "sample",
     scores,
     core_web_vitals: {

@@ -6,6 +6,7 @@
  *   occurrence_count   INTEGER DEFAULT 1 — how many times this alert has fired
  *   resolved_at       TEXT     — when the alert was auto/manually resolved
  *   resolution_note   TEXT     — human-readable resolution reason
+ *   last_notified_at  TEXT     — when email notification was last queued
  *
  * These columns support the alert-dedup logic in monitor-check.js (Bug #5 fix).
  * Safe to run repeatedly: each ALTER is guarded by a column-existence check.
@@ -33,6 +34,7 @@ function run() {
       { name: 'occurrence_count', sql: 'ALTER TABLE monitor_alerts ADD COLUMN occurrence_count INTEGER DEFAULT 1' },
       { name: 'resolved_at',     sql: 'ALTER TABLE monitor_alerts ADD COLUMN resolved_at TEXT' },
       { name: 'resolution_note', sql: 'ALTER TABLE monitor_alerts ADD COLUMN resolution_note TEXT' },
+      { name: 'last_notified_at', sql: 'ALTER TABLE monitor_alerts ADD COLUMN last_notified_at TEXT' },
     ];
 
     let added = 0;

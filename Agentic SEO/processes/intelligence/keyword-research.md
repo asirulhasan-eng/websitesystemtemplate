@@ -26,15 +26,15 @@ For each high-priority head term in the registry:
 v2 serp-check --keywords "<head_term>" --include-paa --include-features --json --db $DB
 ```
 Extract from each SERP response:
-- `relatedSearches` â€” Google's related search suggestions
-- `peopleAlsoAsk` â€” PAA questions and their implied keywords
-- `organic` results â€” competitor page titles (for keyword extraction)
+- `relatedSearches` Ã¢â‚¬â€ Google's related search suggestions
+- `peopleAlsoAsk` Ã¢â‚¬â€ PAA questions and their implied keywords
+- `organic` results Ã¢â‚¬â€ competitor page titles (for keyword extraction)
 
 ### Step 3: Seed Permutation Mining
 Generate permutations from the Bucket-1 taxonomy:
-- Pattern: "[{{NICHE}}|{{AUDIENCE}}|{{AUDIENCE}}] [seo|marketing|website|online] [service|services|audit|cost|pricing|agency|company|packages|near me]"
-- Location variants: "[Dallas|Fort Worth|DFW] {{AUDIENCE}} seo"
-- Problem-aware: "{{AUDIENCE}} [needs more customers|not getting calls|website not ranking|no leads]"
+- Pattern: "[website|small business owners|small business owners] [seo|marketing|website|online] [service|services|audit|cost|pricing|agency|company|packages|near me]"
+- Location variants: "[Dallas|Fort Worth|DFW] small business owners seo"
+- Problem-aware: "small business owners [needs more customers|not getting calls|website not ranking|no leads]"
 
 For the highest-potential permutations (up to 10), run:
 ```bash
@@ -52,15 +52,15 @@ v2 gsc-fetch --days 90 --query-contains "<candidate>" --json --db $DB
 For each unique candidate keyword discovered:
 
 ### Scoring Criteria
-1. **Commercial Intent (0-1):** Would the searcher become a paying client of an SEO agency serving {{AUDIENCE}}? Score 1.0 for "{{NICHE}} seo pricing", 0.3 for "what is seo for {{AUDIENCE}}".
-2. **Service-Line Fit (0-1):** Does this align with {{DOMAIN}}'s actual services (SEO, website optimization, content, local SEO for {{AUDIENCE}})? Score 0.1 for "{{NICHE}} supplies wholesale".
+1. **Commercial Intent (0-1):** Would the searcher become a paying client of an SEO agency serving small business owners? Score 1.0 for "website seo pricing", 0.3 for "what is seo for small business owners".
+2. **Service-Line Fit (0-1):** Does this align with example.com's actual services (SEO, website optimization, content, local SEO for small business owners)? Score 0.1 for "website supplies wholesale".
 3. **Novelty (0-1):** Is this keyword NOT already in the registry? Score 1.0 if absent, 0.0 if present.
-4. **Composite Score** = commercial_intent Ã— 0.4 + service_fit Ã— 0.3 + novelty Ã— 0.3
+4. **Composite Score** = commercial_intent Ãƒâ€” 0.4 + service_fit Ãƒâ€” 0.3 + novelty Ãƒâ€” 0.3
 
 ### Auto-Promote Rules
-- Score â‰¥ 0.8 â†’ `auto_promote: true` (planner should add to registry)
-- Score 0.6â€“0.79 â†’ `auto_promote: false` (candidate for review)
-- Score < 0.6 â†’ exclude from report
+- Score Ã¢â€°Â¥ 0.8 Ã¢â€ â€™ `auto_promote: true` (planner should add to registry)
+- Score 0.6Ã¢â‚¬â€œ0.79 Ã¢â€ â€™ `auto_promote: false` (candidate for review)
+- Score < 0.6 Ã¢â€ â€™ exclude from report
 
 ### Classification
 For each candidate, determine:
@@ -80,9 +80,9 @@ Report JSON structure:
 {
   "candidates": [
     {
-      "keyword": "{{AUDIENCE}} google ads vs seo",
+      "keyword": "small business owners google ads vs seo",
       "source": "serper_related",
-      "seed_keyword": "seo for {{AUDIENCE}}",
+      "seed_keyword": "seo for small business owners",
       "composite_score": 0.82,
       "commercial_intent": 0.9,
       "service_fit": 0.8,
@@ -92,7 +92,7 @@ Report JSON structure:
       "suggested_page_type": "blog",
       "auto_promote": true,
       "gsc_impressions_90d": 0,
-      "evidence": "Found in relatedSearches for 'seo for {{AUDIENCE}}'"
+      "evidence": "Found in relatedSearches for 'seo for small business owners'"
     }
   ],
   "sources_mined": {
@@ -124,7 +124,7 @@ Report JSON structure:
 
 ## Severity Rules
 - **normal**: Routine discovery, few or no high-confidence candidates
-- **warning**: 5+ auto-promote candidates found â€” significant registry expansion needed
+- **warning**: 5+ auto-promote candidates found Ã¢â‚¬â€ significant registry expansion needed
 - **critical**: Discovered a competitor ranking for a high-value keyword we don't track
 
 ## Key Rules

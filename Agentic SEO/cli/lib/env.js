@@ -7,9 +7,9 @@ function loadToolEnv(options = {}) {
   // The agent root is stable regardless of where the process was launched.
   // env.js lives at <agent-root>/cli/lib/env.js, so two levels up is the root.
   // Falling back to it means cron jobs (and the Hermes sessions they spawn)
-  // still find the agent's .env even when their cwd is /root or elsewhere â€”
+  // still find the agent's .env even when their cwd is /root or elsewhere Ã¢â‚¬â€
   // this is what was causing "Missing SMTP_HOST" dead-letters on email paths.
-  const agentRoot = process.env.CLIENT_AGENT_ROOT || path.resolve(__dirname, "..", "..");
+  const agentRoot = process.env.WEBSITE_AGENT_ROOT || path.resolve(__dirname, "..", "..");
   const envPaths = explicitEnvPath
     ? [path.resolve(cwd, explicitEnvPath)]
     : dedupePaths([
@@ -62,7 +62,7 @@ function parseEnvText(text) {
 
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
-    if (!line) continue;
+    if (!line || line.startsWith("#")) continue;
 
     const keyValue = line.match(/^([A-Z][A-Z0-9_]+)\s*=\s*(.*)$/);
     if (keyValue) {
@@ -85,11 +85,11 @@ function parseEnvText(text) {
     }
 
     if (/^Client ID$/i.test(line)) {
-      pendingKey = "GSC_CLIENT_ID";
+      pendingKey = "GSC_WEBSITE_AGENT_ID";
       continue;
     }
     if (/^Client secret$/i.test(line)) {
-      pendingKey = "GSC_CLIENT_SECRET";
+      pendingKey = "GSC_WEBSITE_AGENT_SECRET";
       continue;
     }
     if (/^Refresh token$/i.test(line)) {
@@ -131,8 +131,8 @@ function parseEnvText(text) {
     if (line.startsWith(tokenPrefix("github_pat"))) env.GITHUB_TOKEN = line;
     if (/^[a-f0-9]{32}$/i.test(line)) env.CLOUDFLARE_ACCOUNT_ID = line;
     if (line.startsWith(tokenPrefix("cfut"))) env.CLOUDFLARE_API_TOKEN = line;
-    if (/\.apps\.googleusercontent\.com$/.test(line)) env.GSC_CLIENT_ID = line;
-    if (line.startsWith(tokenPrefix("google_client_secret"))) env.GSC_CLIENT_SECRET = line;
+    if (/\.apps\.googleusercontent\.com$/.test(line)) env.GSC_WEBSITE_AGENT_ID = line;
+    if (line.startsWith(tokenPrefix("google_client_secret"))) env.GSC_WEBSITE_AGENT_SECRET = line;
     if (line.startsWith(tokenPrefix("google_refresh"))) env.GSC_REFRESH_TOKEN = line;
     if (line.startsWith(tokenPrefix("google_access"))) env.GSC_ACCESS_TOKEN = line;
   }

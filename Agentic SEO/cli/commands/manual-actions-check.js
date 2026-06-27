@@ -19,7 +19,7 @@ function main() {
 
   try {
     const config = loadToolEnv({ cwd: args.cwd, envPath: args.env });
-    const siteUrl = args['site-url'] || config.get('GSC_SITE_URL') || 'sc-domain:{{DOMAIN}}';
+    const siteUrl = args['site-url'] || config.get('GSC_SITE_URL') || 'sc-domain:example.com';
 
     let result;
     if (boolArg(args, 'sample')) {
@@ -91,7 +91,7 @@ function sampleReport(state) {
         {
           type: 'site_reputation_abuse',
           scope: 'partial',
-          affected_patterns: ['https://{{DOMAIN}}/blog/*'],
+          affected_patterns: ['https://example.com/blog/*'],
           detected_at: '2026-06-03',
         },
       ],
@@ -113,7 +113,7 @@ Usage:
   v2 manual-actions-check --from-file manual-actions.json --json
 
 Inputs:
-  --site-url <property>    GSC property, e.g. sc-domain:{{DOMAIN}}.
+  --site-url <property>    GSC property, e.g. sc-domain:example.com.
   --env <path>             Env file used to read GSC_SITE_URL.
   --from-file <path>       JSON export/manual record with manual_actions/actions/issues.
   --sample                 Use built-in sample data.

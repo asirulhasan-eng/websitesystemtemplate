@@ -42,7 +42,7 @@ test('renderMemoryNoteMarkdown emits managed_by and passes the Brain write-guard
   assert.match(rel, /^01-Agent-Brain\/Lessons\/2026-06-03-/);
 
   const md = renderMemoryNoteMarkdown(memory);
-  assert.match(md, /managed_by: client-agent/);
+  assert.match(md, /managed_by: website-agent/);
   assert.match(md, /memory_type: lesson/);
   assert.match(md, /\[\[TSK-2026-06-03-ABCD1234\]\]/);
 
@@ -63,7 +63,7 @@ test('renderJob handles write_obsidian_brain_note from payload', () => {
     outbox_id: 'OUT-1',
     payload_json: JSON.stringify({
       relative_path: '01-Agent-Brain/Decisions/2026-06-03-test.md',
-      markdown: '---\ntype: brain\nmanaged_by: client-agent\n---\n# Decision\n',
+      markdown: '---\ntype: brain\nmanaged_by: website-agent\n---\n# Decision\n',
     }),
   };
   const rendered = renderJob(null, job, '/tmp/vault');
@@ -110,7 +110,7 @@ test('end-to-end: note add -> outbox sync -> file written -> recall finds it', (
   const written = path.join(vault, added.note_path);
   assert.ok(fs.existsSync(written), `expected memory note at ${written}`);
   const content = fs.readFileSync(written, 'utf8');
-  assert.match(content, /managed_by: client-agent/);
+  assert.match(content, /managed_by: website-agent/);
   assert.match(content, /position 7 to 3/);
 
   // Recall it by query.

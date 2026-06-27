@@ -19,7 +19,7 @@ function smtpCredentials(config) {
     user: config.require('SMTP_USER'),
     pass: normalizeGmailAppPassword(config.require('SMTP_PASS'), host),
     from: config.get('EMAIL_FROM', config.require('SMTP_USER')),
-    fromName: config.get('EMAIL_FROM_NAME', '{{SITE_NAME}} Agent'),
+    fromName: config.get('EMAIL_FROM_NAME', 'Website Operations Agent'),
   };
 }
 

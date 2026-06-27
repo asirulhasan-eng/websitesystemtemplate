@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * task-update.js â€” Update task(s) in the {{SITE_NAME}} SQLite state DB.
+ * task-update.js Ã¢â‚¬â€ Update task(s) in the Website Operations SQLite state DB.
  *
  * Supports single task update, multi-ID batch, and WHERE-based bulk updates.
- * Atomically: BEGIN â†’ UPDATE task â†’ INSERT event â†’ INSERT outbox â†’ COMMIT.
+ * Atomically: BEGIN Ã¢â€ â€™ UPDATE task Ã¢â€ â€™ INSERT event Ã¢â€ â€™ INSERT outbox Ã¢â€ â€™ COMMIT.
  *
  * Usage:
  *   node task-update.js --id TSK-xxx --status approved [options]
@@ -13,11 +13,11 @@ const { parseArgs, requireArg, numberArg, boolArg, listArg, jsonArg, resolveDbPa
 const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb, makeId } = require('../lib/state_db');
 const { nowIso } = require('../lib/dates');
-const { assertTaskStatus } = require('../lib/statuses');
+const { assertTaskStatus, isCompletedTaskStatus } = require('../lib/statuses');
 const { assertExplicitApprovalTransitionAllowed } = require('../lib/guardrails');
 
 const HELP = `
-task-update â€” Update one or more tasks in the SQLite state database.
+task-update Ã¢â‚¬â€ Update one or more tasks in the SQLite state database.
 
 USAGE
   node task-update.js --id <task_id> [updates]
@@ -37,6 +37,8 @@ UPDATES
   --risk-level <level>      New risk level (safe|semi_safe|high_risk)
   --note <text>             Timestamped note appended to metadata_json.notes[]
   --evidence <json>         Evidence JSON merged into metadata_json.evidence
+  --scheduled-for <iso|null>
+                            Set/clear tasks.scheduled_for deferral timestamp
   --add-tag <tag>           Add a tag to metadata_json.tags[]
   --remove-tag <tag>        Remove a tag from metadata_json.tags[]
   --assign <agent>          Assign task to an agent (stored in metadata)
@@ -57,6 +59,22 @@ EXAMPLES
 `.trim();
 
 const VALID_RISK_LEVELS = new Set(['safe', 'semi_safe', 'high_risk']);
+const SELF_IMPROVEMENT_TYPES = new Set([
+  'self_improvement',
+  'process_update',
+  'prompt_update',
+  'cron_repair',
+  'executor_repair',
+  'db_reconciliation',
+]);
+const SELF_IMPROVEMENT_ALLOWED_PREFIXES = [
+  'cli/',
+  'cron/',
+  'processes/',
+  'hermes/skills/client/',
+  'processes/brain-seed/',
+];
+const SELF_IMPROVEMENT_FORBIDDEN_RE = /(^|\/)(Website)(\/|$)|(^|\/)(secrets?)(\/|$)|guardrails\.json$|(^|\/)(no-go|no_go)(\.|\/|$)|(^|\/)(dns|domain|ssl|robots|sitemap)(\.|\/|$)/i;
 
 async function main() {
   const args = parseArgs();
@@ -66,13 +84,13 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       results: [
         {
           task_id: 'TSK-2026-06-03-A1B2C3D4',
-          title: 'Add schema markup to /{{AUDIENCE}}',
+          title: 'Add schema markup to /small business owners',
           status: 'approved',
           priority_score: 500,
           updated_at: nowIso(),
@@ -90,7 +108,7 @@ async function main() {
     const dbPath = resolveDbPath(args);
     const db = openStateDb(dbPath);
 
-    // â”€â”€ Resolve target task IDs â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Resolve target task IDs Ã¢â€â‚¬Ã¢â€â‚¬
     let taskIds = [];
 
     if (args.id) {
@@ -129,7 +147,7 @@ async function main() {
       throw new Error('Specify a target: --id, --ids, or --where-status/--where-type/--where-stale-days');
     }
 
-    // â”€â”€ Validate update values â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Validate update values Ã¢â€â‚¬Ã¢â€â‚¬
     const newStatus = args.status || null;
     if (newStatus) assertTaskStatus(newStatus, '--status');
 
@@ -145,12 +163,14 @@ async function main() {
 
     const note = args.note || null;
     const newEvidence = jsonArg(args, 'evidence', null);
+    const hasScheduledForUpdate = Object.prototype.hasOwnProperty.call(args, 'scheduled-for');
+    const scheduledFor = hasScheduledForUpdate ? normalizeScheduledFor(args['scheduled-for']) : null;
     const addTag = args['add-tag'] || null;
     const removeTag = args['remove-tag'] || null;
     const assign = args.assign || null;
 
-    if (!newStatus && newPriority === null && !newRiskLevel && !note && !newEvidence && !addTag && !removeTag && !assign) {
-      throw new Error('No updates specified. Use --status, --priority, --risk-level, --note, --evidence, --add-tag, --remove-tag, or --assign');
+    if (!newStatus && newPriority === null && !newRiskLevel && !note && !newEvidence && !hasScheduledForUpdate && !addTag && !removeTag && !assign) {
+      throw new Error('No updates specified. Use --status, --priority, --risk-level, --note, --evidence, --scheduled-for, --add-tag, --remove-tag, or --assign');
     }
 
     const now = nowIso();
@@ -167,7 +187,7 @@ async function main() {
           continue; // Skip non-existent tasks
         }
 
-        // â”€â”€ Build SET clause dynamically â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Build SET clause dynamically Ã¢â€â‚¬Ã¢â€â‚¬
         const approvalTransition = newStatus === 'approved'
           ? assertExplicitApprovalTransitionAllowed(db, task, { token: args.token || args['approval-token'] })
           : null;
@@ -181,10 +201,18 @@ async function main() {
           setParams.push(newStatus);
           changes.status = { old: task.status, new: newStatus };
 
-          // If completing, set completed_at
-          if (newStatus === 'completed' || newStatus === 'failed' || newStatus === 'skipped') {
+          // Keep status/completed_at coherent. A task moved back into an active
+          // state must not retain a terminal timestamp or it can re-enter active
+          // approved work despite already being completed.
+          if (isCompletedTaskStatus(newStatus)) {
             setClauses.push('completed_at = ?');
             setParams.push(now);
+            changes.completed_at = { old: task.completed_at || null, new: now };
+          } else {
+            setClauses.push('completed_at = NULL');
+            if (task.completed_at) {
+              changes.completed_at = { old: task.completed_at, new: null };
+            }
           }
         }
 
@@ -200,7 +228,13 @@ async function main() {
           changes.risk_level = { old: task.risk_level, new: newRiskLevel };
         }
 
-        // â”€â”€ Metadata mutations â”€â”€
+        if (hasScheduledForUpdate) {
+          setClauses.push('scheduled_for = ?');
+          setParams.push(scheduledFor);
+          changes.scheduled_for = { old: task.scheduled_for || null, new: scheduledFor };
+        }
+
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Metadata mutations Ã¢â€â‚¬Ã¢â€â‚¬
         let metadata = {};
         try { metadata = JSON.parse(task.metadata_json || '{}'); } catch { metadata = {}; }
 
@@ -243,12 +277,19 @@ async function main() {
           metadataChanged = true;
         }
 
+        assertApprovedSelfImprovementContract({
+          taskId,
+          taskType: metadata.task_type,
+          status: newStatus || task.status,
+          metadata,
+        });
+
         if (metadataChanged) {
           setClauses.push('metadata_json = ?');
           setParams.push(JSON.stringify(metadata));
         }
 
-        // â”€â”€ Execute UPDATE â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Execute UPDATE Ã¢â€â‚¬Ã¢â€â‚¬
         setParams.push(taskId);
         db.prepare(`UPDATE tasks SET ${setClauses.join(', ')} WHERE task_id = ?`).run(...setParams);
 
@@ -298,7 +339,7 @@ async function main() {
           changes.approval = { approval_id: approval.approval_id, token_used: true };
         }
 
-        // â”€â”€ Insert event â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Insert event Ã¢â€â‚¬Ã¢â€â‚¬
         const eventId = makeId('EVT');
         eventIds.push(eventId);
 
@@ -316,7 +357,7 @@ async function main() {
           JSON.stringify(changes)
         );
 
-        // â”€â”€ Insert outbox job â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Insert outbox job Ã¢â€â‚¬Ã¢â€â‚¬
         const outboxId = makeId('OUT');
         outboxIds.push(outboxId);
         db.prepare(`
@@ -363,6 +404,53 @@ function safeJson(value) {
   } catch {
     return {};
   }
+}
+
+function assertApprovedSelfImprovementContract({ taskId, taskType, status, metadata }) {
+  if (status !== 'approved' || !SELF_IMPROVEMENT_TYPES.has(taskType)) return;
+
+  const evidence = metadata && metadata.evidence && typeof metadata.evidence === 'object'
+    ? metadata.evidence
+    : {};
+  const targetFiles = evidence.target_files;
+  if (!Array.isArray(targetFiles) || targetFiles.length === 0) {
+    throw new Error(
+      `approved self-improvement task ${taskId} requires evidence.target_files with at least one canonical repo-relative path under ` +
+      SELF_IMPROVEMENT_ALLOWED_PREFIXES.join(', ')
+    );
+  }
+
+  const invalidTargets = targetFiles.filter((target) => !isCanonicalSelfImprovementTarget(target));
+  if (invalidTargets.length > 0) {
+    throw new Error(
+      `approved self-improvement task ${taskId} evidence.target_files contains out-of-scope or non-canonical paths: ${invalidTargets.join(', ')}`
+    );
+  }
+
+  const nonTestTargets = targetFiles.filter((target) => !String(target).startsWith('test/'));
+  if (nonTestTargets.length > 8) {
+    throw new Error(`approved self-improvement task ${taskId} may declare at most 8 non-test target_files; split broad repairs before approval`);
+  }
+
+  const acceptance = typeof evidence.acceptance === 'string' ? evidence.acceptance.trim() : '';
+  if (acceptance.length < 20) {
+    throw new Error(`approved self-improvement task ${taskId} requires evidence.acceptance with a concrete acceptance contract`);
+  }
+}
+
+function isCanonicalSelfImprovementTarget(target) {
+  if (typeof target !== 'string') return false;
+  const value = target.trim();
+  if (!value || value !== target) return false;
+  if (value.includes('\\') || value.startsWith('/') || value.startsWith('./') || value.includes('../') || value.includes('/../')) return false;
+  if (SELF_IMPROVEMENT_FORBIDDEN_RE.test(value)) return false;
+  return SELF_IMPROVEMENT_ALLOWED_PREFIXES.some((prefix) => value.startsWith(prefix));
+}
+
+function normalizeScheduledFor(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw || ['null', 'none', 'clear'].includes(raw.toLowerCase())) return null;
+  return raw;
 }
 
 if (require.main === module) {

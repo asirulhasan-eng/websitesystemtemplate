@@ -37,7 +37,7 @@ async function main() {
     let apiError = null;
 
     if (boolArg(args, 'sample')) {
-      raw = sampleInspection(url || 'https://{{DOMAIN}}/');
+      raw = sampleInspection(url || 'https://example.com/');
       source = 'sample';
     } else if (args['from-file']) {
       raw = JSON.parse(fs.readFileSync(args['from-file'], 'utf8'));
@@ -143,10 +143,10 @@ function normalizeInspection(raw, context = {}) {
 }
 
 async function liveFallback(url, args) {
-  const baseUrl = args['base-url'] || process.env.CLIENT_BASE_URL || DEFAULT_BASE_URL;
+  const baseUrl = args['base-url'] || process.env.WEBSITE_AGENT_BASE_URL || DEFAULT_BASE_URL;
   const page = await readPageSource({
     url,
-    siteRoot: args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site',
+    siteRoot: args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site',
     baseUrl,
     timeoutMs: numberArg(args, 'timeout-ms', 20000),
     preferLive: boolArg(args, 'prefer-live', true),
@@ -181,7 +181,7 @@ function deriveSiteUrl(url) {
     const parsed = new URL(url);
     return `${parsed.protocol}//${parsed.host}/`;
   } catch {
-    return 'sc-domain:{{DOMAIN}}';
+    return 'sc-domain:example.com';
   }
 }
 
@@ -189,7 +189,7 @@ function sampleInspection(url) {
   return {
     request: {
       inspectionUrl: url,
-      siteUrl: 'sc-domain:{{DOMAIN}}',
+      siteUrl: 'sc-domain:example.com',
       languageCode: 'en-US',
     },
     inspectionResult: {
@@ -202,7 +202,7 @@ function sampleInspection(url) {
         pageFetchState: 'SUCCESSFUL',
         googleCanonical: url,
         userCanonical: url,
-        sitemap: ['https://{{DOMAIN}}/sitemap.xml'],
+        sitemap: ['https://example.com/sitemap.xml'],
         referringUrls: [],
         crawledAs: 'MOBILE',
       },
@@ -215,11 +215,11 @@ function printHelp() {
 index-inspect - Inspect a URL with Google Search Console URL Inspection API
 
 Usage:
-  v2 index-inspect --url https://{{DOMAIN}}/page/ --json
+  v2 index-inspect --url https://example.com/page/ --json
 
 Inputs:
   --url <url>              URL to inspect.
-  --site-url <property>    GSC property URL, e.g. sc-domain:{{DOMAIN}}.
+  --site-url <property>    GSC property URL, e.g. sc-domain:example.com.
   --env <path>             Env file with GSC OAuth credentials.
   --from-file <path>       Normalize a saved URL Inspection API JSON response.
   --sample                 Use a built-in indexed sample response.

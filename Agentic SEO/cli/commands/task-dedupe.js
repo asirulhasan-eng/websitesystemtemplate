@@ -44,7 +44,7 @@ module.exports = function taskDedupe() {
       cancel_candidate_count: 1,
       cancelled_count: 0,
       duplicate_groups: [{
-        dedupe_key: "gsc|content_refresh|/services/{{NICHE}}-seo|{{NICHE}} seo",
+        dedupe_key: "gsc|content_refresh|/services/website-seo|website seo",
         keep: { task_id: "TSK-KEEP", priority_score: 900 },
         duplicates: [{ task_id: "TSK-DUP", priority_score: 700 }],
       }],

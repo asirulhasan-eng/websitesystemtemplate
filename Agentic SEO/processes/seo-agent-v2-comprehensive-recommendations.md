@@ -1,4 +1,4 @@
-# {{SITE_NAME}} v2 SEO Agent Recommendations
+# Website Operations v2 SEO Agent Recommendations
 
 This document combines the critical review of the existing v2 process playbooks with the additional enterprise SEO review notes. It is written as an implementation blueprint for upgrading the current process set into a full-stack SEO agency agent, excluding off-page link building.
 
@@ -77,9 +77,9 @@ Use these principles to decide how every process should behave.
    - Prefer refresh, expansion, consolidation, or better internal linking when those solve the user intent better than creating another page.
 
 10. Local and national SEO must be parameterized.
-   - {{SITE_NAME}}.agency itself is an SEO agency.
-   - Client local SEO playbooks may target {{AUDIENCE}} categories and local service keywords.
-   - Do not hard-code "{{AUDIENCE}}" GBP categories or "emergency {{AUDIENCE}}" checks for the agency site unless the target client is actually a {{AUDIENCE}}.
+   - Website Operations Agency itself is an SEO agency.
+   - Client local SEO playbooks may target small business owners categories and local service keywords.
+   - Do not hard-code "small business owners" GBP categories or "emergency small business owners" checks for the agency site unless the target client is actually a small business owners.
 
 ## 3. Priority 0: Upgrade The Process Contract
 
@@ -108,7 +108,7 @@ version: 2
 description: "Investigate and respond to confirmed ranking, indexation, or traffic emergencies."
 trigger:
   schedule: "event:ranking_drop"
-  timezone: "{{TIMEZONE}}"
+  timezone: "Asia/Dhaka"
   can_run_manually: true
 guardrails:
   max_tasks_created: 8
@@ -268,11 +268,11 @@ Required changes:
 1. Add live technical checks before GSC analysis:
 
 ```bash
-v2 health-check --url https://{{DOMAIN}} --json
-v2 crawl --url https://{{DOMAIN}} --depth 1 --json
-v2 page-meta --url https://{{DOMAIN}} --json
-v2 sitemap-audit --url https://{{DOMAIN}}/sitemap.xml --json
-v2 robots-check --url https://{{DOMAIN}}/robots.txt --json
+v2 health-check --url https://example.com --json
+v2 crawl --url https://example.com --depth 1 --json
+v2 page-meta --url https://example.com --json
+v2 sitemap-audit --url https://example.com/sitemap.xml --json
+v2 robots-check --url https://example.com/robots.txt --json
 ```
 
 2. Add optional GA4 traffic and engagement checks:
@@ -569,8 +569,8 @@ Every blog brief should decide whether it needs:
 
 ```bash
 v2 sitemap-audit --contains "/blog/<slug>/" --json
-v2 index-inspect --url "https://{{DOMAIN}}/blog/<slug>/" --json
-v2 schema-validate --url "https://{{DOMAIN}}/blog/<slug>/" --json
+v2 index-inspect --url "https://example.com/blog/<slug>/" --json
+v2 schema-validate --url "https://example.com/blog/<slug>/" --json
 ```
 
 ### 4.7 `service-page-update.md`
@@ -601,9 +601,9 @@ Primary and related terms appear naturally in prominent places when useful: titl
 2. Add verification:
 
 ```bash
-v2 render-check --url "https://preview.{{DOMAIN}}/services/<slug>/" --user-agent googlebot --json
-v2 schema-validate --url "https://preview.{{DOMAIN}}/services/<slug>/" --json
-v2 link-check --url "https://preview.{{DOMAIN}}/services/<slug>/" --json
+v2 render-check --url "https://preview.example.com/services/<slug>/" --user-agent googlebot --json
+v2 schema-validate --url "https://preview.example.com/services/<slug>/" --json
+v2 link-check --url "https://preview.example.com/services/<slug>/" --json
 ```
 
 3. Add search-intent review:
@@ -682,9 +682,9 @@ Required changes:
 ```bash
 v2 manual-actions-check --json
 v2 security-issues-check --json
-v2 index-inspect --url "https://{{DOMAIN}}/<affected-page>/" --json
-v2 crawl --url "https://{{DOMAIN}}/<affected-page>/" --json
-v2 page-meta --url "https://{{DOMAIN}}/<affected-page>/" --json
+v2 index-inspect --url "https://example.com/<affected-page>/" --json
+v2 crawl --url "https://example.com/<affected-page>/" --json
+v2 page-meta --url "https://example.com/<affected-page>/" --json
 ```
 
 2. Split root cause categories:
@@ -834,7 +834,7 @@ Required data:
 ```bash
 v2 ga4-fetch --days 28 --channel organic --json
 v2 gsc-fetch --days 28 --min-impressions 10 --json
-v2 analytics-audit --url https://{{DOMAIN}} --json
+v2 analytics-audit --url https://example.com --json
 ```
 
 Checks:
@@ -881,9 +881,9 @@ Trigger:
 Required data:
 
 ```bash
-v2 index-inspect --url "https://{{DOMAIN}}/<url>/" --json
-v2 crawl --url "https://{{DOMAIN}}/<url>/" --json
-v2 page-meta --url "https://{{DOMAIN}}/<url>/" --json
+v2 index-inspect --url "https://example.com/<url>/" --json
+v2 crawl --url "https://example.com/<url>/" --json
+v2 page-meta --url "https://example.com/<url>/" --json
 v2 sitemap-audit --contains "/<url>/" --json
 v2 link-depth --url "/<url>/" --json
 ```
@@ -924,9 +924,9 @@ Trigger:
 Required data:
 
 ```bash
-v2 speed-audit --url https://{{DOMAIN}} --strategy mobile --json
-v2 speed-audit --url https://{{DOMAIN}}/services/{{NICHE}}-seo/ --strategy mobile --json
-v2 crawl --url https://{{DOMAIN}} --performance-summary --json
+v2 speed-audit --url https://example.com --strategy mobile --json
+v2 speed-audit --url https://example.com/services/website-seo/ --strategy mobile --json
+v2 crawl --url https://example.com --performance-summary --json
 ```
 
 Checks:
@@ -974,9 +974,9 @@ Trigger:
 Required data:
 
 ```bash
-v2 schema-validate --url https://{{DOMAIN}} --json
-v2 schema-validate --url https://{{DOMAIN}}/services/{{NICHE}}-seo/ --json
-v2 schema-validate --url https://{{DOMAIN}}/blog/<slug>/ --json
+v2 schema-validate --url https://example.com --json
+v2 schema-validate --url https://example.com/services/website-seo/ --json
+v2 schema-validate --url https://example.com/blog/<slug>/ --json
 ```
 
 Checks:
@@ -1017,7 +1017,7 @@ Required data:
 v2 gsc-fetch --days 28 --url-contains "/services/<slug>/" --json
 v2 ga4-fetch --days 28 --url "/services/<slug>/" --json
 v2 serp-check --keywords "<target-keyword>" --include-features --json
-v2 page-read --url "https://{{DOMAIN}}/services/<slug>/" --json
+v2 page-read --url "https://example.com/services/<slug>/" --json
 ```
 
 Checks:
@@ -1034,9 +1034,9 @@ Checks:
 Task examples:
 
 ```bash
-v2 task create --title "Search performance: Diagnose CTR drop on {{NICHE}} SEO service page" \
+v2 task create --title "Search performance: Diagnose CTR drop on website SEO service page" \
   --type performance_diagnostic --priority 750 --risk-level low \
-  --target-url "https://{{DOMAIN}}/services/{{NICHE}}-seo/" \
+  --target-url "https://example.com/services/website-seo/" \
   --description "GSC shows stable position but declining CTR for a money keyword. Check title/meta, SERP feature changes, snippet eligibility, and whether the ranking page still matches observed search intent." \
   --json
 ```
@@ -1177,8 +1177,8 @@ Purpose:
 
 Important caveat:
 
-- Use this playbook for {{AUDIENCE}} clients or local-service clients.
-- Do not hard-code {{AUDIENCE}} categories for {{SITE_NAME}}.agency unless the target property is a {{NICHE}} company.
+- Use this playbook for small business owners clients or local-service clients.
+- Do not hard-code small business owners categories for Website Operations Agency unless the target property is a website owner.
 - Parameterize the playbook by `client_business_type`, `service_area`, `primary_category`, `locations`, and `target_keywords`.
 
 Trigger:
@@ -1400,8 +1400,8 @@ Minimum task evidence JSON:
 {
   "source": "gsc",
   "date_range": "2026-05-06..2026-06-02",
-  "url": "https://{{DOMAIN}}/services/{{NICHE}}-seo/",
-  "keyword": "{{NICHE}} SEO services",
+  "url": "https://example.com/services/website-seo/",
+  "keyword": "website SEO services",
   "metric_snapshot": {
     "clicks": 14,
     "impressions": 340,

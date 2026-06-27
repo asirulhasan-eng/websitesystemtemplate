@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * gsc-fetch.js â€” Fetch Google Search Console data from the live API
+ * gsc-fetch.js Ã¢â‚¬â€ Fetch Google Search Console data from the live API
  *
  * Pulls Search Analytics data, normalizes rows, applies filters,
  * optionally persists to gsc_snapshots table, and outputs results.
@@ -23,7 +23,7 @@ const { readJson } = require('../lib/io');
 const TOOL = 'gsc-fetch';
 
 const HELP = `
-gsc-fetch â€” Fetch Google Search Console Search Analytics data
+gsc-fetch Ã¢â‚¬â€ Fetch Google Search Console Search Analytics data
 
 USAGE
   node gsc-fetch.js [options]
@@ -70,7 +70,7 @@ OUTPUT
 EXAMPLES
   node gsc-fetch.js --sample --table
   node gsc-fetch.js --days 30 --min-impressions 10 --db ./seo.db
-  node gsc-fetch.js --top 20 --query-contains {{NICHE}} --csv
+  node gsc-fetch.js --top 20 --query-contains website --csv
   node gsc-fetch.js --from-file ./gsc-2026-05-27.json --sort clicks
   node gsc-fetch.js --start-date 2026-05-01 --end-date 2026-05-31
 `.trim();
@@ -79,18 +79,18 @@ function getSampleData() {
   const endDate = daysAgo(0);
   const startDate = daysAgo(7);
   return {
-    siteUrl: 'sc-domain:{{DOMAIN}}',
+    siteUrl: 'sc-domain:example.com',
     date_range_start: startDate,
     date_range_end: endDate,
     rows: [
-      { query: '{{NICHE}} seo', page: 'https://{{DOMAIN}}/', clicks: 42, impressions: 890, ctr: 0.0472, position: 4.2 },
-      { query: 'seo for {{AUDIENCE}}', page: 'https://{{DOMAIN}}/seo-for-{{AUDIENCE}}', clicks: 38, impressions: 720, ctr: 0.0528, position: 5.1 },
-      { query: '{{AUDIENCE}} website design', page: 'https://{{DOMAIN}}/web-design', clicks: 22, impressions: 540, ctr: 0.0407, position: 7.3 },
-      { query: 'local seo {{NICHE}}', page: 'https://{{DOMAIN}}/local-seo', clicks: 18, impressions: 410, ctr: 0.0439, position: 8.6 },
-      { query: '{{NICHE}} google ads', page: 'https://{{DOMAIN}}/google-ads', clicks: 15, impressions: 380, ctr: 0.0395, position: 9.2 },
-      { query: '{{AUDIENCE}} marketing', page: 'https://{{DOMAIN}}/marketing', clicks: 12, impressions: 310, ctr: 0.0387, position: 11.4 },
-      { query: '{{NICHE}} company seo services', page: 'https://{{DOMAIN}}/services', clicks: 8, impressions: 185, ctr: 0.0432, position: 14.7 },
-      { query: 'how to get {{NICHE}} leads online', page: 'https://{{DOMAIN}}/blog/{{NICHE}}-leads', clicks: 5, impressions: 95, ctr: 0.0526, position: 18.3 },
+      { query: 'website seo', page: 'https://example.com/', clicks: 42, impressions: 890, ctr: 0.0472, position: 4.2 },
+      { query: 'seo for small business owners', page: 'https://example.com/seo-for-small business owners', clicks: 38, impressions: 720, ctr: 0.0528, position: 5.1 },
+      { query: 'small business owners website design', page: 'https://example.com/web-design', clicks: 22, impressions: 540, ctr: 0.0407, position: 7.3 },
+      { query: 'local seo website', page: 'https://example.com/local-seo', clicks: 18, impressions: 410, ctr: 0.0439, position: 8.6 },
+      { query: 'website google ads', page: 'https://example.com/google-ads', clicks: 15, impressions: 380, ctr: 0.0395, position: 9.2 },
+      { query: 'small business owners marketing', page: 'https://example.com/marketing', clicks: 12, impressions: 310, ctr: 0.0387, position: 11.4 },
+      { query: 'website owner seo services', page: 'https://example.com/services', clicks: 8, impressions: 185, ctr: 0.0432, position: 14.7 },
+      { query: 'how to get website leads online', page: 'https://example.com/blog/website-leads', clicks: 5, impressions: 95, ctr: 0.0526, position: 18.3 },
     ],
   };
 }
@@ -242,7 +242,7 @@ async function main() {
     const dataState = args['data-state'] || 'final';
     let rawRows, dateRangeStart, dateRangeEnd;
 
-    // â”€â”€ Data source â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Data source Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     if (boolArg(args, 'sample')) {
       const sample = getSampleData();
       rawRows = sample.rows;
@@ -277,19 +277,19 @@ async function main() {
       rawRows = result.rows;
     }
 
-    // â”€â”€ Normalize â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Normalize Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     let rows = normalizeRows(rawRows, dimensions);
 
-    // â”€â”€ Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Filter Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     rows = applyFilters(rows, args);
 
-    // â”€â”€ Group â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Group Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const groupBy = args['group-by'];
     if (groupBy) {
       rows = groupRows(rows, groupBy);
     }
 
-    // â”€â”€ Sort â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Sort Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     let sortField = args.sort || 'impressions';
     let limit = args.limit ? numberArg(args, 'limit') : null;
 
@@ -302,7 +302,7 @@ async function main() {
     rows = sortRows(rows, sortField);
     if (limit) rows = rows.slice(0, limit);
 
-    // â”€â”€ Persist â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Persist Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     let persisted = 0;
     const shouldPersist = args.db && !boolArg(args, 'no-persist');
     if (shouldPersist) {
@@ -315,7 +315,7 @@ async function main() {
       );
     }
 
-    // â”€â”€ Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Output Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const output = envelope({
       date_range_start: dateRangeStart,
       date_range_end: dateRangeEnd,

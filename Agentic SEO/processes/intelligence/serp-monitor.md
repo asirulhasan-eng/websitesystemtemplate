@@ -7,7 +7,7 @@ description: "Check live SERPs for tracked keywords; detect new competitors, SER
 schedule: "0 1 * * *"
 trigger:
   schedule: "0 1 * * *"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   sessions: [morning]
@@ -30,8 +30,8 @@ changed in the SERP landscape; the planner reacts.
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
 
 # Live SERP for tracked keywords + comparison to the last capture
 node $V2 serp-check --from-tracked $DB --json
@@ -41,18 +41,18 @@ node $V2 serp-history --days 14 $DB --json
 
 ## AI Analysis
 For each tracked keyword's SERP:
-- **New competitors** â€” domains newly appearing in the top 5/top 10 that weren't there before.
-- **SERP feature changes** â€” new/removed featured snippet, People Also Ask, local pack, ads
-  density, AI overview â€” anything that changes how much organic real estate is available.
-- **Intent shifts** â€” is the result set tilting informational vs commercial? Does our page
+- **New competitors** Ã¢â‚¬â€ domains newly appearing in the top 5/top 10 that weren't there before.
+- **SERP feature changes** Ã¢â‚¬â€ new/removed featured snippet, People Also Ask, local pack, ads
+  density, AI overview Ã¢â‚¬â€ anything that changes how much organic real estate is available.
+- **Intent shifts** Ã¢â‚¬â€ is the result set tilting informational vs commercial? Does our page
   type (service vs blog) still match what Google is rewarding?
-- **Volatility** â€” keywords whose top results are reshuffling a lot (unstable SERP).
+- **Volatility** Ã¢â‚¬â€ keywords whose top results are reshuffling a lot (unstable SERP).
 
 Recall Brain memory for keywords with notable moves. Severity:
-- `critical` â€” a strong new competitor seized a money-keyword top spot, or a feature change
+- `critical` Ã¢â‚¬â€ a strong new competitor seized a money-keyword top spot, or a feature change
   buried organic results.
-- `warning` â€” meaningful landscape shift worth the planner's attention.
-- `normal` â€” stable.
+- `warning` Ã¢â‚¬â€ meaningful landscape shift worth the planner's attention.
+- `normal` Ã¢â‚¬â€ stable.
 
 ### Coverage Block (REQUIRED in every report)
 Include a `coverage` object in your report JSON:
@@ -74,7 +74,7 @@ node $V2 intelligence report \
   --module serp-monitor \
   --session morning \
   --severity "<normal|warning|critical>" \
-  --headline "<e.g. 'New competitor in top 5 for {{NICHE}} SEO; PAA added on 2 terms'>" \
+  --headline "<e.g. 'New competitor in top 5 for website SEO; PAA added on 2 terms'>" \
   --report-json '{
     "threats":[{"type":"new_competitor","keyword":"...","current_position":4,"severity":"warning","recommendation":"Assess competitor page vs ours"}],
     "opportunities":[{"type":"competitive_gap","keyword":"...","business_value":"high","recommendation":"Featured-snippet opportunity opened up"}],

@@ -7,7 +7,7 @@ description: "Weekly 90-day trend analysis for money keywords: trajectory, best-
 schedule: "0 1 * * 4"
 trigger:
   schedule: "0 1 * * 4"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   weekdays: [4]
@@ -31,8 +31,8 @@ long-horizon read of money-keyword trajectory the planner can use for strategic 
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
 
 node $V2 gsc-fetch --days 90 --min-impressions 5 $DB --json
 node $V2 gsc-history --days 90 $DB --json
@@ -42,11 +42,11 @@ node $V2 keyword trend --days 90 $DB --json
 
 ## AI Analysis
 For each money keyword, assess the 90-day arc:
-- **Trajectory** â€” improving, flat, or eroding over the quarter (not just week-over-week noise).
-- **Best-ever position** â€” the ceiling it has reached; how far it currently sits from that ceiling.
-- **Stability** â€” is it volatile or holding? Consistent page-1 vs bouncing.
-- **Revenue impact** â€” relative commercial value Ã— impression/click trend = where attention pays off.
-- **Plateaus** â€” keywords stuck just off a meaningful threshold (e.g. parked at 4â€“6, never breaking top 3).
+- **Trajectory** Ã¢â‚¬â€ improving, flat, or eroding over the quarter (not just week-over-week noise).
+- **Best-ever position** Ã¢â‚¬â€ the ceiling it has reached; how far it currently sits from that ceiling.
+- **Stability** Ã¢â‚¬â€ is it volatile or holding? Consistent page-1 vs bouncing.
+- **Revenue impact** Ã¢â‚¬â€ relative commercial value Ãƒâ€” impression/click trend = where attention pays off.
+- **Plateaus** Ã¢â‚¬â€ keywords stuck just off a meaningful threshold (e.g. parked at 4Ã¢â‚¬â€œ6, never breaking top 3).
 
 Recall Brain memory for each (`brain recall --query "<keyword>"`): what's been tried, what worked.
 
@@ -75,9 +75,9 @@ node $V2 intelligence report \
   --headline "<e.g. '2 money keywords plateaued at #4-6 for 60d; 1 in slow decline'>" \
   --report-json '{
     "opportunities":[{"type":"quick_win","keyword":"...","current_position":5,"business_value":"high","recommendation":"Plateaued 60d at #5; a focused push could break top 3"}],
-    "threats":[{"type":"ranking_drop","keyword":"...","severity":"warning","recommendation":"Slow 90d erosion â€” investigate root cause"}],
-    "observations":["Best-ever for 'SEO for {{AUDIENCE}}' was #2 (Apr); now #4"],
-    "recommendations":[{"priority":"high","action":"Prioritize <keyword> â€” high value, near a threshold","evidence":"90d trajectory + commercial intent"}],
+    "threats":[{"type":"ranking_drop","keyword":"...","severity":"warning","recommendation":"Slow 90d erosion Ã¢â‚¬â€ investigate root cause"}],
+    "observations":["Best-ever for 'SEO for small business owners' was #2 (Apr); now #4"],
+    "recommendations":[{"priority":"high","action":"Prioritize <keyword> Ã¢â‚¬â€ high value, near a threshold","evidence":"90d trajectory + commercial intent"}],
     "data":{"trajectories":[],"plateaus":[]},
     "coverage":{"scanned_count":"...","surfaced_top":"...","floor_applied":"...","deprioritized_reason":"..."}
   }' \

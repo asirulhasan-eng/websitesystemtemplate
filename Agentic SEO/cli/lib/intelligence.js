@@ -1,5 +1,5 @@
 /**
- * intelligence.js â€” Shared logic for the Intelligence Pipeline.
+ * intelligence.js Ã¢â‚¬â€ Shared logic for the Intelligence Pipeline.
  *
  * The intelligence pipeline decomposes the old monolithic daily work plan into
  * focused analysis modules. Each module gathers fresh data, analyses it with AI
@@ -7,7 +7,7 @@
  * then reads an aggregated summary of those reports and is the sole producer of
  * tasks.
  *
- * This module is data/logic only â€” no AI, no side effects beyond what the
+ * This module is data/logic only Ã¢â‚¬â€ no AI, no side effects beyond what the
  * commands ask for. It owns:
  *   - the module registry + cadence rules
  *   - cadence evaluation (which modules are "due" this session)
@@ -17,7 +17,7 @@
  *   - summary aggregation across the latest reports
  *
  * See processes/intelligence/ for the per-module playbooks the AI follows, and
- * the architecture doc (Intelligence Pipeline â†’ Daily Planner) for the design.
+ * the architecture doc (Intelligence Pipeline Ã¢â€ â€™ Daily Planner) for the design.
  */
 
 const crypto = require("node:crypto");
@@ -28,13 +28,13 @@ const {
   renderMemoryNoteMarkdown,
 } = require("./obsidian_brain");
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Module registry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Module registry Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // Cadence rules are evaluated by isModuleDue(). Recognised keys:
-//   every_session   â€” run on every planner session (morning + evening)
-//   sessions        â€” only run on these sessions (e.g. ['morning'])
-//   interval_hours  â€” only run if this many hours have elapsed since last run
-//   weekdays        â€” only run on these ISO weekdays (Mon=1 â€¦ Sun=7)
-//   monthly_day     â€” only run on this day-of-month
+//   every_session   Ã¢â‚¬â€ run on every planner session (morning + evening)
+//   sessions        Ã¢â‚¬â€ only run on these sessions (e.g. ['morning'])
+//   interval_hours  Ã¢â‚¬â€ only run if this many hours have elapsed since last run
+//   weekdays        Ã¢â‚¬â€ only run on these ISO weekdays (Mon=1 Ã¢â‚¬Â¦ Sun=7)
+//   monthly_day     Ã¢â‚¬â€ only run on this day-of-month
 // Gates combine with AND. A module with no positive cadence never auto-runs
 // (but can still be forced with `v2 intelligence report` / --modules).
 
@@ -63,9 +63,9 @@ function moduleName(moduleId) {
   return m ? m.name : moduleId;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Severity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Severity Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const SEVERITY_RANK = { normal: 0, warning: 1, critical: 2 };
-const SEVERITY_ICON = { normal: "ðŸŸ¢", warning: "âš ï¸", critical: "ðŸ”´" };
+const SEVERITY_ICON = { normal: "Ã°Å¸Å¸Â¢", warning: "Ã¢Å¡Â Ã¯Â¸Â", critical: "Ã°Å¸â€Â´" };
 
 function normalizeSeverity(value) {
   const key = String(value || "normal").trim().toLowerCase();
@@ -84,7 +84,7 @@ function normalizeSession(value) {
   return key;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Cadence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Cadence Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 /**
  * Decide whether a module is due to run.
  * @param {object} cadence - cadence rules from the registry
@@ -130,9 +130,10 @@ function cadenceReason(cadence) {
  * @param {string} opts.session   - 'morning' | 'evening'
  * @param {Date}   [opts.now]
  * @param {object} [opts.lastRuns] - map module_id -> last successful run_at ISO string
- * @returns {{ due: Array, skipped: Array }}
+ * @param {object} [opts.lastFailures] - map module_id -> consecutive failure state
+ * @returns {{ due: Array, skipped: Array, escalations: Array }}
  */
-function computeDueModules({ session, now = new Date(), lastRuns = {} } = {}) {
+function computeDueModules({ session, now = new Date(), lastRuns = {}, lastFailures = {} } = {}) {
   const cal = localCalendar(now);
   const ctx = {
     session: normalizeSession(session),
@@ -142,13 +143,57 @@ function computeDueModules({ session, now = new Date(), lastRuns = {} } = {}) {
   };
   const due = [];
   const skipped = [];
+  const escalations = [];
   for (const mod of MODULES) {
+    const failure = normalizeFailureState(lastFailures[mod.id]);
+    if (failure.consecutive_failures >= 3) {
+      const elapsedH = failure.last_failed_at
+        ? (ctx.now - Date.parse(failure.last_failed_at)) / 3_600_000
+        : Infinity;
+      const escalation = {
+        module_id: mod.id,
+        name: mod.name,
+        consecutive_failures: failure.consecutive_failures,
+        last_failed_at: failure.last_failed_at || null,
+        last_error: failure.last_error || null,
+      };
+      escalations.push(escalation);
+      if (Number.isFinite(elapsedH) && elapsedH < 48) {
+        skipped.push({
+          module_id: mod.id,
+          name: mod.name,
+          reason: `failure cap: ${failure.consecutive_failures} consecutive failures; retry in ${(48 - elapsedH).toFixed(1)}h`,
+          last_run_at: lastRuns[mod.id] || null,
+          escalation,
+        });
+        continue;
+      }
+      due.push({
+        module_id: mod.id,
+        name: mod.name,
+        reason: `failure-cap retry after ${Number.isFinite(elapsedH) ? elapsedH.toFixed(1) : "unknown"}h`,
+        last_run_at: lastRuns[mod.id] || null,
+        escalation,
+      });
+      continue;
+    }
     const verdict = isModuleDue(mod.cadence, { ...ctx, lastRunAt: lastRuns[mod.id] || null });
     const entry = { module_id: mod.id, name: mod.name, reason: verdict.reason, last_run_at: lastRuns[mod.id] || null };
     if (verdict.due) due.push(entry);
     else skipped.push(entry);
   }
-  return { due, skipped };
+  return { due, skipped, escalations };
+}
+
+function normalizeFailureState(value) {
+  if (!value || typeof value !== "object") {
+    return { consecutive_failures: 0, last_failed_at: null, last_error: null };
+  }
+  return {
+    consecutive_failures: Number(value.consecutive_failures || value.count || 0) || 0,
+    last_failed_at: value.last_failed_at || value.last_run_at || null,
+    last_error: value.last_error || value.error || null,
+  };
 }
 
 /**
@@ -162,7 +207,7 @@ function staleModules({ session, now = new Date(), lastRuns = {} } = {}) {
     .map((m) => ({ module_id: m.module_id, name: m.name, reason: "no report yet (module is due this session)" }));
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Report identity / paths â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Report identity / paths Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function makeReportId(now = new Date()) {
   // RPT-YYYYMMDDHHMMSS-xxxxxx  (matches the architecture doc's report_id shape)
   const stamp = compactDateTime(now).replace(/T/, "").replace(/Z$/, "").slice(0, 14);
@@ -173,21 +218,21 @@ function makeReportId(now = new Date()) {
 /**
  * Date-first markdown path: cron/intelligence/{YYYY-MM-DD}/{HHMM}-{module_id}.md
  * Date and time are taken in the configured local timezone so folders line up
- * with the session times the planner thinks in ({{TIMEZONE_ABBR}}), not UTC.
+ * with the session times the planner thinks in (BST), not UTC.
  */
 function reportMarkdownRelativePath(moduleId, runAt = new Date()) {
   const cal = localCalendar(runAt);
   return `cron/intelligence/${cal.date}/${cal.hhmm}-${moduleId}.md`;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Markdown rendering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Markdown rendering Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function renderReportMarkdown(report) {
   const data = report.data && typeof report.data === "object" ? report.data : {};
   const session = report.session || "manual";
   const severity = normalizeSeverity(report.severity);
   const runAt = report.run_at || nowIso();
   const cal = localCalendar(new Date(runAt));
-  const title = `${moduleName(report.module_id)} â€” ${cal.date} ${cap(session)}`;
+  const title = `${moduleName(report.module_id)} Ã¢â‚¬â€ ${cal.date} ${cap(session)}`;
 
   const lines = [];
   lines.push("---");
@@ -273,12 +318,12 @@ function renderReportMarkdown(report) {
   return `${lines.join("\n")}\n`;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Brain observation note â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Brain observation note Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 /**
  * Decide whether a report is noteworthy enough for a Brain observation note,
  * and if so build the {memory_id, relative_path, markdown, ...} payload.
  * Per the obsidian-memory-protocol cardinal rule, the note is an interpretation
- * (reasoning), NOT a data dump â€” raw metrics live in SQLite + the markdown file.
+ * (reasoning), NOT a data dump Ã¢â‚¬â€ raw metrics live in SQLite + the markdown file.
  * @returns {object|null}
  */
 function buildBrainObservation(report) {
@@ -291,14 +336,14 @@ function buildBrainObservation(report) {
   const memoryId = `MEM-${compactDateTime().replace(/T/, "").replace(/Z$/, "").slice(0, 14)}-${crypto.randomBytes(3).toString("hex")}`;
   const session = report.session || "manual";
   const cal = localCalendar(new Date(report.run_at || nowIso()));
-  const title = `Intel: ${moduleName(report.module_id)} ${cal.date} ${session} â€” ${report.headline}`.slice(0, 160);
+  const title = `Intel: ${moduleName(report.module_id)} ${cal.date} ${session} Ã¢â‚¬â€ ${report.headline}`.slice(0, 160);
 
   const bodyLines = [];
-  bodyLines.push(`${report.module_id} module â€” ${report.headline}`);
+  bodyLines.push(`${report.module_id} module Ã¢â‚¬â€ ${report.headline}`);
   if (threats.length) {
     bodyLines.push("", "Threats flagged:");
     for (const t of threats.slice(0, 8)) {
-      bodyLines.push(`- ${t.keyword || t.type || "signal"}: ${t.previous_position != null && t.current_position != null ? `${t.previous_position}â†’${t.current_position} ` : ""}(${t.severity || severity})`);
+      bodyLines.push(`- ${t.keyword || t.type || "signal"}: ${t.previous_position != null && t.current_position != null ? `${t.previous_position}Ã¢â€ â€™${t.current_position} ` : ""}(${t.severity || severity})`);
     }
   }
   if (opportunities.length) {
@@ -330,7 +375,7 @@ function buildBrainObservation(report) {
   };
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Summary aggregation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Summary aggregation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 /**
  * Aggregate the latest report from each module into a single prioritized
  * summary document for the planner. Reports are parsed rows from
@@ -392,13 +437,13 @@ function aggregateSummary(reports, { session, staleList = [] } = {}) {
 
 function renderSummaryMarkdown(summary) {
   const lines = [];
-  lines.push(`# Intelligence Summary â€” ${summary.session ? cap(summary.session) : "All"} (${summary.generated_at})`);
+  lines.push(`# Intelligence Summary Ã¢â‚¬â€ ${summary.session ? cap(summary.session) : "All"} (${summary.generated_at})`);
   lines.push("");
-  lines.push(`**Overall: ${SEVERITY_ICON[summary.overall_severity] || ""} ${String(summary.overall_severity).toUpperCase()}** Â· ${summary.modules_reporting} module report(s) Â· ðŸ”´ ${summary.severity_counts.critical} / âš ï¸ ${summary.severity_counts.warning} / ðŸŸ¢ ${summary.severity_counts.normal}`);
+  lines.push(`**Overall: ${SEVERITY_ICON[summary.overall_severity] || ""} ${String(summary.overall_severity).toUpperCase()}** Ã‚Â· ${summary.modules_reporting} module report(s) Ã‚Â· Ã°Å¸â€Â´ ${summary.severity_counts.critical} / Ã¢Å¡Â Ã¯Â¸Â ${summary.severity_counts.warning} / Ã°Å¸Å¸Â¢ ${summary.severity_counts.normal}`);
   lines.push("");
   if (summary.stale_modules && summary.stale_modules.length) {
-    lines.push("## âš ï¸ Stale / missing intelligence");
-    for (const s of summary.stale_modules) lines.push(`- **${s.module_id}** â€” ${s.reason}`);
+    lines.push("## Ã¢Å¡Â Ã¯Â¸Â Stale / missing intelligence");
+    for (const s of summary.stale_modules) lines.push(`- **${s.module_id}** Ã¢â‚¬â€ ${s.reason}`);
     lines.push("");
   }
   lines.push("## Module headlines");
@@ -409,14 +454,14 @@ function renderSummaryMarkdown(summary) {
   if (summary.threats.length) {
     lines.push("## Threats (act first)");
     for (const t of summary.threats) {
-      lines.push(`- [${t.module}] **${t.keyword || t.type || "signal"}** ${t.previous_position != null ? `${t.previous_position}â†’${t.current_position} ` : ""}(${t.severity || ""}) â€” ${t.recommendation || ""}`);
+      lines.push(`- [${t.module}] **${t.keyword || t.type || "signal"}** ${t.previous_position != null ? `${t.previous_position}Ã¢â€ â€™${t.current_position} ` : ""}(${t.severity || ""}) Ã¢â‚¬â€ ${t.recommendation || ""}`);
     }
     lines.push("");
   }
   if (summary.opportunities.length) {
     lines.push("## Opportunities");
     for (const o of summary.opportunities) {
-      lines.push(`- [${o.module}] **${o.keyword || o.type || "signal"}**${o.business_value ? ` [${o.business_value}]` : ""} â€” ${o.recommendation || ""}`);
+      lines.push(`- [${o.module}] **${o.keyword || o.type || "signal"}**${o.business_value ? ` [${o.business_value}]` : ""} Ã¢â‚¬â€ ${o.recommendation || ""}`);
     }
     lines.push("");
   }
@@ -440,7 +485,7 @@ function renderSummaryMarkdown(summary) {
   return `${lines.join("\n")}\n`;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function arr(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -465,6 +510,7 @@ module.exports = {
   normalizeSession,
   isModuleDue,
   computeDueModules,
+  normalizeFailureState,
   staleModules,
   makeReportId,
   reportMarkdownRelativePath,

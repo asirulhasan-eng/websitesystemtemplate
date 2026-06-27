@@ -1,4 +1,4 @@
-# {{SITE_NAME}} v2 CLI Reference
+# Website Operations v2 CLI Reference
 
 > This is the complete reference for the v2 CLI tools. The AI agent reads this
 > to understand what tools are available and how to use them.
@@ -133,21 +133,21 @@ v2 heartbeat start --job daily-scan
 v2 gsc-fetch --days 7 --min-impressions 5 --db /path/db --json    # Fetch fresh data
 v2 gsc-compare --current-days 7 --previous-days 7 --only-changes --json  # Trends
 # AI analyzes data and decides what's important
-v2 serp-check --keywords "{{NICHE}} seo,seo for {{AUDIENCE}}" --json   # Check SERPs
+v2 serp-check --keywords "website seo,seo for small business owners" --json   # Check SERPs
 # AI creates tasks based on analysis
 v2 task create --title "..." --type content_refresh --priority 850 --json
 v2 report daily --json                                              # Store report
-v2 email send --to {{ADMIN_EMAIL}} --subject "Daily Report" --body "..."
+v2 email send --to owner@example.com --subject "Daily Report" --body "..."
 v2 heartbeat finish --job daily-scan
 ```
 
 ### Investigate a Keyword
 ```bash
-v2 gsc-history --keyword "{{NICHE}} seo" --days 90 --json       # Historical GSC data
-v2 keyword-trend --keyword "{{NICHE}} seo" --days 90 --json     # Position trend
-v2 serp-check --keywords "{{NICHE}} seo" --include-paa --json   # Current SERP
-v2 page-meta --url /services/{{NICHE}}-seo --json                # Our page's state
-v2 site-links --url /services/{{NICHE}}-seo --json               # Internal link support
+v2 gsc-history --keyword "website seo" --days 90 --json       # Historical GSC data
+v2 keyword-trend --keyword "website seo" --days 90 --json     # Position trend
+v2 serp-check --keywords "website seo" --include-paa --json   # Current SERP
+v2 page-meta --url /services/website-seo --json                # Our page's state
+v2 site-links --url /services/website-seo --json               # Internal link support
 ```
 
 ### Check System Health
@@ -160,10 +160,10 @@ v2 lock list --stale --json     # Stale locks
 
 ### Create and Track a Task
 ```bash
-v2 task create --title "Optimize {{NICHE}} SEO service page" \
+v2 task create --title "Optimize website SEO service page" \
   --type content_optimization --priority 850 --risk-level semi_safe \
-  --target-url "https://{{DOMAIN}}/services/{{NICHE}}-seo" \
-  --target-keyword "{{NICHE}} seo" \
+  --target-url "https://example.com/services/website-seo" \
+  --target-keyword "website seo" \
   --description "Position dropped from 5 to 8. Need to refresh content." \
   --evidence '{"position_change": -3}' --json
 
@@ -205,7 +205,7 @@ The SQLite database contains 21 tables. Key ones:
 
 | Table | Purpose |
 |-------|---------|
-| `tasks` | All SEO tasks (candidate â†’ active â†’ completed) |
+| `tasks` | All SEO tasks (candidate Ã¢â€ â€™ active Ã¢â€ â€™ completed) |
 | `events` | Immutable event log (every state change) |
 | `gsc_snapshots` | Historical GSC data (query, position, clicks, etc.) |
 | `serp_checks` | Historical SERP position checks |
@@ -225,10 +225,10 @@ The SQLite database contains 21 tables. Key ones:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `CLIENT_DB_PATH` or `SEO_AGENT_DB` | SQLite database path | `/opt/client-sqlite/seo-agent.db` |
-| `CLIENT_SITE_ROOT` | Website repo root | `/opt/client-site` |
-| `GSC_CLIENT_ID` | Google OAuth client ID | - |
-| `GSC_CLIENT_SECRET` | Google OAuth client secret | - |
+| `WEBSITE_AGENT_DB_PATH` or `SEO_AGENT_DB` | SQLite database path | `/opt/website-state/website-agent.db` |
+| `WEBSITE_AGENT_SITE_ROOT` | Website repo root | `/opt/website-site` |
+| `GSC_WEBSITE_AGENT_ID` | Google OAuth client ID | - |
+| `GSC_WEBSITE_AGENT_SECRET` | Google OAuth client secret | - |
 | `GSC_REFRESH_TOKEN` | Google OAuth refresh token | - |
 | `SERPER_API_KEY` | Serper.dev API key | - |
 | `DATAFORSEO_LOGIN` | DataForSEO login | - |

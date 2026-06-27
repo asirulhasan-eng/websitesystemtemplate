@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * task-stats.js â€” Task queue analytics for the {{SITE_NAME}} SQLite state DB.
+ * task-stats.js Ã¢â‚¬â€ Task queue analytics for the Website Operations SQLite state DB.
  *
  * Runs GROUP BY queries and aggregations for operational insights.
  * Supports breakdowns by status, type, risk, source, day, and throughput.
@@ -15,7 +15,7 @@ const { openStateDb } = require('../lib/state_db');
 const { nowIso } = require('../lib/dates');
 
 const HELP = `
-task-stats â€” Task queue analytics and aggregations.
+task-stats Ã¢â‚¬â€ Task queue analytics and aggregations.
 
 USAGE
   node task-stats.js [options]
@@ -54,7 +54,7 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       by_status: [
@@ -93,11 +93,11 @@ async function main() {
     const showAvgAge = showAll || boolArg(args, 'avg-age');
     const showBacklog = showAll || boolArg(args, 'backlog');
 
-    // â”€â”€ Total â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Total Ã¢â€â‚¬Ã¢â€â‚¬
     const totalRow = db.prepare('SELECT COUNT(*) as total FROM tasks').get();
     result.total_tasks = totalRow.total;
 
-    // â”€â”€ By Status â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ By Status Ã¢â€â‚¬Ã¢â€â‚¬
     if (showByStatus) {
       result.by_status = db.prepare(`
         SELECT status, COUNT(*) as count,
@@ -108,7 +108,7 @@ async function main() {
       `).all();
     }
 
-    // â”€â”€ By Type â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ By Type Ã¢â€â‚¬Ã¢â€â‚¬
     if (showByType) {
       result.by_type = db.prepare(`
         SELECT json_extract(metadata_json, '$.task_type') as task_type,
@@ -120,7 +120,7 @@ async function main() {
       `).all();
     }
 
-    // â”€â”€ By Risk â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ By Risk Ã¢â€â‚¬Ã¢â€â‚¬
     if (showByRisk) {
       result.by_risk = db.prepare(`
         SELECT risk_level, COUNT(*) as count,
@@ -131,7 +131,7 @@ async function main() {
       `).all();
     }
 
-    // â”€â”€ By Source â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ By Source Ã¢â€â‚¬Ã¢â€â‚¬
     if (showBySource) {
       result.by_source = db.prepare(`
         SELECT source, COUNT(*) as count,
@@ -142,7 +142,7 @@ async function main() {
       `).all();
     }
 
-    // â”€â”€ By Day (created) â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ By Day (created) Ã¢â€â‚¬Ã¢â€â‚¬
     if (showByDay) {
       const cutoff = new Date(Date.now() - days * 86400000).toISOString();
       result.by_day = db.prepare(`
@@ -154,7 +154,7 @@ async function main() {
       `).all(cutoff);
     }
 
-    // â”€â”€ Throughput (completed per day) â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Throughput (completed per day) Ã¢â€â‚¬Ã¢â€â‚¬
     if (showThroughput) {
       const cutoff = new Date(Date.now() - days * 86400000).toISOString();
       result.throughput = db.prepare(`
@@ -174,7 +174,7 @@ async function main() {
       }
     }
 
-    // â”€â”€ Average Age of open tasks â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Average Age of open tasks Ã¢â€â‚¬Ã¢â€â‚¬
     if (showAvgAge) {
       result.avg_age = db.prepare(`
         SELECT status,
@@ -189,7 +189,7 @@ async function main() {
       `).all();
     }
 
-    // â”€â”€ Backlog overview â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Backlog overview Ã¢â€â‚¬Ã¢â€â‚¬
     if (showBacklog) {
       result.backlog = {
         open_tasks: db.prepare(`

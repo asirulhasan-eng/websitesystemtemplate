@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * db-tables.js â€” List tables with row counts and column info from the {{SITE_NAME}} SQLite state DB.
+ * db-tables.js Ã¢â‚¬â€ List tables with row counts and column info from the Website Operations SQLite state DB.
  *
  * Useful for introspection, debugging, and understanding the DB schema.
  *
@@ -13,7 +13,7 @@ const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb } = require('../lib/state_db');
 
 const HELP = `
-db-tables â€” List tables with row counts and column info.
+db-tables Ã¢â‚¬â€ List tables with row counts and column info.
 
 USAGE
   node db-tables.js [options]
@@ -27,9 +27,9 @@ OPTIONS
 
 OUTPUT
   For each table:
-    â€¢ name       â€” Table name
-    â€¢ row_count  â€” Number of rows
-    â€¢ columns    â€” Column names, types, and constraints (with --verbose)
+    Ã¢â‚¬Â¢ name       Ã¢â‚¬â€ Table name
+    Ã¢â‚¬Â¢ row_count  Ã¢â‚¬â€ Number of rows
+    Ã¢â‚¬Â¢ columns    Ã¢â‚¬â€ Column names, types, and constraints (with --verbose)
 
 EXAMPLES
   node db-tables.js --table
@@ -45,7 +45,7 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       tables: [
@@ -79,7 +79,7 @@ async function main() {
     const db = openStateDb(dbPath);
     const verbose = args.verbose || false;
 
-    // â”€â”€ Get all user tables â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Get all user tables Ã¢â€â‚¬Ã¢â€â‚¬
     const tableRows = db.prepare(`
       SELECT name FROM sqlite_master
       WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
@@ -118,7 +118,7 @@ async function main() {
       tables.push(tableInfo);
     }
 
-    // â”€â”€ Get indexes â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Get indexes Ã¢â€â‚¬Ã¢â€â‚¬
     const indexes = db.prepare(`
       SELECT name, tbl_name FROM sqlite_master
       WHERE type = 'index' AND name NOT LIKE 'sqlite_%'

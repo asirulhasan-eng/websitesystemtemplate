@@ -52,13 +52,39 @@ $excludePatterns = @(
     '[\\/]provision[\\/]',
     '[\\/]setup[\\/]',
     '[\\/]validation[\\/]',
+    '[\\/]scratch[\\/]',
+    '[\\/]Website[\\/]setup\.ps1$',
+    '[\\/]Website[\\/]deployment-docs[\\/]',
+    'website-profile\.json$',
+    'scaffold-config\.json$',
+    '_post-template\.html$',
+    '_service-template\.html$',
+    '[\\/]tools[\\/].*-skill\.md$',
+    '[\\/]tools[\\/]SERVICE-PAGE.*\.md$',
+    '[\\/]processes[\\/]schema\.json$',
     '[\\/](TEMPLATE|SETUP|README|SKILL-SETUP-GUIDE|SETUP-CHECKLIST)\.md$',
     '[\\/]site\.config\.json$',
     '[\\/]client-config\.schema\.json$'
 )
 
-# Meta-words used to *describe* the token system in prose -- never real tokens.
-$metaTokens = @('{{TOKEN}}', '{{TOKENS}}', '{{PLACEHOLDER}}', '{{PLACEHOLDERS}}')
+# Meta-words used to *describe* the token system in prose or dynamic tags filled at runtime.
+$metaTokens = @(
+    '{{TOKEN}}', '{{TOKENS}}', '{{PLACEHOLDER}}', '{{PLACEHOLDERS}}',
+    '{{TELEGRAM_CHAT_ID}}', '{{POST_TITLE}}', '{{POST_DESCRIPTION}}',
+    '{{POST_IMAGE}}', '{{POST_SLUG}}', '{{POST_DATE}}', '{{POST_INFOGRAPHIC}}',
+    '{{POST_INTRO}}', '{{POST_TITLE_SHORT}}', '{{POST_DATE_DISPLAY}}',
+    '{{BRAND_NAME}}', '{{FULL_DOMAIN}}', '{{TAGLINE}}', '{{TOPBAR_TEXT}}',
+    '{{CONTACT_EMAIL}}', '{{LOGO_TEXT}}', '{{LOGO_ACCENT}}', '{{PRICE_RANGE}}',
+    '{{AREA_SERVED}}', '{{SERVICE_TYPE}}', '{{LOGO_FILE}}', '{{SERVICE_NOUN}}',
+    '{{GTM_ID}}', '{{GA_ID}}', '{{BOOKING_URL}}', '{{HOME_TITLE}}',
+    '{{HOME_DESCRIPTION}}', '{{NICHE_PLURAL}}', '{{NICHE_ADJ}}',
+    '{{PROFESSIONAL}}', '{{PROFESSIONAL_PLURAL}}', '{{DOMAIN_SLUG}}',
+    '{{PROJECT_SLUG}}', '{{PROJECT_NAME}}', '{{FORM_API_KEY}}',
+    '{{SOCIAL_FACEBOOK}}', '{{SOCIAL_TWITTER}}', '{{SOCIAL_INSTAGRAM}}',
+    '{{SOCIAL_LINKEDIN}}', '{{SOCIAL_YOUTUBE}}', '{{SOCIAL_PINTEREST}}',
+    '{{SOCIAL_SUBSTACK}}', '{{SOCIAL_MEDIUM}}', '{{DEFAULT_OG_IMAGE}}',
+    '{{INFOGRAPHIC_ALT}}', '{{TWITTER_HANDLE}}'
+)
 
 # Get all files then filter
 $absSitePath = [regex]::Escape((Resolve-Path $SitePath).Path)

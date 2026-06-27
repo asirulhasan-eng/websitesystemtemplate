@@ -53,7 +53,7 @@ Write-Host ""
 # Using double-quoted strings with backtick-escaped quotes avoids this.
 $Q = '"'  # quote char for building regex patterns safely
 $rxCanonical = "(?i)<link\s+[^>]*rel\s*=\s*[`"']canonical[`"'][^>]*>"
-$rxHref = "(?i)href\s*=\s*[`"']([^`"']*)`"'"
+$rxHref = "(?i)href\s*=\s*[`"']([^`"']*)[`"']"
 
 # ============================================================
 # HELPERS

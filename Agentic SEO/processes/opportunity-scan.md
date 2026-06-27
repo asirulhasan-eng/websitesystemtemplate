@@ -3,10 +3,10 @@ id: opportunity-scan
 name: "Deep Opportunity Scan"
 version: 2
 schedule: "0 14 */2 * *"
-description: "Comprehensive GSC + SERP deep scan that runs every 2 days. More thorough than the daily workplan's quick scan â€” includes 28-day trend analysis, content gap detection, and competitive SERP review."
+description: "Comprehensive GSC + SERP deep scan that runs every 2 days. More thorough than the daily workplan's quick scan Ã¢â‚¬â€ includes 28-day trend analysis, content gap detection, and competitive SERP review."
 trigger:
   schedule: "0 14 */2 * *"
-  timezone: "{{TIMEZONE}}"
+  timezone: "Asia/Dhaka"
   can_run_manually: true
 guardrails:
   max_tasks_created: 15
@@ -17,7 +17,7 @@ guardrails:
   max_duration_minutes: 60
 email_on_complete:
   enabled: true
-  to: "{{ADMIN_EMAIL}}"
+  to: "owner@example.com"
   include_summary: true
   include_decisions: true
 ---
@@ -67,7 +67,7 @@ Scan the GSC data for keywords that are **new or rapidly growing**:
 
 These are signals of growing search demand or content starting to rank. Act on them before competitors do.
 
-> **Validate the spike before acting on it (impressions â‰  demand).**
+> **Validate the spike before acting on it (impressions Ã¢â€°Â  demand).**
 > A GSC impression surge is not automatically real demand. It can be bot/crawler activity, Google
 > testing a page against high-volume irrelevant queries (impressions with ~zero clicks), or a
 > seasonal blip. Creating a task off a false spike wastes a content/optimization cycle. Classify
@@ -129,7 +129,7 @@ Identify **candidates** (a low link count is a starting point, not a reason to l
 - Recently published content that hasn't been linked from relevant pages
 - Blog posts that should link to service pages but don't
 
-> **Gate every candidate on semantic relevance â€” do not link by count alone.**
+> **Gate every candidate on semantic relevance Ã¢â‚¬â€ do not link by count alone.**
 > Inserting links just because a page has fewer than 3 incoming links dilutes page authority and
 > can blur topical signals. A link must connect two pages that are genuinely about related topics
 > and must help the reader. Before creating an internal-link task, confirm contextual overlap
@@ -145,7 +145,7 @@ Identify **candidates** (a low link count is a starting point, not a reason to l
 > Only create an internal-link task when **all** of these hold:
 > - Source and destination share meaningful topical overlap.
 > - The link is a natural next step for the reader.
-> - The anchor can be contextual and varied (not forced exact-match â€” see `content-gap-analysis.md`
+> - The anchor can be contextual and varied (not forced exact-match Ã¢â‚¬â€ see `content-gap-analysis.md`
 >   and `internal-linking-architecture.md`).
 >
 > Defer detailed link architecture work (orphans, anchor variation, hub structure) to
@@ -166,7 +166,7 @@ v2 serp-check --keywords "<new-opportunity-keywords>" --top 20 --json
 v2 serp-compare --all-tracked --days-ago 14 --json
 ```
 
-### AI Analysis â€” SERP Landscape
+### AI Analysis Ã¢â‚¬â€ SERP Landscape
 
 For each keyword cluster:
 1. **Featured snippets**: Can we capture any? What format do they use?
@@ -220,8 +220,8 @@ v2 report format --template custom --data '{
 v2 heartbeat finish --job opportunity-scan --json
 
 # Send summary email
-v2 email send --to {{ADMIN_EMAIL}} \
-  --subject "ðŸ” Deep Scan Report â€” $(date +%Y-%m-%d)" \
+v2 email send --to owner@example.com \
+  --subject "Ã°Å¸â€Â Deep Scan Report Ã¢â‚¬â€ $(date +%Y-%m-%d)" \
   --body "<AI-generated summary of findings, actions taken, and recommendations>" \
   --json
 ```

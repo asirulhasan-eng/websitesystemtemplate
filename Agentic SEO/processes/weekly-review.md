@@ -51,12 +51,12 @@ v2 gsc-fetch --days 28 --min-impressions 10 --json
 
 ```bash
 # Check current positions for all money keywords
-v2 serp-check --keywords "{{NICHE}} SEO,SEO for {{AUDIENCE}},{{AUDIENCE}} SEO services,local SEO for {{AUDIENCE}},{{NICHE}} SEO pricing,{{AUDIENCE}} marketing,{{NICHE}} company SEO,{{NICHE}} digital marketing,{{AUDIENCE}} website SEO,{{AUDIENCE}} Google ranking" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "website SEO,SEO for small business owners,small business owners SEO services,local SEO for small business owners,website SEO pricing,small business owners marketing,website owner SEO,website digital marketing,small business owners website SEO,small business owners Google ranking" --domain example.com --json
 
 # Get historical SERP data
-v2 serp-history --keyword "{{NICHE}} SEO" --days 30 --json
-v2 serp-history --keyword "SEO for {{AUDIENCE}}" --days 30 --json
-v2 serp-history --keyword "local SEO for {{AUDIENCE}}" --days 30 --json
+v2 serp-history --keyword "website SEO" --days 30 --json
+v2 serp-history --keyword "SEO for small business owners" --days 30 --json
+v2 serp-history --keyword "local SEO for small business owners" --days 30 --json
 ```
 
 ### 1c: Task Activity
@@ -86,7 +86,7 @@ v2 deploy status --json
 
 ## Step 2: Analyze Performance Trends
 
-### AI Analysis â€” Weekly Performance
+### AI Analysis Ã¢â‚¬â€ Weekly Performance
 
 #### Key Metrics That Matter for This Business
 
@@ -97,7 +97,7 @@ The metrics below are in order of business importance:
    - Week-over-week change
    - Trend direction (3+ weeks of data)
    
-   > For {{SITE_NAME}}.agency, a 1-position improvement on "{{NICHE}} SEO" from position 5 to 4 is worth more than moving "{{AUDIENCE}} marketing tips" from position 20 to position 10.
+   > For Website Operations Agency, a 1-position improvement on "website SEO" from position 5 to 4 is worth more than moving "small business owners marketing tips" from position 20 to position 10.
 
 2. **Clicks from Money Keywords**
    - Total clicks from Bucket 1 keywords
@@ -127,26 +127,26 @@ The metrics below are in order of business importance:
 
 | Metric | Last Week | This Week | Change | Trend (4-week) | Status |
 |--------|-----------|-----------|--------|----------------|--------|
-| "{{NICHE}} SEO" position | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| "SEO for {{AUDIENCE}}" position | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| "local SEO for {{AUDIENCE}}" position | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| "{{NICHE}} SEO pricing" position | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| Total money keyword clicks | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| Total organic clicks | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| Total impressions | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| Average CTR | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
-| Total queries ranking | ? | ? | ? | ? | ðŸŸ¢/ðŸŸ¡/ðŸ”´ |
+| "website SEO" position | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| "SEO for small business owners" position | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| "local SEO for small business owners" position | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| "website SEO pricing" position | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| Total money keyword clicks | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| Total organic clicks | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| Total impressions | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| Average CTR | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
+| Total queries ranking | ? | ? | ? | ? | Ã°Å¸Å¸Â¢/Ã°Å¸Å¸Â¡/Ã°Å¸â€Â´ |
 
 **Status definitions:**
-- ðŸŸ¢ Green: Improving or at target
-- ðŸŸ¡ Yellow: Flat or minor decline (within normal variance)
-- ðŸ”´ Red: Declining meaningfully or significantly below target
+- Ã°Å¸Å¸Â¢ Green: Improving or at target
+- Ã°Å¸Å¸Â¡ Yellow: Flat or minor decline (within normal variance)
+- Ã°Å¸â€Â´ Red: Declining meaningfully or significantly below target
 
 ---
 
 ## Step 3: Evaluate Task Execution
 
-### AI Analysis â€” Operational Effectiveness
+### AI Analysis Ã¢â‚¬â€ Operational Effectiveness
 
 1. **Task Throughput:**
    - How many tasks were completed this week?
@@ -170,7 +170,7 @@ For each task completed this week, check if the expected outcome materialized:
 ```bash
 # For each completed task, check the keyword's current performance
 v2 gsc-fetch --days 7 --min-impressions 3 --json
-v2 serp-check --keywords "<completed-task-keyword>" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "<completed-task-keyword>" --domain example.com --json
 ```
 
 > **Note:** SEO changes typically take 2-4 weeks to show full impact. Don't judge a task completed this week by this week's data alone. But DO check tasks completed 2-4 weeks ago.
@@ -184,13 +184,13 @@ v2 db query --sql "SELECT * FROM tasks WHERE status = 'completed' AND updated_at
 
 ## Step 4: Evaluate Strategy Effectiveness
 
-### AI Analysis â€” Strategic Assessment
+### AI Analysis Ã¢â‚¬â€ Strategic Assessment
 
 Look at the bigger picture:
 
 0. **Are we on track against the Monthly Roadmap?**
    - Recall the current month's roadmap DECISION note: `v2 brain recall --query "monthly roadmap" --markdown` (written by the first-Monday Monthly Roadmap run; see `processes/monthly-roadmap.md`).
-   - For each of its focus areas: on track / behind / abandoned — and why.
+   - For each of its focus areas: on track / behind / abandoned â€” and why.
    - If no roadmap note exists for the current month, flag that in the weekly report (the monthly-roadmap cron may have failed).
 
 1. **Are we working on the right things?**
@@ -210,16 +210,16 @@ Look at the bigger picture:
    - Opportunities we're repeatedly deferring
 
 4. **Seasonality Check:**
-   - Is there a seasonal pattern in {{NICHE}} searches?
-   - Spring/summer: higher search volume for {{NICHE}} services â†’ higher volume for {{AUDIENCE}} marketing
-   - Winter: emergency {{AUDIENCE}} searches increase â†’ content opportunities
+   - Is there a seasonal pattern in website searches?
+   - Spring/summer: higher search volume for website operations services Ã¢â€ â€™ higher volume for small business owners marketing
+   - Winter: emergency small business owners searches increase Ã¢â€ â€™ content opportunities
    - Are we adjusting our content calendar accordingly?
 
 ---
 
 ## Step 5: Plan Next Week's Priorities
 
-### AI Analysis â€” Priority Setting
+### AI Analysis Ã¢â‚¬â€ Priority Setting
 
 Based on the analysis above, determine the top 3-5 priorities for next week:
 
@@ -321,8 +321,8 @@ Send an email summary if any of these are true:
 
 ```bash
 v2 email send \
-  --to {{ADMIN_EMAIL}} \
-  --subject "Weekly SEO Review: [DATE] â€” [STATUS]" \
+  --to owner@example.com \
+  --subject "Weekly SEO Review: [DATE] Ã¢â‚¬â€ [STATUS]" \
   --body "[FULL REPORT SUMMARY]" \
   --json
 ```
@@ -330,21 +330,21 @@ v2 email send \
 **Always send the weekly email.** This is the primary communication channel for ongoing performance.
 
 **Flag as urgent if:**
-- Any money keyword dropped â‰¥5 positions week-over-week
-- Total organic clicks declined â‰¥20% week-over-week
+- Any money keyword dropped Ã¢â€°Â¥5 positions week-over-week
+- Total organic clicks declined Ã¢â€°Â¥20% week-over-week
 - No tasks were completed in the past week
 - Task queue has grown by >10 items
 - A critical task has been open for >7 days without progress
 
 ---
 
-## Metrics Reference: What "Good" Looks Like for {{SITE_NAME}}.agency
+## Metrics Reference: What "Good" Looks Like for Website Operations Agency
 
 | Metric | Baseline Target | Stretch Goal |
 |--------|----------------|-------------|
-| "{{NICHE}} SEO" position | Top 5 | Top 3 |
-| "SEO for {{AUDIENCE}}" position | Top 5 | Top 3 |
-| "local SEO for {{AUDIENCE}}" position | Top 10 | Top 5 |
+| "website SEO" position | Top 5 | Top 3 |
+| "SEO for small business owners" position | Top 5 | Top 3 |
+| "local SEO for small business owners" position | Top 10 | Top 5 |
 | Total money keyword clicks/week | 50+ | 100+ |
 | Total organic clicks/week | 200+ | 500+ |
 | Total impressions/week | 2,000+ | 5,000+ |

@@ -41,7 +41,7 @@ email_on_complete:
 
 ```bash
 # Run a fresh crawl
-v2 crawl --url https://{{DOMAIN}} --json
+v2 crawl --url https://example.com --json
 
 # Or compare with a previous crawl to find new issues
 v2 crawl-diff --days-ago 7 --json
@@ -76,11 +76,11 @@ v2 deploy status --latest --json
 
 ```bash
 # Runs PageSpeed Insights (Lighthouse + Core Web Vitals + CrUX field data)
-v2 speed-audit --url https://{{DOMAIN}}/ --strategy both --json
-v2 speed-audit --url https://{{DOMAIN}}/services/{{NICHE}}-seo/ --strategy mobile --json
+v2 speed-audit --url https://example.com/ --strategy both --json
+v2 speed-audit --url https://example.com/services/website-seo/ --strategy mobile --json
 ```
 
-**Thresholds (treat a money/template page exceeding these as Tier 1â€“2):**
+**Thresholds (treat a money/template page exceeding these as Tier 1Ã¢â‚¬â€œ2):**
 
 | Metric | Good | What it catches |
 |--------|------|-----------------|
@@ -102,7 +102,7 @@ the `core-web-vitals-audit.md` playbook.
 > sitemap must advertise **only** canonical, indexable, 200-status URLs.
 
 ```bash
-v2 sitemap-audit --url https://{{DOMAIN}}/sitemap.xml --json
+v2 sitemap-audit --url https://example.com/sitemap.xml --json
 ```
 Use the `issues`, `by_type`, and `ok_to_submit` fields to decide whether the sitemap is clean enough
 to submit or whether it needs immediate cleanup.
@@ -119,7 +119,7 @@ Flag the sitemap as a Tier 1 issue if it contains any of:
 
 ## Step 3: Categorize Issues
 
-### AI Analysis â€” Issue Triage
+### AI Analysis Ã¢â‚¬â€ Issue Triage
 
 Categorize every issue found into one of these tiers:
 
@@ -132,7 +132,7 @@ Issues that directly harm rankings or user experience:
 - **SSL certificate issues**
 - **Robots.txt blocking important pages**
 - **Missing sitemap entries** for key pages, or **sitemap listing 404/redirected/noindex/non-canonical URLs**
-- **Failing Core Web Vitals on a money/template page** (LCP â‰¥ 4s, CLS â‰¥ 0.25, or INP â‰¥ 500ms â€” "poor" range)
+- **Failing Core Web Vitals on a money/template page** (LCP Ã¢â€°Â¥ 4s, CLS Ã¢â€°Â¥ 0.25, or INP Ã¢â€°Â¥ 500ms Ã¢â‚¬â€ "poor" range)
 
 #### Tier 2: Important (Fix this week)
 Issues that impact SEO quality:
@@ -140,9 +140,9 @@ Issues that impact SEO quality:
 - **Missing H1 tags** or multiple H1 tags
 - **Missing alt text on images** (especially hero images)
 - **Orphan pages** (no internal links pointing to them)
-- **Core Web Vitals in the "needs improvement" range** on important pages (LCP 2.5â€“4s, CLS 0.1â€“0.25, INP 200â€“500ms)
+- **Core Web Vitals in the "needs improvement" range** on important pages (LCP 2.5Ã¢â‚¬â€œ4s, CLS 0.1Ã¢â‚¬â€œ0.25, INP 200Ã¢â‚¬â€œ500ms)
 - **Missing schema markup** on service pages
-- **Redirect chains** (A â†’ B â†’ C instead of A â†’ C)
+- **Redirect chains** (A Ã¢â€ â€™ B Ã¢â€ â€™ C instead of A Ã¢â€ â€™ C)
 
 #### Tier 3: Minor (Batch fix when convenient)
 Issues that are good practice but not urgent:
@@ -161,7 +161,7 @@ Issues that are good practice but not urgent:
 > **"Does this issue actually impact SEO?"**
 > Many technical SEO tools flag issues that are technically correct but don't impact rankings. For example:
 > - A missing meta description on a thank-you page: **Not important** (noindex page)
-> - A missing meta description on the main {{NICHE}} SEO service page: **Critical** (money page)
+> - A missing meta description on the main website SEO service page: **Critical** (money page)
 > - An orphan blog post from 2 years ago about an outdated topic: **Minor** (redirect or delete later)
 > - An orphan service page: **Critical** (needs internal links immediately)
 
@@ -175,14 +175,14 @@ For Tier 1 and Tier 2 issues, create tasks:
 ```bash
 v2 task create --title "Fix: Missing title tag on /services/<page>" \
   --type technical_fix --priority 900 --risk-level safe \
-  --target-url "https://{{DOMAIN}}/services/<page>" \
+  --target-url "https://example.com/services/<page>" \
   --target-file "services/<page>.html" \
   --description "Crawl found missing <title> tag. Add appropriate title including primary keyword." \
   --json
 
 v2 task create --title "Fix: Missing meta description on /blog/<post>" \
   --type technical_fix --priority 700 --risk-level safe \
-  --target-url "https://{{DOMAIN}}/blog/<post>" \
+  --target-url "https://example.com/blog/<post>" \
   --description "Missing meta description. Add compelling 150-160 char description." \
   --json
 
@@ -197,7 +197,7 @@ v2 task create --title "Fix: Missing alt text on images - /services/<page>" \
 ```bash
 v2 task create --title "Fix: Orphan service page needs internal links - /services/<page>" \
   --type internal_linking --priority 800 --risk-level semi_safe \
-  --target-url "https://{{DOMAIN}}/services/<page>" \
+  --target-url "https://example.com/services/<page>" \
   --description "Service page has 0 incoming internal links. Add links from relevant blog posts and navigation." \
   --json
 ```
@@ -206,16 +206,16 @@ v2 task create --title "Fix: Orphan service page needs internal links - /service
 ```bash
 # Reversible (redirect consolidation): created as a normal high-risk task; it runs
 # automatically this session unless the owner stops it via Telegram.
-v2 task create --title "Redirect chain found /old-page â†’ /middle â†’ /final" \
+v2 task create --title "Redirect chain found /old-page Ã¢â€ â€™ /middle Ã¢â€ â€™ /final" \
   --type technical_fix --priority 750 --risk-level high_risk \
   --description "Redirect chain detected. Consolidate to a direct redirect." \
   --json
 
 # Irreversible/destructive (e.g. deleting a page): require explicit approval.
-# Create it, then request approval â€” it will NOT auto-run until the owner replies 'approve <id>'.
+# Create it, then request approval Ã¢â‚¬â€ it will NOT auto-run until the owner replies 'approve <id>'.
 v2 task create --title "Delete orphaned /legacy-page and 301 to /services" \
   --type delete_page --priority 700 --risk-level high_risk --json
-# â†’ then: v2 task approve request --task <new-task-id> --json
+# Ã¢â€ â€™ then: v2 task approve request --task <new-task-id> --json
 ```
 
 ---

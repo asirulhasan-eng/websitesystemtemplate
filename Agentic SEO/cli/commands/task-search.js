@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * task-search.js â€” Full-text search across tasks in the {{SITE_NAME}} SQLite state DB.
+ * task-search.js Ã¢â‚¬â€ Full-text search across tasks in the Website Operations SQLite state DB.
  *
  * Searches title, description, target_keyword, target_url, and metadata_json.
  * Results are ranked by number of field matches and priority score.
@@ -14,7 +14,7 @@ const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb } = require('../lib/state_db');
 
 const HELP = `
-task-search â€” Full-text search across tasks in the SQLite state database.
+task-search Ã¢â‚¬â€ Full-text search across tasks in the SQLite state database.
 
 USAGE
   node task-search.js --query "drain cleaning" [options]
@@ -36,11 +36,11 @@ OPTIONS
 
 SEARCH FIELDS
   The query is matched (case-insensitive) against:
-    â€¢ title
-    â€¢ description
-    â€¢ target_keyword
-    â€¢ target_url
-    â€¢ metadata_json (including evidence, notes, tags)
+    Ã¢â‚¬Â¢ title
+    Ã¢â‚¬Â¢ description
+    Ã¢â‚¬Â¢ target_keyword
+    Ã¢â‚¬Â¢ target_url
+    Ã¢â‚¬Â¢ metadata_json (including evidence, notes, tags)
 
   Results are ranked by:
     1. Number of fields matching the query (more matches = higher rank)
@@ -48,7 +48,7 @@ SEARCH FIELDS
 
 EXAMPLES
   node task-search.js --query "schema markup"
-  node task-search.js --query "{{AUDIENCE}}" --status candidate,approved --table
+  node task-search.js --query "small business owners" --status candidate,approved --table
   node task-search.js --query "drain" --limit 10
 `.trim();
 
@@ -60,7 +60,7 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       query: 'drain cleaning',
@@ -99,7 +99,7 @@ async function main() {
     const dbPath = resolveDbPath(args);
     const db = openStateDb(dbPath);
 
-    // â”€â”€ Build search SQL â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Build search SQL Ã¢â€â‚¬Ã¢â€â‚¬
     // We use LIKE for substring matching across multiple fields and compute a match score.
     const searchFields = ['title', 'description', 'target_keyword', 'target_url', 'metadata_json'];
     const pattern = `%${query}%`;

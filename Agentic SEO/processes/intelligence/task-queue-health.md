@@ -7,7 +7,7 @@ description: "Assess the task queue: size, staleness, backlog, stuck tasks, and 
 schedule: "0 1,13 * * *"
 trigger:
   schedule: "0 1,13 * * *"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   every_session: true
@@ -31,8 +31,8 @@ state of the queue so the planner can decide what to promote, defer, or unblock.
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
 
 node $V2 task stats --all $DB --json
 node $V2 task stats --backlog $DB --json
@@ -47,19 +47,19 @@ node $V2 heartbeat status $DB --json
 
 ## AI Analysis
 Read the operational picture:
-- **Queue size & mix** â€” how many candidate / approved / in_progress, by lane (ops vs blog).
-- **Backlog pressure** â€” is the approved queue larger than the workers can clear before the
+- **Queue size & mix** Ã¢â‚¬â€ how many candidate / approved / in_progress, by lane (ops vs blog).
+- **Backlog pressure** Ã¢â‚¬â€ is the approved queue larger than the workers can clear before the
   next session (ops ~1 task / 7 min, blog ~1 / 19 min)?
-- **Staleness** â€” candidate tasks aging without action; approved tasks not picked up.
-- **Stuck / in_progress** â€” tasks `in_progress` far longer than expected, or repeated failures
+- **Staleness** Ã¢â‚¬â€ candidate tasks aging without action; approved tasks not picked up.
+- **Stuck / in_progress** Ã¢â‚¬â€ tasks `in_progress` far longer than expected, or repeated failures
   in `events` (workers erroring on the same task).
-- **Velocity** â€” completed-per-day trend; is throughput keeping up with creation?
-- **Duplicates** â€” flag likely duplicate active tasks (planner will dedupe).
+- **Velocity** Ã¢â‚¬â€ completed-per-day trend; is throughput keeping up with creation?
+- **Duplicates** Ã¢â‚¬â€ flag likely duplicate active tasks (planner will dedupe).
 
 Severity:
-- `critical` â€” workers stalled (heartbeat stale / repeated executor failures) or a hard backlog.
-- `warning` â€” growing backlog, stale approvals, or a stuck task.
-- `normal` â€” healthy flow.
+- `critical` Ã¢â‚¬â€ workers stalled (heartbeat stale / repeated executor failures) or a hard backlog.
+- `warning` Ã¢â‚¬â€ growing backlog, stale approvals, or a stuck task.
+- `normal` Ã¢â‚¬â€ healthy flow.
 
 ### Coverage Block (REQUIRED in every report)
 Include a `coverage` object in your report JSON:

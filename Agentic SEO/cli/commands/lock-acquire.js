@@ -1,11 +1,11 @@
 /**
- * lock-acquire.js â€” Acquire a resource lock atomically
+ * lock-acquire.js Ã¢â‚¬â€ Acquire a resource lock atomically
  *
- * Atomic: BEGIN â†’ check for active conflicts â†’ INSERT lock â†’ INSERT event â†’ COMMIT
+ * Atomic: BEGIN Ã¢â€ â€™ check for active conflicts Ã¢â€ â€™ INSERT lock Ã¢â€ â€™ INSERT event Ã¢â€ â€™ COMMIT
  *
  * Usage:
- *   v2 lock acquire --type file_lock --resource /services/{{NICHE}}.html --db state.db
- *   v2 lock acquire --type keyword_lock --resource "{{AUDIENCE}} near me" --task TSK-123 --ttl-minutes 60
+ *   v2 lock acquire --type file_lock --resource /services/website.html --db state.db
+ *   v2 lock acquire --type keyword_lock --resource "small business owners near me" --task TSK-123 --ttl-minutes 60
  *   v2 lock acquire --type url_lock --resource https://example.com/page --reason "SEO update" --json
  *
  * Options:
@@ -46,7 +46,7 @@ function isProcessAlive(pid) {
 }
 
 const HELP = `
-lock-acquire â€” Acquire a resource lock atomically
+lock-acquire Ã¢â‚¬â€ Acquire a resource lock atomically
 
 USAGE
   v2 lock acquire --type <lock_type> --resource <resource_id> [options]
@@ -61,15 +61,15 @@ OPTIONS
   --ttl-minutes     Time-to-live in minutes (default: 120)
   --reason          Human-readable reason for locking
   --stale-seconds   Seconds before lock is considered stale (default: 1800)
-  --db              SQLite database path (or CLIENT_DB_PATH env var)
+  --db              SQLite database path (or WEBSITE_AGENT_DB_PATH env var)
   --json            JSON output (default)
   --table           Table output
   --sample          Return sample data without DB interaction
   --help            Show this help text
 
 EXAMPLES
-  v2 lock acquire --type file_lock --resource /services/{{NICHE}}.html --db state.db
-  v2 lock acquire --type keyword_lock --resource "{{AUDIENCE}} near me" --task TSK-2026-06-03-AB12 --ttl-minutes 60
+  v2 lock acquire --type file_lock --resource /services/website.html --db state.db
+  v2 lock acquire --type keyword_lock --resource "small business owners near me" --task TSK-2026-06-03-AB12 --ttl-minutes 60
   v2 lock acquire --type deploy_lock --resource main --reason "Production deploy"
 
 BEHAVIOR
@@ -92,7 +92,7 @@ module.exports = function lockAcquire() {
     printOutput(envelope({
       lock_id: 'LCK-2026-06-03-SAMPLE1',
       lock_type: 'file_lock',
-      resource_id: '/services/{{NICHE}}.html',
+      resource_id: '/services/website.html',
       task_id: null,
       owner_agent: 'v2-cli',
       status: 'active',
@@ -143,7 +143,7 @@ module.exports = function lockAcquire() {
           } catch { /* ignore parse errors */ }
 
           if (holderPid && !isProcessAlive(holderPid)) {
-            // Holder process is dead — auto-release the orphaned lock and fall through to acquire.
+            // Holder process is dead â€” auto-release the orphaned lock and fall through to acquire.
             db.prepare("UPDATE locks SET status = 'released', released_at = ? WHERE lock_id = ?").run(now, conflict.lock_id);
             db.prepare(`
               INSERT INTO events (event_id, event_type, task_id, resource_type, resource_id,

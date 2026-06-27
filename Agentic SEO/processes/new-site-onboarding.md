@@ -1,4 +1,4 @@
-# New Site Onboarding — Master Playbook
+# New Site Onboarding â€” Master Playbook
 
 > **Purpose.** This playbook is the ONE process Hermes follows when a new site is
 > deployed for the first time. The owner has already:
@@ -17,7 +17,7 @@
 > After completion, the daily workplan cron takes over.
 >
 > **Guardrails:** This process does NOT go through the normal task queue. You are
-> executing setup steps directly. No Telegram approval needed for onboarding — the
+> executing setup steps directly. No Telegram approval needed for onboarding â€” the
 > owner already approved by starting you.
 
 ---
@@ -40,7 +40,7 @@ cat site-bootstrap.json  # or site.config.json with partial values
 v2 heartbeat start       # will fail if DB path is wrong
 ```
 
-If the website directory only contains the template placeholder (`<h1>{{SITE_NAME}}</h1>`),
+If the website directory only contains the template placeholder (`<h1>Website Operations</h1>`),
 STOP and notify the owner: "The website hasn't been imported yet. Please export your
 WordPress site via Simply Static, place the files in Website/, and push to GitHub."
 
@@ -52,7 +52,7 @@ WordPress site via Simply Static, place the files in Website/, and push to GitHu
 > You are a senior SEO strategist meeting a new client for the first time. Study their
 > website like you'd study a competitor.
 
-### Step 1.1 — Run the website analyzer
+### Step 1.1 â€” Run the website analyzer
 
 ```bash
 pwsh ./setup/analyze-website.ps1
@@ -61,9 +61,9 @@ pwsh ./setup/analyze-website.ps1
 This generates `website-profile.json` with deterministic data: domain, site name,
 blog inventory, service pages, analytics IDs, CSS colors, HTML patterns, favicon paths.
 
-Read the output carefully — it gives you raw facts.
+Read the output carefully â€” it gives you raw facts.
 
-### Step 1.2 — Read every page of the website
+### Step 1.2 â€” Read every page of the website
 
 Read the website systematically. For each page, note:
 
@@ -85,7 +85,7 @@ v2 page-read --url /about --fields "title,h1,content"
 v2 site-pages --format table
 ```
 
-### Step 1.3 — Analyze the writing style
+### Step 1.3 â€” Analyze the writing style
 
 From the blog posts and page content, determine:
 
@@ -100,22 +100,22 @@ Synthesize this into a `brand_voice` description. Example:
 > a master plumber. Use plain language, avoid jargon, emphasize fast response times,
 > transparent pricing, and quality workmanship. End every piece with a clear call to action."
 
-### Step 1.4 — Identify the business
+### Step 1.4 â€” Identify the business
 
 From your analysis, determine the **required** business fields (these are what the
-engine fills via `{{NICHE}}`/`{{AUDIENCE}}`/`{{BRAND_VOICE}}` and uses for strategy):
+engine fills via `website`/`small business owners`/`Expert, straightforward, ROI-focused. Speak directly to the business owner and tie every recommendation to tangible outcomes (calls, booked jobs, revenue).` and uses for strategy):
 
 | Field (required) | How to determine |
 |-------|-----------------|
 | `business.type` | What kind of business? (e.g., "Plumbing Company", "Electrical Contractor", "HVAC Service") |
-| `business.niche` | One word — the industry (e.g., "plumbing", "electrical", "hvac", "roofing") |
+| `business.niche` | One word â€” the industry (e.g., "plumbing", "electrical", "hvac", "roofing") |
 | `business.audience` | Who does the content speak to? (e.g., "homeowners and property managers in Austin TX") |
 | `business.brand_voice` | The tone description from Step 1.3 |
 
 The following are **OPTIONAL**. This template does NOT generate a website (the owner
 imports their own), so contact/location/service fields are only worth capturing into
 the brain/strategy notes if they're present on the site and useful. Do **not** add
-them to `site.config.json` unless you have real values — never leave `__HERMES_FILL__`:
+them to `site.config.json` unless you have real values â€” never leave `__HERMES_FILL__`:
 
 | Field (optional) | How to determine |
 |-------|-----------------|
@@ -126,7 +126,7 @@ them to `site.config.json` unless you have real values — never leave `__HERMES
 | `business.city` | Primary city |
 | `business.state` | State/region |
 
-### Step 1.5 — Record your analysis
+### Step 1.5 â€” Record your analysis
 
 Save your findings to Brain memory before proceeding:
 
@@ -151,7 +151,7 @@ v2 brain note add --title "Onboarding: Business Analysis" --content "
 > **Goal:** Merge the bootstrap config + your AI analysis into a complete site.config.json,
 > then run all deterministic setup scripts.
 
-### Step 2.1 — Generate site.config.json
+### Step 2.1 â€” Generate site.config.json
 
 Run the bootstrap-to-config merger with your AI-determined values:
 
@@ -169,19 +169,19 @@ This generates a site.config.json with:
 - Git defaults filled in
 - `business.*` fields left as `__HERMES_FILL__` placeholders
 
-### Step 2.2 — Fill the AI-judged fields
+### Step 2.2 â€” Fill the AI-judged fields
 
 Open `site.config.json` and replace every `__HERMES_FILL__` value with your analysis
 from Phase 1:
 
-- `business.type` → your determined business type
-- `business.niche` → the niche keyword
-- `business.audience` → the target audience
-- `business.brand_voice` → your synthesized tone description
-- `site_description` → if the website profile extracted one, verify it. If not, write one.
+- `business.type` â†’ your determined business type
+- `business.niche` â†’ the niche keyword
+- `business.audience` â†’ the target audience
+- `business.brand_voice` â†’ your synthesized tone description
+- `site_description` â†’ if the website profile extracted one, verify it. If not, write one.
 
 You may optionally add real `business.services`/`service_areas`/`phone`/`address`/
-`city`/`state` if the site has them and they'll help strategy — but only with real
+`city`/`state` if the site has them and they'll help strategy â€” but only with real
 values. Leave them out entirely otherwise.
 
 Write the updated file, then confirm nothing is left unfilled:
@@ -191,19 +191,19 @@ pwsh ./provision/validate-config.ps1 -ConfigFile ./site.config.json
 ```
 
 This fails CRITICAL on any remaining `__HERMES_FILL__`. The next step
-(`customize.ps1`) also refuses to run until every placeholder is filled — so a
+(`customize.ps1`) also refuses to run until every placeholder is filled â€” so a
 half-filled config can never be baked into the engine.
 
-### Step 2.3 — Run deterministic token replacement
+### Step 2.3 â€” Run deterministic token replacement
 
 ```bash
 pwsh ./setup/customize.ps1 -Apply
 ```
 
 This replaces all `{{TOKENS}}` across ~109 files with the values from site.config.json.
-Verify the output — the "Unfilled placeholders" list should be empty.
+Verify the output â€” the "Unfilled placeholders" list should be empty.
 
-### Step 2.4 — Run skill injection
+### Step 2.4 â€” Run skill injection
 
 ```bash
 pwsh ./setup/inject-skills.ps1 -Apply
@@ -212,7 +212,7 @@ pwsh ./setup/inject-skills.ps1 -Apply
 This fills skill files with structural values from website-profile.json (analytics IDs,
 blog post patterns, CSS classes, source post for scaffolding).
 
-### Step 2.5 — Generate scaffold config
+### Step 2.5 â€” Generate scaffold config
 
 ```bash
 pwsh ./setup/generate-scaffold-config.ps1
@@ -226,7 +226,7 @@ site's blog post HTML structure.
 ## PHASE 3: Build Strategy
 
 > **Goal:** Use your SEO expertise to build the keyword strategy, internal linking map,
-> and all niche-specific content guidelines. This is the most important phase — it's
+> and all niche-specific content guidelines. This is the most important phase â€” it's
 > where AI judgment creates the most value.
 >
 > **Important:** Use the site-repo Serper tools for research, NOT your built-in web search:
@@ -234,21 +234,21 @@ site's blog post HTML structure.
 > - `pwsh ./tools/serper-scrape.ps1 -Url "..."`
 > - `pwsh ./tools/serper-batch.ps1 -QueriesFile queries.txt`
 
-### Step 3.1 — Keyword research
+### Step 3.1 â€” Keyword research
 
 Research the niche using Serper:
 
-1. **Search for the business's core services** — what are people searching for?
+1. **Search for the business's core services** â€” what are people searching for?
 2. **Check what the site currently ranks for** (if GSC data exists):
    ```bash
    v2 gsc-fetch --days 30
    v2 gsc-history --top 50
    ```
-3. **Identify money keywords** — service-intent, pricing, local queries that drive revenue
-4. **Identify informational keywords** — how-to, guide, tips queries for blog content
-5. **Identify competitors** — who ranks for the money keywords?
+3. **Identify money keywords** â€” service-intent, pricing, local queries that drive revenue
+4. **Identify informational keywords** â€” how-to, guide, tips queries for blog content
+5. **Identify competitors** â€” who ranks for the money keywords?
 
-### Step 3.2 — Build money_keyword_map.json
+### Step 3.2 â€” Build money_keyword_map.json
 
 Rebuild `Agentic SEO/config/money_keyword_map.json` with:
 
@@ -257,7 +257,7 @@ Rebuild `Agentic SEO/config/money_keyword_map.json` with:
 - **Target pages** pointing to the real service page URLs from the website
 - Keep `informational_negative_patterns` (they're niche-agnostic)
 
-### Step 3.3 — Build keyword seed files
+### Step 3.3 â€” Build keyword seed files
 
 - **`config/money-keywords-seed.tsv`**: 20-50 money keywords with search volume estimates
 - **`config/rank_tracking_keywords.txt`**: 30-100 keywords to track daily, covering:
@@ -266,7 +266,7 @@ Rebuild `Agentic SEO/config/money_keyword_map.json` with:
   - Core service terms (e.g., "emergency plumber near me")
   - Informational terms you want to own
 
-### Step 3.4 — Build link-registry.json
+### Step 3.4 â€” Build link-registry.json
 
 Rebuild `Agentic SEO/tools/link-registry.json` with:
 
@@ -276,9 +276,9 @@ Rebuild `Agentic SEO/tools/link-registry.json` with:
 - Blog category pages as targets for informational clusters
 - Anchor text suggestions for each target (varied, not exact-match spam)
 
-Use the actual URLs from the site analysis — `v2 site-pages` to get the full URL list.
+Use the actual URLs from the site analysis â€” `v2 site-pages` to get the full URL list.
 
-### Step 3.5 — Rewrite content production skills
+### Step 3.5 â€” Rewrite content production skills
 
 These three files are the AI writing guides. They contain niche-specific examples,
 tone guidelines, and framing that MUST match this business:
@@ -287,10 +287,10 @@ tone guidelines, and framing that MUST match this business:
    - Rewrite ALL niche examples (replace plumbing/roofing examples with this business)
    - Update brand voice section with your synthesized voice from Step 1.3
    - Update example headlines, CTAs, and content structures for this niche
-   - Keep the production WORKFLOW intact — only change niche framing
+   - Keep the production WORKFLOW intact â€” only change niche framing
 
 2. **`tools/stats-blog-production-skill.md`** (~61KB)
-   - Same treatment — rewrite examples for this niche
+   - Same treatment â€” rewrite examples for this niche
    - Update the data source suggestions for this industry
    - Keep the statistical methodology workflow intact
 
@@ -300,10 +300,10 @@ tone guidelines, and framing that MUST match this business:
    - Keep the production workflow intact
 
 > **CRITICAL:** Do NOT rewrite these in a single pass. Start a FRESH session for each
-> one — they are 800-1600+ lines each. Read the entire file first, then make targeted
+> one â€” they are 800-1600+ lines each. Read the entire file first, then make targeted
 > edits to replace niche-specific content while preserving the workflow structure.
 
-### Step 3.6 — Rewrite llms.txt
+### Step 3.6 â€” Rewrite llms.txt
 
 Rebuild `Website/llms.txt` with:
 - Real business name, description, and mission
@@ -313,7 +313,7 @@ Rebuild `Website/llms.txt` with:
 - Brand voice guidelines
 - Key differentiators
 
-### Step 3.7 — Audit and rewrite Hermes skills
+### Step 3.7 â€” Audit and rewrite Hermes skills
 
 Go through each skill in `hermes/skills/client/`:
 
@@ -340,7 +340,7 @@ Go through each skill in `hermes/skills/client/`:
 Focus on skills that have niche-specific prose or examples. Skills that are purely
 operational (safe-fix, sync-repair, system-rules) don't need niche changes.
 
-### Step 3.8 — Audit and rewrite process playbooks
+### Step 3.8 â€” Audit and rewrite process playbooks
 
 Go through `processes/` and rewrite niche-specific framing in:
 
@@ -354,7 +354,7 @@ Go through `processes/` and rewrite niche-specific framing in:
 | `keyword-campaign.md` | Keyword examples |
 | `service-page-update.md` | Service descriptions |
 
-Leave workflow logic intact — only change niche framing and examples.
+Leave workflow logic intact â€” only change niche framing and examples.
 
 ---
 
@@ -363,23 +363,23 @@ Leave workflow logic intact — only change niche framing and examples.
 > **Goal:** Populate the Obsidian Agent Brain with real, actionable knowledge about
 > this business. This is what you'll recall every day when planning.
 
-### Step 4.1 — Write SEO Strategy
+### Step 4.1 â€” Write SEO Strategy
 
 Update `Obsidian Agent Brain/01-Agent-Brain/SEO Strategy.md`:
 
 ```markdown
-# SEO Strategy — {Business Name}
+# SEO Strategy â€” {Business Name}
 
 ## Audience
-{Who the content speaks to — from your Step 1.4 analysis}
+{Who the content speaks to â€” from your Step 1.4 analysis}
 NOT {who the content does NOT speak to}. Treat {irrelevant audience} queries as noise.
 
 ## Money Pages
 {List the actual service pages and what keywords they target}
-These are the revenue engine — defend and sharpen first.
+These are the revenue engine â€” defend and sharpen first.
 
 ## Blog Strategy
-{How the blog supports money pages — topical authority, funnel entry}
+{How the blog supports money pages â€” topical authority, funnel entry}
 Must support, not cannibalize money pages.
 
 ## Keyword Priority
@@ -395,22 +395,22 @@ Must support, not cannibalize money pages.
 {What to tackle immediately based on your analysis}
 ```
 
-### Step 4.2 — Write Operating Rules
+### Step 4.2 â€” Write Operating Rules
 
-Update `01-Agent-Brain/Operating Rules.md` — adapt for this specific business.
+Update `01-Agent-Brain/Operating Rules.md` â€” adapt for this specific business.
 Keep the SQLite/Brain authority split. Add any business-specific rules.
 
-### Step 4.3 — Write Task Generation Rules
+### Step 4.3 â€” Write Task Generation Rules
 
-Update `01-Agent-Brain/Task Generation Rules.md` — set priorities based on this
+Update `01-Agent-Brain/Task Generation Rules.md` â€” set priorities based on this
 business's keyword landscape and competitive position.
 
-### Step 4.4 — Write User Preferences
+### Step 4.4 â€” Write User Preferences
 
-Update `01-Agent-Brain/User Preferences.md` — note the owner's name, communication
+Update `01-Agent-Brain/User Preferences.md` â€” note the owner's name, communication
 preferences (from bootstrap), and standard defaults.
 
-### Step 4.5 — Update Hermes memories
+### Step 4.5 â€” Update Hermes memories
 
 Rewrite `hermes/memories/MEMORY.md` with:
 - Actual site paths and domain
@@ -429,22 +429,22 @@ Rewrite `hermes/memories/USER.md` with:
 
 > **Goal:** Verify everything is configured correctly, then hand off to daily operations.
 
-### Step 5.1 — Run validation pipeline
+### Step 5.1 â€” Run validation pipeline
 
 ```bash
 pwsh ./validation/validate-site.ps1 -SitePath .
 ```
 
 All checks should pass:
-- ✅ **Token check**: 0 remaining `{{TOKENS}}`
-- ✅ **Config check**: site.config.json valid, .env exists
-- ✅ **SEO check**: meta tags, headings, schema present
-- ✅ **Brain check**: all seed directories and notes present
-- ✅ **Link check**: no broken internal links
+- âœ… **Token check**: 0 remaining `{{TOKENS}}`
+- âœ… **Config check**: site.config.json valid, .env exists
+- âœ… **SEO check**: meta tags, headings, schema present
+- âœ… **Brain check**: all seed directories and notes present
+- âœ… **Link check**: no broken internal links
 
 If any CRITICAL check fails, fix it before proceeding.
 
-### Step 5.2 — Verify deployment
+### Step 5.2 â€” Verify deployment
 
 ```bash
 # Push to trigger Cloudflare Pages deployment
@@ -457,7 +457,7 @@ v2 deploy-wait --timeout 300
 v2 deploy-status
 ```
 
-### Step 5.3 — Run smoke tests
+### Step 5.3 â€” Run smoke tests
 
 ```bash
 # Verify CLI works end-to-end
@@ -474,12 +474,12 @@ v2 gsc-fetch --days 7
 v2 serp-check --keyword "{primary money keyword}" --location "{location}"
 ```
 
-### Step 5.4 — Send onboarding-complete email
+### Step 5.4 â€” Send onboarding-complete email
 
 Send a comprehensive email to the owner:
 
 ```bash
-v2 email-send --to "{admin_email}" --subject "✅ {site_name} — SEO Autopilot is Live" --body "
+v2 email-send --to "{admin_email}" --subject "âœ… {site_name} â€” SEO Autopilot is Live" --body "
 Hi {owner_name},
 
 Your SEO autopilot for {domain} is now fully configured and running.
@@ -500,7 +500,7 @@ Your SEO autopilot for {domain} is now fully configured and running.
 
 ## What Happens Next
 - I'll run my first daily workplan tomorrow morning at 8 AM {timezone}
-- I'll email you the plan — review it and reply on Telegram if you want to change anything
+- I'll email you the plan â€” review it and reply on Telegram if you want to change anything
 - Technical SEO fixes will deploy automatically
 - Blog posts will wait for your Telegram approval
 
@@ -519,14 +519,14 @@ Best,
 "
 ```
 
-### Step 5.5 — Register in site registry
+### Step 5.5 â€” Register in site registry
 
 ```bash
 # Update the central registry
 # (This is handled by provision-site.ps1 or manually)
 ```
 
-### Step 5.6 — Complete onboarding heartbeat
+### Step 5.6 â€” Complete onboarding heartbeat
 
 ```bash
 v2 heartbeat start --type onboarding-complete
@@ -564,11 +564,11 @@ facts, update `01-Agent-Brain/` notes and they'll be picked up in the next plann
 
 If onboarding fails partway through:
 
-1. **Phase 1 failed** (couldn't read website): Notify owner — likely the website wasn't
+1. **Phase 1 failed** (couldn't read website): Notify owner â€” likely the website wasn't
    imported correctly. Ask them to re-export via Simply Static.
 2. **Phase 2 failed** (config generation): Check bootstrap config is valid JSON with
    required fields. Run `pwsh ./provision/validate-config.ps1` for diagnostics.
-3. **Phase 3 failed** (strategy build): Can be retried. Run this process again —
+3. **Phase 3 failed** (strategy build): Can be retried. Run this process again â€”
    Phases 1-2 will detect existing config and skip ahead.
 4. **Phase 4 failed** (brain seed): Can be retried. Brain notes are idempotent.
 5. **Phase 5 failed** (validation): Fix the specific check that failed, then re-run

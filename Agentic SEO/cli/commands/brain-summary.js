@@ -65,7 +65,7 @@ module.exports = function brainSummary() {
 
 function renderMarkdown(summary) {
   const lines = [
-    "# {{SITE_NAME}} Agent Brain Summary",
+    "# Website Operations Agent Brain Summary",
     "",
     `Generated: ${summary.brain_generated_at}`,
     `Source hash: ${summary.source_hash}`,

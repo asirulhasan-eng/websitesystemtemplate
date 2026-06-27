@@ -23,10 +23,10 @@ function main() {
   if (args.help || args.h) { printHelp(); return; }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     if (!fs.existsSync(siteRoot)) throw new Error(`Site root not found: ${siteRoot}`);
 
-    const baseUrl = args['base-url'] || process.env.CLIENT_BASE_URL || DEFAULT_BASE_URL;
+    const baseUrl = args['base-url'] || process.env.WEBSITE_AGENT_BASE_URL || DEFAULT_BASE_URL;
     const targetUrl = args['target-url'] || args.url || null;
     const contains = args.contains || null;
     const checkBroken = boolArg(args, 'broken') || (!targetUrl && !contains);
@@ -110,8 +110,8 @@ Usage:
   v2 link-check --broken --json
 
 Inputs:
-  --site-root <path>       Website repo root (default: /opt/client-site).
-  --base-url <url>         Site base URL (default: https://{{DOMAIN}}).
+  --site-root <path>       Website repo root (default: /opt/website-site).
+  --base-url <url>         Site base URL (default: https://example.com).
 
 Modes:
   --target-url <url>       Find internal links pointing to this normalized URL.

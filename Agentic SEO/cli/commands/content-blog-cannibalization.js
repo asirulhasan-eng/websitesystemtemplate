@@ -30,11 +30,11 @@ const TOOL = 'content-blog-cannibalization';
 
 // Domain vocabulary shared by virtually every page on a single-niche site.
 // Without this, plain term-frequency cosine is dominated by generic terms
-// ("{{NICHE}}", "seo", "google", "local"...) so EVERY proposed {{NICHE}} topic
-// looks like a duplicate of some existing {{NICHE}} blog. Stripping these makes
-// the score reflect the DISTINCTIVE angle, not "also about {{NICHE}}".
+// ("website", "seo", "google", "local"...) so EVERY proposed website topic
+// looks like a duplicate of some existing website blog. Stripping these makes
+// the score reflect the DISTINCTIVE angle, not "also about website".
 const DOMAIN_STOPWORDS = new Set(tokenize([
-  '{{NICHE}}', '{{AUDIENCE}}', '{{AUDIENCE}}',
+  'website', 'small business owners', 'small business owners',
   'seo', 'search', 'engine', 'optimization',
   'google', 'local', 'locally', 'map', 'maps',
   'rank', 'ranking', 'rankings', 'keyword', 'keywords',
@@ -65,8 +65,8 @@ function main() {
       throw new Error('Provide --topic, --target-keyword, or --brief');
     }
 
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
-    const baseUrl = args['base-url'] || process.env.CLIENT_BASE_URL || DEFAULT_BASE_URL;
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
+    const baseUrl = args['base-url'] || process.env.WEBSITE_AGENT_BASE_URL || DEFAULT_BASE_URL;
     if (!fs.existsSync(siteRoot)) throw new Error(`Site root not found: ${siteRoot}`);
 
     const threshold = numberArg(args, 'threshold', 0.45);
@@ -235,7 +235,7 @@ function repeat(chunks, value, count) {
 
 function classify(score, exactPhraseHits, sharedTermCount, headingOverlap) {
   // TRUE cannibalization = two URLs fighting for the SAME primary query. The
-  // reliable signal for that is an exact keyword/slug/heading collision â€” NOT
+  // reliable signal for that is an exact keyword/slug/heading collision Ã¢â‚¬â€ NOT
   // generic body-text overlap (everything on a single-niche site overlaps).
   if (exactPhraseHits > 0) return 'likely_cannibalization';
   if (headingOverlap >= 0.5 && score >= 0.3) return 'likely_cannibalization';
@@ -264,7 +264,7 @@ function decide({ top, matches, threshold, reviewThreshold }) {
 
   // Lean-autonomous gate: ONLY a true same-query collision blocks a new post.
   // A collision means an existing blog targets the same primary keyword (exact
-  // keyword/slug/heading match) â€” verdict === 'likely_cannibalization'. Generic
+  // keyword/slug/heading match) Ã¢â‚¬â€ verdict === 'likely_cannibalization'. Generic
   // topical adjacency does NOT block; it at most asks for a distinct angle.
   const trueCollision = top.verdict === 'likely_cannibalization';
   if (trueCollision) {
@@ -272,7 +272,7 @@ function decide({ top, matches, threshold, reviewThreshold }) {
       recommendation: 'refresh_existing_blog',
       risk: 'high',
       action: `Refresh ${top.url} instead of creating a near-identical post; it already targets this query.`,
-      reason: `Top existing blog scored ${top.score} with ${top.exact_phrase_hits} exact keyword/heading hit(s) â€” same primary query.`,
+      reason: `Top existing blog scored ${top.score} with ${top.exact_phrase_hits} exact keyword/heading hit(s) Ã¢â‚¬â€ same primary query.`,
       next_steps: [
         'Refresh the matching blog for the new angle, or add an internal link from it to the support target.',
         'Only create a new URL after documenting a genuinely distinct target query.',
@@ -352,35 +352,35 @@ function round(value, digits = 3) {
 function buildSampleOutput() {
   return {
     proposed: {
-      topic: 'Local SEO checklist for {{AUDIENCE}}',
-      target_keyword: 'local SEO for {{AUDIENCE}}',
-      support_url: 'https://{{DOMAIN}}/',
+      topic: 'Local SEO checklist for small business owners',
+      target_keyword: 'local SEO for small business owners',
+      support_url: 'https://example.com/',
     },
-    site_root: '/opt/client-site',
+    site_root: '/opt/website-site',
     thresholds: { block: 0.2, review: 0.12 },
     existing_blog_count: 18,
     matched_blog_count: 1,
     recommendation: 'refresh_existing_blog',
     risk: 'high',
-    action: 'Use or refresh https://{{DOMAIN}}/blog/local-seo-checklist-for-{{AUDIENCE}} instead of creating a new overlapping post.',
+    action: 'Use or refresh https://example.com/blog/local-seo-checklist-for-small business owners instead of creating a new overlapping post.',
     reason: 'Top existing blog scored 0.31, with 1 exact phrase hit(s).',
     support_page: {
       found: true,
-      url: 'https://{{DOMAIN}}/',
+      url: 'https://example.com/',
       file: 'index.html',
       page_type: 'home',
-      title: '{{SITE_NAME}}.agency',
-      h1: 'SEO for {{AUDIENCE}}',
+      title: 'Website Operations Agency',
+      h1: 'SEO for small business owners',
       score: 0.14,
-      shared_terms: [{ term: '{{AUDIENCE}}', proposal_count: 2, page_count: 8 }],
+      shared_terms: [{ term: 'small business owners', proposal_count: 2, page_count: 8 }],
     },
     matches: [
       {
-        url: 'https://{{DOMAIN}}/blog/local-seo-checklist-for-{{AUDIENCE}}',
-        file: 'blog/local-seo-checklist-for-{{AUDIENCE}}/index.html',
-        title: 'Local SEO Checklist for {{AUDIENCE}}',
-        h1: 'Local SEO Checklist for {{AUDIENCE}}',
-        meta_description: 'A practical local SEO checklist for {{NICHE}} companies.',
+        url: 'https://example.com/blog/local-seo-checklist-for-small business owners',
+        file: 'blog/local-seo-checklist-for-small business owners/index.html',
+        title: 'Local SEO Checklist for small business owners',
+        h1: 'Local SEO Checklist for small business owners',
+        meta_description: 'A practical local SEO checklist for website owners.',
         word_count: 2200,
         score: 0.31,
         verdict: 'likely_cannibalization',
@@ -415,8 +415,8 @@ Inputs:
   --brief <text>           Optional content brief or must-cover notes.
   --support-url <url>      Page this blog would support, e.g. / or /services/pricing.
   --support-file <path>    Local support page file.
-  --site-root <path>       Local website root (default: env CLIENT_SITE_ROOT or /opt/client-site).
-  --base-url <url>         Site base URL (default: https://{{DOMAIN}}).
+  --site-root <path>       Local website root (default: env WEBSITE_AGENT_SITE_ROOT or /opt/website-site).
+  --base-url <url>         Site base URL (default: https://example.com).
 
 Scoring:
   --threshold <score>        High-risk threshold (default: 0.20).
@@ -430,8 +430,8 @@ Output:
   --sample                 Sample output without filesystem access.
 
 Examples:
-  v2 content blog-cannibalization --topic "Local SEO checklist for {{AUDIENCE}}" --target-keyword "local SEO for {{AUDIENCE}}" --support-url / --json
-  v2 content blog-cannibalization --topic "{{NICHE}} SEO pricing mistakes" --target-keyword "{{NICHE}} SEO pricing" --support-url /services/pricing --site-root ./site --json
+  v2 content blog-cannibalization --topic "Local SEO checklist for small business owners" --target-keyword "local SEO for small business owners" --support-url / --json
+  v2 content blog-cannibalization --topic "website SEO pricing mistakes" --target-keyword "website SEO pricing" --support-url /services/pricing --site-root ./site --json
 `);
 }
 

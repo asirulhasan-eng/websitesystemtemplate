@@ -1,4 +1,4 @@
-# run-daily-workplan.ps1 â€” PowerShell equivalent for local testing
+# run-daily-workplan.ps1 Ã¢â‚¬â€ PowerShell equivalent for local testing
 # Triggers Hermes to run the daily-workplan process playbook
 
 $ErrorActionPreference = "Stop"
@@ -29,8 +29,8 @@ Write-Host "[health] $HEALTH"
 if ($HEALTH -match '"critical"') {
     Write-Host "[ABORT] Critical health issue detected. Sending alert email." -ForegroundColor Red
     node $V2_CLI email send `
-        --to {{ADMIN_EMAIL}} `
-        --subject "ðŸš¨ Daily Workplan Aborted â€” Critical System Issue" `
+        --to owner@example.com `
+        --subject "Ã°Å¸Å¡Â¨ Daily Workplan Aborted Ã¢â‚¬â€ Critical System Issue" `
         --body "The daily workplan at $TIMESTAMP was aborted due to a critical system health issue. Health check output: $HEALTH" `
         --priority high --json 2>$null
     node $V2_CLI heartbeat finish --job daily-workplan --error "Aborted: critical health issue" --json 2>$null
@@ -41,7 +41,7 @@ if ($HEALTH -match '"critical"') {
 Write-Host "[hermes] Starting AI-driven daily workplan..."
 
 $PROMPT = @"
-You are running the daily workplan process for {{SITE_NAME}}.agency.
+You are running the daily workplan process for Website Operations Agency.
 
 Read the process playbook at: $PROCESS_FILE
 Read the guardrails at: $AGENT_ROOT\config\guardrails.json
@@ -52,7 +52,7 @@ Make all SEO strategic decisions yourself based on the data you gather.
 
 When finished:
 1. Generate a daily report using: node $V2_CLI report daily --json
-2. Send a summary email to {{ADMIN_EMAIL}} including:
+2. Send a summary email to owner@example.com including:
    - System health status
    - Decisions made and rationale
    - Tasks created/updated
@@ -60,7 +60,7 @@ When finished:
    - Your plan for the next 12 hours
    - Any items that need human review
 
-Use: node $V2_CLI email send --to {{ADMIN_EMAIL}} --subject `"ðŸ“Š {{SITE_NAME}} Daily Report â€” $(Get-Date -Format 'yyyy-MM-dd')`" --body `"<your summary>`" --json
+Use: node $V2_CLI email send --to owner@example.com --subject `"Ã°Å¸â€œÅ  Website Operations Daily Report Ã¢â‚¬â€ $(Get-Date -Format 'yyyy-MM-dd')`" --body `"<your summary>`" --json
 
 3. Record heartbeat finish: node $V2_CLI heartbeat finish --job daily-workplan --json
 "@

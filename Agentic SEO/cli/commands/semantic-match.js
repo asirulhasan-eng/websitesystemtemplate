@@ -32,8 +32,8 @@ async function main() {
       throw new Error('Provide --source-url/--source-file and --target-url/--target-file');
     }
 
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
-    const baseUrl = args['base-url'] || process.env.CLIENT_BASE_URL || DEFAULT_BASE_URL;
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
+    const baseUrl = args['base-url'] || process.env.WEBSITE_AGENT_BASE_URL || DEFAULT_BASE_URL;
     const timeoutMs = numberArg(args, 'timeout-ms', 20000);
     const threshold = numberArg(args, 'threshold', 0.22);
     const preferLive = boolArg(args, 'prefer-live');
@@ -147,7 +147,7 @@ Inputs:
   --source-file <path>     Source local HTML file.
   --target-file <path>     Target local HTML file.
   --site-root <path>       Local website root for URL-to-file resolution.
-  --base-url <url>         Site base URL (default: https://{{DOMAIN}}).
+  --base-url <url>         Site base URL (default: https://example.com).
   --prefer-live            Fetch URLs live even if a local file exists.
 
 Scoring:
@@ -160,7 +160,7 @@ Output:
   --table                  Table output.
 
 Examples:
-  v2 semantic-match --source-url /blog/{{NICHE}}-seo-pricing --target-url /services/pricing --json
+  v2 semantic-match --source-url /blog/website-seo-pricing --target-url /services/pricing --json
   v2 semantic-match --source-file blog/a.html --target-file services/b.html --site-root ./site --json
 `);
 }

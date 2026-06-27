@@ -17,7 +17,7 @@ trigger:
 
 - **Schedule:** First Monday of each month at 07:00 UTC. The cron entry is
   `0 7 1-7 * *` (daily on days 1-7) and `cron/run-monthly-roadmap.sh` exits unless
-  today is a Monday — NOT `0 7 1-7 * 1`, because vixie cron ORs a restricted
+  today is a Monday â€” NOT `0 7 1-7 * 1`, because vixie cron ORs a restricted
   day-of-month with a restricted day-of-week (that line would fire on days 1-7
   AND on every Monday).
 - **Manual:** Can be triggered on-demand for mid-month strategic reassessment
@@ -56,23 +56,23 @@ v2 gsc-fetch --days 90 --min-impressions 20 --json
 
 ```bash
 # All money keywords
-v2 serp-check --keywords "{{NICHE}} SEO,SEO for {{AUDIENCE}},{{AUDIENCE}} SEO services,local SEO for {{AUDIENCE}},{{NICHE}} SEO pricing,{{AUDIENCE}} marketing,{{NICHE}} company SEO,{{NICHE}} digital marketing,{{AUDIENCE}} website SEO,{{AUDIENCE}} Google ranking" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "website SEO,SEO for small business owners,small business owners SEO services,local SEO for small business owners,website SEO pricing,small business owners marketing,website owner SEO,website digital marketing,small business owners website SEO,small business owners Google ranking" --domain example.com --json
 
 # Expansion keywords (medium priority)
-v2 serp-check --keywords "{{AUDIENCE}} lead generation,{{AUDIENCE}} reputation management,{{AUDIENCE}} social media,{{NICHE}} company website,{{AUDIENCE}} PPC,{{AUDIENCE}} content marketing,{{AUDIENCE}} email marketing,{{AUDIENCE}} online reviews" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "small business owners lead generation,small business owners reputation management,small business owners social media,website owner website,small business owners PPC,small business owners content marketing,small business owners email marketing,small business owners online reviews" --domain example.com --json
 
 # Long-tail / blog targets
-v2 serp-check --keywords "how to get more {{NICHE}} customers,{{AUDIENCE}} marketing ideas,{{NICHE}} business growth,{{AUDIENCE}} advertising,do {{AUDIENCE}} need SEO" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "how to get more website customers,small business owners marketing ideas,website owner growth,small business owners advertising,do small business owners need SEO" --domain example.com --json
 ```
 
 ### 1c: Historical Trends
 
 ```bash
-v2 gsc-history --keyword "{{NICHE}} SEO" --days 90 --json
-v2 gsc-history --keyword "SEO for {{AUDIENCE}}" --days 90 --json
-v2 gsc-history --keyword "local SEO for {{AUDIENCE}}" --days 90 --json
-v2 gsc-history --keyword "{{NICHE}} SEO pricing" --days 90 --json
-v2 gsc-history --keyword "{{AUDIENCE}} marketing" --days 90 --json
+v2 gsc-history --keyword "website SEO" --days 90 --json
+v2 gsc-history --keyword "SEO for small business owners" --days 90 --json
+v2 gsc-history --keyword "local SEO for small business owners" --days 90 --json
+v2 gsc-history --keyword "website SEO pricing" --days 90 --json
+v2 gsc-history --keyword "small business owners marketing" --days 90 --json
 ```
 
 ### 1d: Task Activity Summary
@@ -102,7 +102,7 @@ v2 db snapshot --json
 
 ## Step 2: Analyze Macro Trends
 
-### AI Analysis â€” Monthly Performance Deep-Dive
+### AI Analysis Ã¢â‚¬â€ Monthly Performance Deep-Dive
 
 #### 2a: Position Trend Analysis
 
@@ -110,18 +110,18 @@ For each money keyword, chart the 90-day trend and categorize:
 
 | Keyword | 90-day Ago | 60-day Ago | 30-day Ago | Now | Trend | Assessment |
 |---------|-----------|-----------|-----------|-----|-------|------------|
-| {{NICHE}} SEO | ? | ? | ? | ? | â†‘/â†“/â†’ | ? |
-| SEO for {{AUDIENCE}} | ? | ? | ? | ? | â†‘/â†“/â†’ | ? |
-| local SEO for {{AUDIENCE}} | ? | ? | ? | ? | â†‘/â†“/â†’ | ? |
-| {{NICHE}} SEO pricing | ? | ? | ? | ? | â†‘/â†“/â†’ | ? |
-| {{AUDIENCE}} marketing | ? | ? | ? | ? | â†‘/â†“/â†’ | ? |
+| website SEO | ? | ? | ? | ? | Ã¢â€ â€˜/Ã¢â€ â€œ/Ã¢â€ â€™ | ? |
+| SEO for small business owners | ? | ? | ? | ? | Ã¢â€ â€˜/Ã¢â€ â€œ/Ã¢â€ â€™ | ? |
+| local SEO for small business owners | ? | ? | ? | ? | Ã¢â€ â€˜/Ã¢â€ â€œ/Ã¢â€ â€™ | ? |
+| website SEO pricing | ? | ? | ? | ? | Ã¢â€ â€˜/Ã¢â€ â€œ/Ã¢â€ â€™ | ? |
+| small business owners marketing | ? | ? | ? | ? | Ã¢â€ â€˜/Ã¢â€ â€œ/Ã¢â€ â€™ | ? |
 
 **Trend Assessment Categories:**
-- **Strong Growth:** â‰¥5 position improvement over 90 days, consistent upward trend
+- **Strong Growth:** Ã¢â€°Â¥5 position improvement over 90 days, consistent upward trend
 - **Moderate Growth:** 2-4 position improvement, generally upward
-- **Stable:** Â±2 positions, no clear direction
+- **Stable:** Ã‚Â±2 positions, no clear direction
 - **Concerning Decline:** 2-4 position decline, needs investigation
-- **Critical Decline:** â‰¥5 position decline, strategic intervention needed
+- **Critical Decline:** Ã¢â€°Â¥5 position decline, strategic intervention needed
 
 #### 2b: Traffic & Visibility Trend
 
@@ -140,8 +140,8 @@ Analyze the site's content by type and performance:
 
 | Content Area | Pages | Avg Position | Avg Clicks/Month | Trend | Strategic Value |
 |-------------|-------|-------------|-----------------|-------|----------------|
-| /services/ pages | ? | ? | ? | ? | High â€” direct conversion |
-| /blog/ posts | ? | ? | ? | ? | Medium â€” funnel entry |
+| /services/ pages | ? | ? | ? | ? | High Ã¢â‚¬â€ direct conversion |
+| /blog/ posts | ? | ? | ? | ? | Medium Ã¢â‚¬â€ funnel entry |
 | Other pages | ? | ? | ? | ? | ? |
 
 Questions to answer:
@@ -155,7 +155,7 @@ Questions to answer:
 
 ## Step 3: Evaluate Content Strategy
 
-### AI Analysis â€” Content Strategy Assessment
+### AI Analysis Ã¢â‚¬â€ Content Strategy Assessment
 
 #### What content did we publish this month?
 
@@ -194,10 +194,10 @@ List all new pages/posts created and their current performance:
 
 ```bash
 # Check competitor presence for money keywords
-v2 serp-check --keywords "{{NICHE}} SEO,SEO for {{AUDIENCE}},{{AUDIENCE}} SEO services,local SEO for {{AUDIENCE}}" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "website SEO,SEO for small business owners,small business owners SEO services,local SEO for small business owners" --domain example.com --json
 ```
 
-### AI Analysis â€” Competitive Assessment
+### AI Analysis Ã¢â‚¬â€ Competitive Assessment
 
 1. **Who are our main competitors this month?**
    - List the domains that consistently appear in top 10 for our money keywords
@@ -224,7 +224,7 @@ v2 serp-check --keywords "{{NICHE}} SEO,SEO for {{AUDIENCE}},{{AUDIENCE}} SEO se
 
 ## Step 5: Plan Next Month's Focus Areas
 
-### AI Analysis â€” Strategic Planning
+### AI Analysis Ã¢â‚¬â€ Strategic Planning
 
 Based on all the above analysis, define 3-5 focus areas for the next month:
 
@@ -232,11 +232,11 @@ Based on all the above analysis, define 3-5 focus areas for the next month:
 
 Consider these strategic priorities (in order):
 
-1. **Protect existing rankings** â€” If any money keyword is declining, defense comes first
-2. **Capture quick wins** â€” Keywords in positions 4-10 that can be pushed to page 1
-3. **Fill critical content gaps** â€” Money keywords with no dedicated page
-4. **Build authority** â€” Supporting content that strengthens money keyword rankings
-5. **Expand footprint** â€” Target new keywords in adjacent spaces
+1. **Protect existing rankings** Ã¢â‚¬â€ If any money keyword is declining, defense comes first
+2. **Capture quick wins** Ã¢â‚¬â€ Keywords in positions 4-10 that can be pushed to page 1
+3. **Fill critical content gaps** Ã¢â‚¬â€ Money keywords with no dedicated page
+4. **Build authority** Ã¢â‚¬â€ Supporting content that strengthens money keyword rankings
+5. **Expand footprint** Ã¢â‚¬â€ Target new keywords in adjacent spaces
 
 #### Monthly Focus Area Template
 
@@ -254,15 +254,15 @@ For each focus area:
 **Expected Outcome:** [What success looks like at end of month]
 ```
 
-#### Example Focus Areas for {{SITE_NAME}}.agency
+#### Example Focus Areas for Website Operations Agency
 
-**Example 1: Defend "{{NICHE}} SEO" position**
+**Example 1: Defend "website SEO" position**
 - Goal: Maintain or improve position from #5 to top 3
 - Tasks: Content refresh on service page, build internal links, improve E-E-A-T signals
 - Metrics: Position, clicks, CTR for this keyword
 
 **Example 2: Launch Local SEO content hub**
-- Goal: Create a comprehensive content hub around local SEO for {{AUDIENCE}}
+- Goal: Create a comprehensive content hub around local SEO for small business owners
 - Tasks: Create hub page, write 3-4 supporting blog posts, internal linking
 - Metrics: Total impressions for "local SEO" keyword cluster
 
@@ -328,13 +328,13 @@ Based on the roadmap, create or update tasks for each focus area:
 ```bash
 # Example: Create a strategic task for a focus area
 v2 task create \
-  --title "Monthly Focus: Defend '{{NICHE}} SEO' rankings â€” June 2026" \
+  --title "Monthly Focus: Defend 'website SEO' rankings Ã¢â‚¬â€ June 2026" \
   --type content_optimization \
   --priority 800 \
   --risk-level semi_safe \
-  --target-url "https://{{DOMAIN}}/services/{{NICHE}}-seo/" \
-  --target-keyword "{{NICHE}} SEO" \
-  --description "Monthly roadmap priority: Maintain and improve '{{NICHE}} SEO' ranking (currently position 5). Plan: (1) Week 1: Content audit and refresh, (2) Week 2: Internal linking improvements, (3) Week 3: E-E-A-T signals enhancement, (4) Week 4: Review and adjust. Success criteria: Reach position 3 or better by month end." \
+  --target-url "https://example.com/services/website-seo/" \
+  --target-keyword "website SEO" \
+  --description "Monthly roadmap priority: Maintain and improve 'website SEO' ranking (currently position 5). Plan: (1) Week 1: Content audit and refresh, (2) Week 2: Internal linking improvements, (3) Week 3: E-E-A-T signals enhancement, (4) Week 4: Review and adjust. Success criteria: Reach position 3 or better by month end." \
   --evidence "90-day trend: Position improved from 8 to 5. Momentum is positive but competitors are also improving. Need sustained effort to maintain trajectory." \
   --json
 ```
@@ -342,12 +342,12 @@ v2 task create \
 ```bash
 # Example: Create content hub tasks
 v2 task create \
-  --title "Monthly Focus: Local SEO content hub â€” Hub page creation" \
+  --title "Monthly Focus: Local SEO content hub Ã¢â‚¬â€ Hub page creation" \
   --type new_content \
   --priority 800 \
   --risk-level safe \
-  --target-keyword "local SEO for {{AUDIENCE}}" \
-  --description "Part of June 2026 monthly roadmap. Create comprehensive hub page at /services/local-seo-for-{{AUDIENCE}}/ covering: Google Business Profile optimization, local citation building, review management, local link building, map pack optimization. This page will be the anchor for a cluster of supporting blog posts." \
+  --target-keyword "local SEO for small business owners" \
+  --description "Part of June 2026 monthly roadmap. Create comprehensive hub page at /services/local-seo-for-small business owners/ covering: Google Business Profile optimization, local citation building, review management, local link building, map pack optimization. This page will be the anchor for a cluster of supporting blog posts." \
   --json
 ```
 
@@ -360,9 +360,9 @@ v2 heartbeat finish --job monthly-roadmap --json
 
 # Send the monthly report
 v2 email send \
-  --to {{ADMIN_EMAIL}} \
+  --to owner@example.com \
   --subject "Monthly SEO Roadmap: [MONTH YEAR]" \
-  --body "[FULL ROADMAP SUMMARY â€” include performance scorecard, key insights, focus areas for next month, and any decisions needed]" \
+  --body "[FULL ROADMAP SUMMARY Ã¢â‚¬â€ include performance scorecard, key insights, focus areas for next month, and any decisions needed]" \
   --json
 ```
 
@@ -382,23 +382,23 @@ Before finalizing, pull up last month's roadmap and assess:
 
 ---
 
-## Seasonal Planning for {{NICHE}} SEO
+## Seasonal Planning for website SEO
 
-### Understanding the {{NICHE}} Business Cycle
+### Understanding the website Business Cycle
 
-{{NICHE}} company clients have seasonal patterns that affect their marketing appetite:
+website owner clients have seasonal patterns that affect their marketing appetite:
 
-| Season | {{NICHE}} Business Activity | Our Opportunity |
+| Season | website Business Activity | Our Opportunity |
 |--------|---------------------------|-----------------|
-| **Spring (Mar-May)** | Busy season starting â€” pipes thawing, outdoor {{NICHE}}, remodels | High demand for SEO. {{AUDIENCE}} realize they need online presence. Best time for sales. |
-| **Summer (Jun-Aug)** | Peak season â€” highest call volume, longest days | {{AUDIENCE}} are too busy to think about marketing. Less responsive but seeing ROI. Focus on retention/upsell. |
-| **Fall (Sep-Nov)** | Slowing down â€” maintenance season, winterization | {{AUDIENCE}} start planning for next year. Good time for strategy content and long-term SEO. |
-| **Winter (Dec-Feb)** | Variable â€” emergency calls (frozen pipes) but lower overall | Budget planning. Some slow periods where {{AUDIENCE}} reconsider their marketing. Good time for case studies showing ROI. |
+| **Spring (Mar-May)** | Busy season starting Ã¢â‚¬â€ pipes thawing, outdoor website, remodels | High demand for SEO. small business owners realize they need online presence. Best time for sales. |
+| **Summer (Jun-Aug)** | Peak season Ã¢â‚¬â€ highest call volume, longest days | small business owners are too busy to think about marketing. Less responsive but seeing ROI. Focus on retention/upsell. |
+| **Fall (Sep-Nov)** | Slowing down Ã¢â‚¬â€ maintenance season, winterization | small business owners start planning for next year. Good time for strategy content and long-term SEO. |
+| **Winter (Dec-Feb)** | Variable Ã¢â‚¬â€ emergency calls (frozen pipes) but lower overall | Budget planning. Some slow periods where small business owners reconsider their marketing. Good time for case studies showing ROI. |
 
 ### Content Calendar Alignment
 
-Plan blog content that aligns with what {{NICHE}} business owners are thinking about:
-- **Spring:** "How to get more {{NICHE}} leads before busy season"
-- **Summer:** "{{AUDIENCE}} marketing ROI: what to expect after 6 months of SEO"
-- **Fall:** "Planning your {{NICHE}} company's marketing budget for next year"
-- **Winter:** "Why slow season is the perfect time to invest in {{NICHE}} SEO"
+Plan blog content that aligns with what website owner owners are thinking about:
+- **Spring:** "How to get more website leads before busy season"
+- **Summer:** "small business owners marketing ROI: what to expect after 6 months of SEO"
+- **Fall:** "Planning your website owner's marketing budget for next year"
+- **Winter:** "Why slow season is the perfect time to invest in website SEO"

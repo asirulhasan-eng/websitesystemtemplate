@@ -35,25 +35,25 @@ email_on_complete:
 
 ```bash
 # Check who's ranking for our money keywords
-v2 serp-check --keywords "{{NICHE}} seo,seo for {{AUDIENCE}},{{AUDIENCE}} seo services,local seo for {{AUDIENCE}},{{NICHE}} seo agency,{{AUDIENCE}} marketing" --top 20 --include-features --json
+v2 serp-check --keywords "website seo,seo for small business owners,small business owners seo services,local seo for small business owners,website seo agency,small business owners marketing" --top 20 --include-features --json
 
 # Get historical SERP data to see who's been consistently ranking
-v2 serp-history --keyword "{{NICHE}} seo" --days 90 --competitors --json
-v2 serp-history --keyword "seo for {{AUDIENCE}}" --days 90 --competitors --json
+v2 serp-history --keyword "website seo" --days 90 --competitors --json
+v2 serp-history --keyword "seo for small business owners" --days 90 --competitors --json
 ```
 
-### AI Analysis â€” Competitor Identification
+### AI Analysis Ã¢â‚¬â€ Competitor Identification
 
 From the SERP data, categorize competitors:
 
-#### Direct Competitors (SEO agencies targeting {{AUDIENCE}})
-- Agencies specifically offering {{NICHE}} SEO services
+#### Direct Competitors (SEO agencies targeting small business owners)
+- Agencies specifically offering website SEO services
 - Look for: domain names, service page titles, landing page focus
 
-#### Indirect Competitors (General SEO with {{AUDIENCE}} content)
-- Large SEO agencies with a {{AUDIENCE}}-specific landing page
-- Marketing platforms with {{AUDIENCE}}-focused content (ServiceTitan, Housecall Pro)
-- Industry publications covering {{NICHE}} business marketing
+#### Indirect Competitors (General SEO with small business owners content)
+- Large SEO agencies with a small business owners-specific landing page
+- Marketing platforms with small business owners-focused content (ServiceTitan, Housecall Pro)
+- Industry publications covering website owner marketing
 
 #### Content Competitors (Ranking for informational queries)
 - Blog sites, forums, directories ranking for "how to" queries
@@ -69,18 +69,18 @@ For each direct competitor (top 3-5):
 
 ```bash
 # What keywords are THEY ranking for that we might be missing?
-v2 serp-check --keywords "<competitor-keywords-we-dont-target>" --domain {{DOMAIN}} --json
+v2 serp-check --keywords "<competitor-keywords-we-dont-target>" --domain example.com --json
 
 # How does our ranking compare for shared keywords?
 v2 gsc-history --days 28 --json  # Our performance
 ```
 
-### AI Analysis â€” Competitive Gap Assessment
+### AI Analysis Ã¢â‚¬â€ Competitive Gap Assessment
 
 For each competitor, assess:
 
 1. **Content breadth**: Do they cover topics we don't?
-   - Do they have a page for "{{AUDIENCE}} Google Business Profile optimization" when we don't?
+   - Do they have a page for "small business owners Google Business Profile optimization" when we don't?
    - Do they have case studies, pricing pages, process pages we lack?
 
 2. **Content depth**: Is their content more comprehensive?
@@ -98,19 +98,19 @@ For each competitor, assess:
 5. **Unique value**: What do they offer that we don't?
    - Free tools? Templates? Calculators?
    - Case studies with real results?
-   - Industry-specific content (specific {{NICHE}} services)?
+   - Industry-specific content (specific website operations services)?
 
 ---
 
 ## Step 3: Identify Opportunities
 
-### AI Analysis â€” Strategic Opportunities
+### AI Analysis Ã¢â‚¬â€ Strategic Opportunities
 
 Based on the competitive gap, identify:
 
 #### Content Gaps (Topics they cover, we don't)
 - List specific topics/keywords with estimated search volume
-- Prioritize by business value (would this attract paying {{NICHE}} company clients?)
+- Prioritize by business value (would this attract paying website owner clients?)
 
 #### Competitive Weaknesses (Where we can outperform)
 - Topics where competitors have thin content
@@ -139,7 +139,7 @@ v2 task create --title "Content gap: Create page for '<topic>' (competitor has o
 ```bash
 v2 task create --title "Outperform competitor: Improve '<keyword>' page vs [competitor]" \
   --type content_optimization --priority 800 --risk-level semi_safe \
-  --target-url "https://{{DOMAIN}}/services/<page>" \
+  --target-url "https://example.com/services/<page>" \
   --target-keyword "<keyword>" \
   --description "Competitor [X] has thin/outdated content at position [N]. Our page at position [M] can surpass them with: [specific improvements]." \
   --json
@@ -147,7 +147,7 @@ v2 task create --title "Outperform competitor: Improve '<keyword>' page vs [comp
 
 #### For defensive priorities:
 ```bash
-v2 task create --title "DEFEND: '<keyword>' â€” competitor [X] closing gap" \
+v2 task create --title "DEFEND: '<keyword>' Ã¢â‚¬â€ competitor [X] closing gap" \
   --type content_optimization --priority 900 --risk-level semi_safe \
   --target-keyword "<keyword>" \
   --description "Competitor [X] has moved from position [old] to [new] for '<keyword>' over the last [N] days. Our position: [current]. Defensive actions needed: [specific actions]." \
@@ -179,10 +179,10 @@ v2 report format --template custom --data '{
 
 ---
 
-## Key Principles for {{SITE_NAME}} Competitive Analysis
+## Key Principles for Website Operations Competitive Analysis
 
-1. **We're niche, that's our advantage.** General SEO agencies targeting {{AUDIENCE}} are spread thin. We can go deeper.
+1. **We're niche, that's our advantage.** General SEO agencies targeting small business owners are spread thin. We can go deeper.
 2. **Quality over breadth.** Better to have 5 comprehensive service pages than 20 thin ones.
-3. **Real {{NICHE}} SEO expertise signals.** Case studies, specific examples, {{NICHE}}-industry terminology demonstrate authenticity.
-4. **Local SEO content is high-value.** {{NICHE}} is local. Content about local SEO for {{AUDIENCE}} is directly relevant and commercially valuable.
-5. **Don't chase informational content competitors.** A blog post ranking #3 for "how to fix a leaky faucet" is irrelevant â€” we want {{NICHE}} BUSINESS OWNERS, not homeowners.
+3. **Real website SEO expertise signals.** Case studies, specific examples, website-industry terminology demonstrate authenticity.
+4. **Local SEO content is high-value.** website is local. Content about local SEO for small business owners is directly relevant and commercially valuable.
+5. **Don't chase informational content competitors.** A blog post ranking #3 for "how to fix a leaky faucet" is irrelevant Ã¢â‚¬â€ we want website BUSINESS OWNERS, not homeowners.

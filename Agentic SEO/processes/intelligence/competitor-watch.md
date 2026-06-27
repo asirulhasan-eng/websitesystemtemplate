@@ -7,7 +7,7 @@ description: "Weekly SERP landscape scan for competitor movements on money keywo
 schedule: "0 1 * * 1"
 trigger:
   schedule: "0 1 * * 1"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   weekdays: [1]
@@ -23,7 +23,7 @@ outputs:
 
 # Competitor Watch
 
-> Monday morning: who's moving on our money keywords? This is the LIGHT weekly scan â€”
+> Monday morning: who's moving on our money keywords? This is the LIGHT weekly scan Ã¢â‚¬â€
 > the full competitive teardown lives in `processes/competitor-analysis.md` (standalone,
 > creates tasks).
 
@@ -33,8 +33,8 @@ full content audit. Flag competitor movements and defensive priorities for the p
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
 
 node $V2 serp-check --from-tracked $DB --json
 node $V2 serp-history --days 30 $DB --json
@@ -43,17 +43,17 @@ node $V2 keyword list $DB --json
 
 ## AI Analysis
 Across money keywords, identify:
-- **New / rising competitors** â€” domains gaining top-10 presence over the last weeks.
-- **Where they out-rank us** â€” money terms where a competitor sits above us and is climbing.
-- **Visible content gaps** â€” what those competitor pages appear to cover that ours don't
+- **New / rising competitors** Ã¢â‚¬â€ domains gaining top-10 presence over the last weeks.
+- **Where they out-rank us** Ã¢â‚¬â€ money terms where a competitor sits above us and is climbing.
+- **Visible content gaps** Ã¢â‚¬â€ what those competitor pages appear to cover that ours don't
   (from the SERP title/snippet level; do NOT do a full crawl here).
-- **Defensive priorities** â€” which 1â€“3 keywords are most at risk and worth defending first.
+- **Defensive priorities** Ã¢â‚¬â€ which 1Ã¢â‚¬â€œ3 keywords are most at risk and worth defending first.
 
 Recall Brain memory for prior competitor observations (`brain recall --query "competitor"`).
 
 Severity:
-- `warning` â€” a competitor overtook us on a money term or is clearly closing in.
-- `normal` â€” landscape stable.
+- `warning` Ã¢â‚¬â€ a competitor overtook us on a money term or is clearly closing in.
+- `normal` Ã¢â‚¬â€ landscape stable.
 
 ### Coverage Block (REQUIRED in every report)
 Include a `coverage` object in your report JSON:
@@ -77,7 +77,7 @@ node $V2 intelligence report \
   --severity "<normal|warning|critical>" \
   --headline "<e.g. 'New competitor top-3 on 2 money terms; defend pricing page'>" \
   --report-json '{
-    "threats":[{"type":"new_competitor","keyword":"{{NICHE}} SEO","current_position":3,"severity":"warning","recommendation":"Defend â€” competitor climbing"}],
+    "threats":[{"type":"new_competitor","keyword":"website SEO","current_position":3,"severity":"warning","recommendation":"Defend Ã¢â‚¬â€ competitor climbing"}],
     "opportunities":[{"type":"competitive_gap","keyword":"...","business_value":"medium","recommendation":"Competitor covers X; we do not"}],
     "observations":["competitorX.com entered top 10 on 4 tracked terms"],
     "recommendations":[{"priority":"medium","action":"Planner: consider competitor-analysis deep-dive","evidence":"3 money terms now contested"}],

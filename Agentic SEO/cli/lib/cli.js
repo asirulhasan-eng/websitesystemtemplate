@@ -1,16 +1,16 @@
 /**
- * cli.js â€” Enhanced argument parser and command helpers for v2 CLI
+ * cli.js Ã¢â‚¬â€ Enhanced argument parser and command helpers for v2 CLI
  *
  * Provides:
- * - parseArgs()  â€” parse CLI arguments into a structured object
- * - requireArg() â€” get a required argument or throw
- * - numberArg()  â€” get a numeric argument with default
- * - boolArg()    â€” get a boolean flag
- * - listArg()    â€” get a comma-separated list argument
- * - jsonArg()    â€” parse a JSON argument
- * - printHelp()  â€” print formatted help text
- * - exitWithError() â€” print error and exit
- * - resolveDbPath() â€” resolve the SQLite database path
+ * - parseArgs()  Ã¢â‚¬â€ parse CLI arguments into a structured object
+ * - requireArg() Ã¢â‚¬â€ get a required argument or throw
+ * - numberArg()  Ã¢â‚¬â€ get a numeric argument with default
+ * - boolArg()    Ã¢â‚¬â€ get a boolean flag
+ * - listArg()    Ã¢â‚¬â€ get a comma-separated list argument
+ * - jsonArg()    Ã¢â‚¬â€ parse a JSON argument
+ * - printHelp()  Ã¢â‚¬â€ print formatted help text
+ * - exitWithError() Ã¢â‚¬â€ print error and exit
+ * - resolveDbPath() Ã¢â‚¬â€ resolve the SQLite database path
  */
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -98,10 +98,13 @@ function jsonArg(args, name, defaultValue = null) {
 }
 
 function resolveDbPath(args) {
-  return args.db
-    || process.env.CLIENT_DB_PATH
+  const raw = args.db
+    || process.env.WEBSITE_AGENT_DB_PATH
     || process.env.SEO_AGENT_DB
-    || '/opt/client-sqlite/seo-agent.db';
+    || '/opt/website-state/website-agent.db';
+  // Normalize Windows-style backslashes to forward slashes so the path is
+  // always absolute on Linux, even if a cron script or .env uses backslashes.
+  return raw.replace(/\\/g, '/');
 }
 
 function exitWithError(error) {

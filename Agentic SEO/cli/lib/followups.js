@@ -1,4 +1,4 @@
-// followups.js — Executor-created follow-up tasks.
+// followups.js â€” Executor-created follow-up tasks.
 //
 // The twice-daily Hermes work plan is the primary task PRODUCER; the */7 ops
 // pipeline is normally a pure CONSUMER. This module is the one sanctioned way an
@@ -8,7 +8,7 @@
 //
 // Three guardrails keep this from becoming a runaway producer:
 //   1. Only `safe`, non-approval task types are ever created here.
-//   2. A depth cap (followup_depth) bounds optimize→verify→recover→verify chains.
+//   2. A depth cap (followup_depth) bounds optimizeâ†’verifyâ†’recoverâ†’verify chains.
 //   3. Dedupe: never create a second active follow-up for the same target+type.
 //
 // Deferral is purely via tasks.scheduled_for (see task-next.js): a follow-up is
@@ -23,7 +23,7 @@ const { normalizeUrlForDedupe } = require("./task_routing");
 const { openExperiment } = require("./experiments");
 
 const DEFAULT_FOLLOWUP_DAYS = 14;
-// Bounds the optimize → ranking_followup → ranking_recovery → ranking_followup
+// Bounds the optimize â†’ ranking_followup â†’ ranking_recovery â†’ ranking_followup
 // chain. depth 0 = original work; each generated task is parent depth + 1.
 const MAX_FOLLOWUP_DEPTH = 3;
 // A keyword that slips this many organic positions (or out of the tracked set)
@@ -60,7 +60,7 @@ function safeJson(value) {
 }
 
 // Coerce a SERP position to a number or null. Critically, null/undefined/"" must
-// map to null (unranked) — NOT 0 — because Number(null) === 0 would otherwise be
+// map to null (unranked) â€” NOT 0 â€” because Number(null) === 0 would otherwise be
 // read as the best possible rank and invert regression detection.
 function toPosition(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -97,7 +97,7 @@ function keywordsForTask(task, evidence = {}) {
 function followupWindowDays(evidence = {}) {
   const fromEvidence = Number(evidence.followup_days);
   if (Number.isFinite(fromEvidence) && fromEvidence > 0) return fromEvidence;
-  const fromEnv = Number(process.env.CLIENT_FOLLOWUP_DAYS);
+  const fromEnv = Number(process.env.WEBSITE_AGENT_FOLLOWUP_DAYS);
   if (Number.isFinite(fromEnv) && fromEnv > 0) return fromEnv;
   return DEFAULT_FOLLOWUP_DAYS;
 }
@@ -216,8 +216,66 @@ function evaluateRankingDeltas(baseline = {}, current = {}, options = {}) {
   return { rows, regressions, improvements, regressed: regressions.length > 0, drop_threshold: dropThreshold };
 }
 
+// Split a serp-check envelope into checked vs errored keywords. Absence is
+// defensive-error, never "unranked"; only an explicit row with position:null means
+// the keyword was checked and the domain was genuinely not found.
+function partitionSerpReading(keywords = [], rows = [], errors = []) {
+  const wanted = uniqueNonEmpty(keywords);
+  const rowByKeyword = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const keyword = String(row && row.keyword || "").trim();
+    if (!keyword) continue;
+    rowByKeyword.set(normalizeKeywordKey(keyword), row);
+  }
+
+  const errorByKeyword = new Map();
+  for (const err of Array.isArray(errors) ? errors : []) {
+    const keyword = String(err && err.keyword || "").trim();
+    if (!keyword) continue;
+    errorByKeyword.set(normalizeKeywordKey(keyword), {
+      keyword,
+      error: String(err.error || err.message || "SERP check failed"),
+    });
+  }
+
+  const checkedKeywords = [];
+  const checkedRows = [];
+  const currentPositions = {};
+  const errored = [];
+
+  for (const keyword of wanted) {
+    const key = normalizeKeywordKey(keyword);
+    if (rowByKeyword.has(key)) {
+      const row = rowByKeyword.get(key);
+      checkedKeywords.push(keyword);
+      checkedRows.push(row);
+      currentPositions[keyword] = toPosition(row.position);
+      continue;
+    }
+    if (errorByKeyword.has(key)) {
+      const err = errorByKeyword.get(key);
+      errored.push({ keyword, error: err.error });
+      continue;
+    }
+    errored.push({ keyword, error: "Keyword absent from serp-check rows and errors" });
+  }
+
+  return {
+    checked_keywords: checkedKeywords,
+    checked_rows: checkedRows,
+    current_positions: currentPositions,
+    errors: errored,
+    all_errored: wanted.length > 0 && errored.length === wanted.length,
+    partial: errored.length > 0,
+  };
+}
+
+function normalizeKeywordKey(value) {
+  return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 // Decide whether a just-completed page change warrants a ranking follow-up, and
-// build its spec (without the baseline — captureBaselinePositions fills that).
+// build its spec (without the baseline â€” captureBaselinePositions fills that).
 function planRankingFollowup(parentTask, parentMetadata = {}, options = {}) {
   const evidence = parentMetadata.evidence && typeof parentMetadata.evidence === "object"
     ? parentMetadata.evidence
@@ -302,7 +360,7 @@ function createFollowupTask(db, spec) {
   // requires explicit approval, refuse rather than create an un-actioned task.
   const route = routeTaskCreationThroughGuardrails({
     taskType: spec.taskType,
-    status: "approved",
+    status: spec.status || "approved",
     riskLevel: spec.riskLevel || "safe",
     approvalRequired: 0,
     metadata,
@@ -341,12 +399,13 @@ function createFollowupTask(db, spec) {
       INSERT INTO events (
         event_id, event_type, task_id, resource_type, resource_id,
         old_value, new_value, source, agent_name, created_at, metadata_json
-      ) VALUES (?, 'followup_task_created', ?, 'task', ?, ?, 'approved', 'executor_followup', 'Task Executor', ?, ?)
+      ) VALUES (?, 'followup_task_created', ?, 'task', ?, ?, ?, 'executor_followup', 'Task Executor', ?, ?)
     `).run(
       makeId("EVT"),
       taskId,
       taskId,
       spec.parentTask ? spec.parentTask.task_id : null,
+      route.status,
       now,
       JSON.stringify({
         parent_task_id: spec.parentTask ? spec.parentTask.task_id : null,
@@ -364,7 +423,7 @@ function createFollowupTask(db, spec) {
       taskId,
       JSON.stringify({
         task_id: taskId,
-        status: "approved",
+        status: route.status,
         risk_level: route.riskLevel,
         priority_score: spec.priority || 500,
         scheduled_for: spec.scheduledForIso || null,
@@ -377,12 +436,19 @@ function createFollowupTask(db, spec) {
     db.exec("ROLLBACK");
     throw error;
   }
-  return { created: true, task_id: taskId, scheduled_for: spec.scheduledForIso || null, depth: childDepth };
+  return {
+    created: true,
+    task_id: taskId,
+    status: route.status,
+    risk_level: route.riskLevel,
+    scheduled_for: spec.scheduledForIso || null,
+    depth: childDepth,
+  };
 }
 
 // Orchestrator called by the executor after a successful deploy. Captures the
 // ranking baseline and schedules the follow-up. Never throws into the executor's
-// success path — a follow-up failure must not fail the underlying task.
+// success path â€” a follow-up failure must not fail the underlying task.
 function maybeCreateFollowups(db, parentTask, parentMetadata = {}, options = {}) {
   const results = [];
   try {
@@ -445,6 +511,7 @@ module.exports = {
   readClicksWindow,
   captureBaselineClicks,
   evaluateRankingDeltas,
+  partitionSerpReading,
   planRankingFollowup,
   createFollowupTask,
   maybeCreateFollowups,

@@ -116,43 +116,43 @@ test('sample commands emit exactly one JSON envelope', () => {
 
 test('content blog-cannibalization checks existing blog inventory before a new support post', () => {
   const siteRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'client-cannibal-site-'));
-  fs.mkdirSync(path.join(siteRoot, 'blog', 'local-seo-checklist-for-{{AUDIENCE}}'), { recursive: true });
-  fs.mkdirSync(path.join(siteRoot, 'blog', 'website-speed-for-{{AUDIENCE}}'), { recursive: true });
+  fs.mkdirSync(path.join(siteRoot, 'blog', 'local-seo-checklist-for-roofing-companies'), { recursive: true });
+  fs.mkdirSync(path.join(siteRoot, 'blog', 'website-speed-for-roofing-companies'), { recursive: true });
 
   fs.writeFileSync(path.join(siteRoot, 'index.html'), `
     <!doctype html><html><head>
-      <title>{{NICHE}} SEO Agency</title>
-      <meta name="description" content="SEO for {{AUDIENCE}} and {{NICHE}} companies">
+      <title>Roofing SEO Agency</title>
+      <meta name="description" content="SEO for roofing companies and contractors">
     </head><body>
-      <h1>SEO for {{AUDIENCE}}</h1>
-      <p>{{NICHE}} SEO, {{AUDIENCE}} SEO, and {{NICHE}} SEO agency support.</p>
+      <h1>SEO for Roofing Companies</h1>
+      <p>Roofing SEO, contractor SEO, and roofing SEO agency support.</p>
     </body></html>
   `);
-  fs.writeFileSync(path.join(siteRoot, 'blog', 'local-seo-checklist-for-{{AUDIENCE}}', 'index.html'), `
+  fs.writeFileSync(path.join(siteRoot, 'blog', 'local-seo-checklist-for-roofing-companies', 'index.html'), `
     <!doctype html><html><head>
-      <title>Local SEO Checklist for {{AUDIENCE}}</title>
-      <meta name="description" content="A practical local SEO checklist for {{NICHE}} companies.">
+      <title>Local SEO Checklist for Roofing Companies</title>
+      <meta name="description" content="A practical local SEO checklist for roofing companies.">
     </head><body>
-      <h1>Local SEO Checklist for {{AUDIENCE}}</h1>
+      <h1>Local SEO Checklist for Roofing Companies</h1>
       <h2>Google Business Profile</h2>
-      <p>Local SEO for {{AUDIENCE}} depends on Google Maps, reviews, service area pages, local citations, and internal links.</p>
+      <p>Local SEO for roofing companies depends on Google Maps, reviews, service area pages, local citations, and internal links.</p>
     </body></html>
   `);
-  fs.writeFileSync(path.join(siteRoot, 'blog', 'website-speed-for-{{AUDIENCE}}', 'index.html'), `
+  fs.writeFileSync(path.join(siteRoot, 'blog', 'website-speed-for-roofing-companies', 'index.html'), `
     <!doctype html><html><head>
-      <title>Website Speed for {{AUDIENCE}}</title>
-      <meta name="description" content="Improve {{NICHE}} website speed.">
+      <title>Website Speed for Roofing Companies</title>
+      <meta name="description" content="Improve roofing website speed.">
     </head><body>
-      <h1>Website Speed for {{AUDIENCE}}</h1>
-      <p>Fast pages help {{NICHE}} companies convert more visitors into booked calls.</p>
+      <h1>Website Speed for Roofing Companies</h1>
+      <p>Fast pages help roofing companies convert more visitors into booked calls.</p>
     </body></html>
   `);
 
   const blocked = runCli([
     'content', 'blog-cannibalization',
     '--site-root', siteRoot,
-    '--topic', 'Local SEO checklist for {{AUDIENCE}}',
-    '--target-keyword', 'local SEO for {{AUDIENCE}}',
+    '--topic', 'Local SEO checklist for roofing companies',
+    '--target-keyword', 'local SEO for roofing companies',
     '--support-url', '/',
     '--json',
   ]);
@@ -160,14 +160,14 @@ test('content blog-cannibalization checks existing blog inventory before a new s
   const blockedJson = parseSingleJson(blocked.stdout);
   assert.strictEqual(blockedJson.recommendation, 'refresh_existing_blog');
   assert.strictEqual(blockedJson.risk, 'high');
-  assert.strictEqual(blockedJson.support_page.url, 'https://{{DOMAIN}}');
-  assert.match(blockedJson.matches[0].url, /local-seo-checklist-for-{{AUDIENCE}}/);
+  assert.strictEqual(blockedJson.support_page.url, 'https://example.com');
+  assert.match(blockedJson.matches[0].url, /local-seo-checklist-for-roofing-companies/);
 
   const clear = runCli([
     'content', 'blog-cannibalization',
     '--site-root', siteRoot,
-    '--topic', 'CRM pipeline automation for {{NICHE}} sales teams',
-    '--target-keyword', '{{NICHE}} CRM pipeline automation',
+    '--topic', 'CRM pipeline automation for roofing sales teams',
+    '--target-keyword', 'roofing CRM pipeline automation',
     '--support-url', '/',
     '--json',
   ]);

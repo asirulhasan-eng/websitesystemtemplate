@@ -52,7 +52,7 @@ v2 gsc-history --page "/services/<page-slug>" --days 90 --json
 v2 gsc-compare --from-db --keyword "<target-keyword>" --json
 ```
 
-### AI Analysis â€” Performance Assessment
+### AI Analysis Ã¢â‚¬â€ Performance Assessment
 
 Review the data and answer:
 1. **Which keywords is this page ranking for?** Are they the right keywords?
@@ -66,16 +66,16 @@ Review the data and answer:
 
 ```bash
 # Get page metadata
-v2 page-meta --url https://{{DOMAIN}}/services/<page-slug> --json
+v2 page-meta --url https://example.com/services/<page-slug> --json
 
 # Read page content for analysis
-v2 page-read --url https://{{DOMAIN}}/services/<page-slug> --keyword-density "<target-keyword>" --json
+v2 page-read --url https://example.com/services/<page-slug> --keyword-density "<target-keyword>" --json
 
 # Check internal link support
 v2 site-links --url /services/<page-slug> --json
 ```
 
-### AI Analysis â€” Content Quality
+### AI Analysis Ã¢â‚¬â€ Content Quality
 
 Evaluate:
 1. **Title tag**: Does it include the primary keyword? Is it compelling for clicks? Is it 50-60 characters?
@@ -96,7 +96,7 @@ Evaluate:
 v2 serp-check --keywords "<target-keyword>,<secondary-keyword>" --top 10 --include-features --json
 ```
 
-### AI Analysis â€” Competitive Gap
+### AI Analysis Ã¢â‚¬â€ Competitive Gap
 
 For each competitor ranking above us:
 1. **What type of content are they using?** (Long-form service page? Guide? Comparison?)
@@ -142,7 +142,7 @@ Based on your analysis, decide what changes are needed. Common optimization acti
 v2 lock acquire --type file_lock --resource "services/<page-slug>.html" --reason "Service page optimization" --json
 
 # Create a preview branch
-v2 deploy branch --site-root /opt/client-site --branch "preview/optimize-<page-slug>" --message "Optimize <page-slug> service page" --json
+v2 deploy branch --site-root /opt/website-site --branch "preview/optimize-<page-slug>" --message "Optimize <page-slug> service page" --json
 ```
 
 Now make the content changes to the file. The AI should:
@@ -153,7 +153,7 @@ Now make the content changes to the file. The AI should:
 
 ```bash
 # Push the preview branch
-v2 deploy push --site-root /opt/client-site --branch "preview/optimize-<page-slug>" --json
+v2 deploy push --site-root /opt/website-site --branch "preview/optimize-<page-slug>" --json
 
 # Wait for Cloudflare preview deployment
 v2 deploy wait --branch "preview/optimize-<page-slug>" --timeout-seconds 180 --json
@@ -165,7 +165,7 @@ v2 deploy wait --branch "preview/optimize-<page-slug>" --timeout-seconds 180 --j
 
 ```bash
 # Check the preview page metadata
-v2 page-meta --file services/<page-slug>.html --site-root /opt/client-site --json
+v2 page-meta --file services/<page-slug>.html --site-root /opt/website-site --json
 ```
 
 ### AI Verification Checklist
@@ -191,7 +191,7 @@ Before requesting merge:
 ```bash
 # Create a task record for this optimization
 v2 task create --title "Service page optimized: <page-slug>" --type service_page_update \
-  --status completed --risk-level semi_safe --target-url "https://{{DOMAIN}}/services/<page-slug>" \
+  --status completed --risk-level semi_safe --target-url "https://example.com/services/<page-slug>" \
   --target-keyword "<target-keyword>" \
   --description "Optimized based on GSC analysis: [summary of changes made]" \
   --evidence '{"position_before": X, "impressions": Y, "changes_made": ["title", "meta", "content", "schema"]}' --json
@@ -212,7 +212,7 @@ need to create either by hand.
 While that window is open:
 - A **same-lever** change to this URL (e.g. another title/meta edit while a title
   experiment is running) is automatically parked in the `research_hold` bucket by
-  `routeTask` and skipped by `task next` — it would confound attribution. The hold
+  `routeTask` and skipped by `task next` â€” it would confound attribution. The hold
   auto-lifts when the window closes (or at `ended_at`, even if the follow-up never
   runs). Deliberately re-running the change **supersedes** the open experiment and
   resets the clock.
@@ -231,4 +231,4 @@ v2 serp-check --keywords "<target-keyword>" --json
 
 If position improved: Success! Document what worked.
 If position didn't change: May need more time, or the changes weren't sufficient.
-If position dropped: Investigate â€” was there an algorithm update? Did we over-optimize?
+If position dropped: Investigate Ã¢â‚¬â€ was there an algorithm update? Did we over-optimize?

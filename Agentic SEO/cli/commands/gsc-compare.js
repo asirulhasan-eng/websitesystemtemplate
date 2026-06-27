@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * gsc-compare.js â€” Compare two GSC periods side by side
+ * gsc-compare.js Ã¢â‚¬â€ Compare two GSC periods side by side
  *
  * Fetches or reads current vs previous period data, joins by keyword+page,
  * and computes position/impressions/clicks changes with trend classification.
@@ -21,7 +21,7 @@ const { nowIso, daysAgo } = require('../lib/dates');
 const TOOL = 'gsc-compare';
 
 const HELP = `
-gsc-compare â€” Compare two GSC time periods
+gsc-compare Ã¢â‚¬â€ Compare two GSC time periods
 
 USAGE
   node gsc-compare.js [options]
@@ -59,35 +59,35 @@ OUTPUT COLUMNS
   current_ctr, previous_ctr, trend
 
 TREND VALUES
-  improving  â€” position improved (went down) by >= threshold
-  declining  â€” position worsened (went up) by >= threshold
-  stable     â€” position changed by < threshold
-  new        â€” keyword appeared only in current period
-  lost       â€” keyword appeared only in previous period
+  improving  Ã¢â‚¬â€ position improved (went down) by >= threshold
+  declining  Ã¢â‚¬â€ position worsened (went up) by >= threshold
+  stable     Ã¢â‚¬â€ position changed by < threshold
+  new        Ã¢â‚¬â€ keyword appeared only in current period
+  lost       Ã¢â‚¬â€ keyword appeared only in previous period
 
 EXAMPLES
   node gsc-compare.js --sample --table
   node gsc-compare.js --db ./seo.db --current-days 7 --previous-days 7
   node gsc-compare.js --live --only-changes --threshold 3
-  node gsc-compare.js --db ./seo.db --keyword {{NICHE}} --sort impressions_change_pct
+  node gsc-compare.js --db ./seo.db --keyword website --sort impressions_change_pct
 `.trim();
 
 function getSampleData() {
   return {
     current: [
-      { query: '{{NICHE}} seo', page: 'https://{{DOMAIN}}/', clicks: 42, impressions: 890, ctr: 0.0472, position: 4.2 },
-      { query: 'seo for {{AUDIENCE}}', page: 'https://{{DOMAIN}}/seo-for-{{AUDIENCE}}', clicks: 38, impressions: 720, ctr: 0.0528, position: 5.1 },
-      { query: '{{AUDIENCE}} website design', page: 'https://{{DOMAIN}}/web-design', clicks: 22, impressions: 540, ctr: 0.0407, position: 7.3 },
-      { query: 'local seo {{NICHE}}', page: 'https://{{DOMAIN}}/local-seo', clicks: 18, impressions: 410, ctr: 0.0439, position: 8.6 },
-      { query: '{{NICHE}} google ads', page: 'https://{{DOMAIN}}/google-ads', clicks: 15, impressions: 380, ctr: 0.0395, position: 9.2 },
-      { query: '{{AUDIENCE}} lead generation', page: 'https://{{DOMAIN}}/leads', clicks: 10, impressions: 210, ctr: 0.0476, position: 12.5 },
+      { query: 'website seo', page: 'https://example.com/', clicks: 42, impressions: 890, ctr: 0.0472, position: 4.2 },
+      { query: 'seo for small business owners', page: 'https://example.com/seo-for-small business owners', clicks: 38, impressions: 720, ctr: 0.0528, position: 5.1 },
+      { query: 'small business owners website design', page: 'https://example.com/web-design', clicks: 22, impressions: 540, ctr: 0.0407, position: 7.3 },
+      { query: 'local seo website', page: 'https://example.com/local-seo', clicks: 18, impressions: 410, ctr: 0.0439, position: 8.6 },
+      { query: 'website google ads', page: 'https://example.com/google-ads', clicks: 15, impressions: 380, ctr: 0.0395, position: 9.2 },
+      { query: 'small business owners lead generation', page: 'https://example.com/leads', clicks: 10, impressions: 210, ctr: 0.0476, position: 12.5 },
     ],
     previous: [
-      { query: '{{NICHE}} seo', page: 'https://{{DOMAIN}}/', clicks: 35, impressions: 810, ctr: 0.0432, position: 5.8 },
-      { query: 'seo for {{AUDIENCE}}', page: 'https://{{DOMAIN}}/seo-for-{{AUDIENCE}}', clicks: 40, impressions: 750, ctr: 0.0533, position: 4.9 },
-      { query: '{{AUDIENCE}} website design', page: 'https://{{DOMAIN}}/web-design', clicks: 20, impressions: 510, ctr: 0.0392, position: 8.1 },
-      { query: 'local seo {{NICHE}}', page: 'https://{{DOMAIN}}/local-seo', clicks: 22, impressions: 450, ctr: 0.0489, position: 7.2 },
-      { query: '{{NICHE}} company seo services', page: 'https://{{DOMAIN}}/services', clicks: 12, impressions: 240, ctr: 0.05, position: 10.3 },
+      { query: 'website seo', page: 'https://example.com/', clicks: 35, impressions: 810, ctr: 0.0432, position: 5.8 },
+      { query: 'seo for small business owners', page: 'https://example.com/seo-for-small business owners', clicks: 40, impressions: 750, ctr: 0.0533, position: 4.9 },
+      { query: 'small business owners website design', page: 'https://example.com/web-design', clicks: 20, impressions: 510, ctr: 0.0392, position: 8.1 },
+      { query: 'local seo website', page: 'https://example.com/local-seo', clicks: 22, impressions: 450, ctr: 0.0489, position: 7.2 },
+      { query: 'website owner seo services', page: 'https://example.com/services', clicks: 12, impressions: 240, ctr: 0.05, position: 10.3 },
     ],
     current_start: daysAgo(7),
     current_end: daysAgo(0),
@@ -218,7 +218,7 @@ async function main() {
     let currentStart, currentEnd, previousStart, previousEnd;
 
     if (boolArg(args, 'sample')) {
-      // â”€â”€ Sample mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
       const sample = getSampleData();
       currentRows = sample.current;
       previousRows = sample.previous;
@@ -228,7 +228,7 @@ async function main() {
       previousEnd = sample.previous_end;
 
     } else if (boolArg(args, 'live')) {
-      // â”€â”€ Live API mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Live API mode Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
       const config = loadToolEnv({ cwd: args.cwd });
       currentEnd = args['current-end'] || daysAgo(0);
       currentStart = args['current-start'] || daysAgo(currentDays);
@@ -239,8 +239,8 @@ async function main() {
       previousRows = await fetchFromApi(config, previousStart, previousEnd);
 
     } else {
-      // â”€â”€ From DB mode (default) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      if (!args.db && !process.env.CLIENT_DB_PATH && !process.env.SEO_AGENT_DB) {
+      // Ã¢â€â‚¬Ã¢â€â‚¬ From DB mode (default) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      if (!args.db && !process.env.WEBSITE_AGENT_DB_PATH && !process.env.SEO_AGENT_DB) {
         throw new Error('--db <path> is required for --from-db mode, or use --live or --sample');
       }
       const db = openStateDb(resolveDbPath(args));
@@ -255,10 +255,10 @@ async function main() {
       db.close();
     }
 
-    // â”€â”€ Compare â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Compare Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     let results = computeComparison(currentRows, previousRows, threshold);
 
-    // â”€â”€ Apply filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Apply filters Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const minImpressions = numberArg(args, 'min-impressions', 0);
     if (minImpressions > 0) {
       results = results.filter(r =>
@@ -275,7 +275,7 @@ async function main() {
       results = results.filter(r => r.trend !== 'stable');
     }
 
-    // â”€â”€ Sort â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Sort Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const VALID_SORT_FIELDS = new Set([
       'keyword', 'page', 'current_position', 'previous_position', 'position_change',
       'current_impressions', 'previous_impressions', 'impressions_change_pct',
@@ -293,7 +293,7 @@ async function main() {
       return String(vb).localeCompare(String(va));
     });
 
-    // â”€â”€ Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Output Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const output = envelope({
       current_period: { start: currentStart, end: currentEnd },
       previous_period: { start: previousStart, end: previousEnd },

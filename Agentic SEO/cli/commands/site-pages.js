@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * site-pages.js â€” Full site page inventory from local website repo
+ * site-pages.js Ã¢â‚¬â€ Full site page inventory from local website repo
  *
  * Scans the website directory for HTML files and extracts metadata
  * for each page. Useful for AI to understand the full site structure.
@@ -15,7 +15,7 @@ function main() {
   if (args.help) { printHelp(); return; }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     if (!fs.existsSync(siteRoot)) {
       throw new Error(`Site root not found: ${siteRoot}`);
     }
@@ -167,7 +167,7 @@ function classifyPageType(relativePath) {
 
 function fileToUrl(relativePath) {
   const clean = relativePath.replace(/\.html$/i, '').replace(/\/index$/i, '');
-  return `https://{{DOMAIN}}/${clean || ''}`;
+  return `https://example.com/${clean || ''}`;
 }
 
 function walkDir(dir) {
@@ -187,13 +187,13 @@ function walkDir(dir) {
 
 function printHelp() {
   console.log(`
-site-pages â€” Full site page inventory with metadata
+site-pages Ã¢â‚¬â€ Full site page inventory with metadata
 
 Usage:
   v2 site-pages [options]
 
 Options:
-  --site-root <path>       Website repo root (default: /opt/client-site)
+  --site-root <path>       Website repo root (default: /opt/website-site)
   --type <type>            Filter by: service|blog|utility|home|other|all (default: all)
   --has-schema             Only pages with structured data
   --missing-meta           Only pages missing title or meta description

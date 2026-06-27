@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "{{SITE_NAME}} Process Playbook Schema",
+  "title": "Website Operations Process Playbook Schema",
   "description": "Schema for YAML frontmatter in process playbook .md files. Process playbooks are human- and AI-guided operating procedures; this repository does not include an automated process execution engine.",
   "type": "object",
   "required": ["id", "name", "version", "trigger"],
@@ -44,7 +44,7 @@
         "weekdays": {
           "type": "array",
           "items": { "type": "integer", "minimum": 1, "maximum": 7 },
-          "description": "Only run on these ISO weekdays (Mon=1 â€¦ Sun=7)."
+          "description": "Only run on these ISO weekdays (Mon=1 Ã¢â‚¬Â¦ Sun=7)."
         },
         "monthly_day": {
           "type": "integer",
@@ -72,7 +72,7 @@
         },
         "timezone": {
           "type": "string",
-          "default": "{{TIMEZONE}}",
+          "default": "Asia/Dhaka",
           "description": "Timezone for schedule interpretation"
         },
         "conditions": {
@@ -130,7 +130,7 @@
         },
         "to": {
           "type": "string",
-          "default": "{{ADMIN_EMAIL}}"
+          "default": "owner@example.com"
         },
         "include_summary": {
           "type": "boolean",
@@ -351,7 +351,7 @@
             "type": "string",
             "enum": ["abort", "skip", "retry", "alert", "continue"],
             "default": "continue",
-            "description": "What to do if this step fails. 'retry' is governed by the process-level 'retry_policy' (max_attempts, backoff_strategy, alert_after_attempts) â€” it is NOT an unbounded retry. Once retry_policy.max_attempts is exhausted the step is treated as a hard failure (alert, then skip or abort)."
+            "description": "What to do if this step fails. 'retry' is governed by the process-level 'retry_policy' (max_attempts, backoff_strategy, alert_after_attempts) Ã¢â‚¬â€ it is NOT an unbounded retry. Once retry_policy.max_attempts is exhausted the step is treated as a hard failure (alert, then skip or abort)."
           },
           "timeout_seconds": {
             "type": "integer",

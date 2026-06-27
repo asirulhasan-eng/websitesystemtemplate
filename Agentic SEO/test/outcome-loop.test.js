@@ -118,15 +118,15 @@ test("loadOutcomeConfig returns defaults and honours env overrides", () => {
   assert.strictEqual(typeof base.click_drop_ratio, "number");
   assert.strictEqual(base.confirm.required_consecutive_degraded, 2);
 
-  process.env.CLIENT_CLICK_DROP_RATIO = "0.5";
-  process.env.CLIENT_RECHECK_DAYS = "3";
+  process.env.WEBSITE_AGENT_CLICK_DROP_RATIO = "0.5";
+  process.env.WEBSITE_AGENT_RECHECK_DAYS = "3";
   try {
     const over = loadOutcomeConfig();
     assert.strictEqual(over.click_drop_ratio, 0.5);
     assert.strictEqual(over.confirm.recheck_days, 3);
   } finally {
-    delete process.env.CLIENT_CLICK_DROP_RATIO;
-    delete process.env.CLIENT_RECHECK_DAYS;
+    delete process.env.WEBSITE_AGENT_CLICK_DROP_RATIO;
+    delete process.env.WEBSITE_AGENT_RECHECK_DAYS;
   }
 });
 

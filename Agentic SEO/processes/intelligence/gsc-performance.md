@@ -7,7 +7,7 @@ description: "Fetch GSC data (7d + 28d), categorize keywords into buckets, and s
 schedule: "0 1,13 * * *"
 trigger:
   schedule: "0 1,13 * * *"
-  timezone: {{TIMEZONE}}
+  timezone: Asia/Dhaka
   can_run_manually: true
 cadence:
   every_session: true
@@ -31,8 +31,8 @@ do with your findings.
 
 ## Data Gathering
 ```bash
-V2="/opt/client-agent/cli/bin/v2.js"
-DB="--db /opt/client-sqlite/seo-agent.db"
+V2="/opt/website-agent/cli/bin/v2.js"
+DB="--db /opt/website-state/website-agent.db"
 
 # Last 7 days vs the trailing 28-day baseline
 node $V2 gsc-fetch --days 7  --min-impressions 5 $DB --json
@@ -45,10 +45,10 @@ node $V2 keyword list $DB --json
 
 ## AI Analysis
 Categorize each meaningful query into a bucket and read the trend:
-- **Money keywords** (tracked, high commercial intent) â€” position, impressions, CTR vs 28d.
-- **Quick wins** â€” positions 4â€“15 with rising impressions (one optimization could lift them).
-- **Emerging** â€” new queries gaining impressions that the site is not yet targeting well.
-- **Declining** â€” losing impressions or position week-over-week.
+- **Money keywords** (tracked, high commercial intent) Ã¢â‚¬â€ position, impressions, CTR vs 28d.
+- **Quick wins** Ã¢â‚¬â€ positions 4Ã¢â‚¬â€œ15 with rising impressions (one optimization could lift them).
+- **Emerging** Ã¢â‚¬â€ new queries gaining impressions that the site is not yet targeting well.
+- **Declining** Ã¢â‚¬â€ losing impressions or position week-over-week.
 
 Identify the **top movers** (biggest position/impression swings, up and down). Compute the
 overall direction: total impressions and average CTR vs the prior period. Recall any prior
@@ -56,9 +56,9 @@ Brain memory for keywords you're about to flag so you don't repeat a known dead-
 `node $V2 brain recall --query "<keyword>" --markdown`.
 
 Pick a severity:
-- `critical` â€” a money keyword fell off page 1, or total impressions dropped sharply.
-- `warning` â€” notable money-keyword slippage or a clear negative trend.
-- `normal` â€” stable or improving.
+- `critical` Ã¢â‚¬â€ a money keyword fell off page 1, or total impressions dropped sharply.
+- `warning` Ã¢â‚¬â€ notable money-keyword slippage or a clear negative trend.
+- `normal` Ã¢â‚¬â€ stable or improving.
 
 > Surface ranking DROPS lightly here (one line); deep drop triage is `threat-detection`'s job.
 

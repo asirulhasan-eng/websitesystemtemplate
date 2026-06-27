@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process');
 const { ensureDir, writeJson, writeText } = require('./io');
 const { nowIso } = require('./dates');
 
-const DEFAULT_VAULT = '/opt/client-obsidian';
+const DEFAULT_VAULT = '/opt/website-obsidian';
 const BRAIN_DIR = '01-Agent-Brain';
 const COMPILED_DIR = path.join(BRAIN_DIR, 'Compiled');
 const REQUIRED_DOMAINS = ['no_go', 'operating_rules', 'task_generation', 'risk_lanes'];
@@ -19,7 +19,7 @@ const SUPPORTED_MATCH_TYPES = new Set(['domain', 'substring', 'exact', 'regex'])
 const SUPPORTED_RISK_LEVELS = new Set(['safe', 'semi_safe', 'high_risk', 'blocked']);
 
 function resolveVaultRoot(input) {
-  return path.resolve(process.cwd(), input || process.env.CLIENT_BRAIN_VAULT || DEFAULT_VAULT);
+  return path.resolve(process.cwd(), input || process.env.WEBSITE_AGENT_BRAIN_VAULT || DEFAULT_VAULT);
 }
 
 function brainRoot(vaultRoot) {
@@ -237,7 +237,7 @@ function summarizeBody(body) {
 
 function renderBrainMarkdown(brain) {
   const lines = [
-    '# {{SITE_NAME}} Agent Brain',
+    '# Website Operations Agent Brain',
     '',
     `Generated: ${brain.generated_at}`,
     `Source hash: ${brain.source_hash}`,
@@ -245,7 +245,7 @@ function renderBrainMarkdown(brain) {
     '## No-go terms',
   ];
   for (const term of brain.blocked_terms) {
-    lines.push(`- ${term.term} (${term.match_type}, ${term.severity}) â€” ${term.reason || term.rule_id}`);
+    lines.push(`- ${term.term} (${term.match_type}, ${term.severity}) Ã¢â‚¬â€ ${term.reason || term.rule_id}`);
   }
   lines.push('', '## Risk reminders');
   for (const note of brain.notes.filter((n) => ['risk_lanes', 'operating_rules', 'task_generation', 'no_go'].includes(n.brain_domain))) {
@@ -365,7 +365,7 @@ function matchesRule(rule, value) {
       // Test on a truncated input to bound execution time
       return re.test(text.length > 10000 ? text.slice(0, 10000) : text);
     } catch {
-      // Invalid regex pattern in Brain rule â€” treat as non-match
+      // Invalid regex pattern in Brain rule Ã¢â‚¬â€ treat as non-match
       return false;
     }
   }
@@ -612,11 +612,11 @@ function yamlScalar(value) {
   return `"${text.replace(/"/g, "'")}"`;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Episodic memory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Episodic memory Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // The "human-readable memory brain": the system records decisions, lessons, and
 // observations as durable Markdown notes (written downstream via the Outbox),
 // and recalls relevant ones on demand. Memory notes are authored by the agent
-// (managed_by: client-agent) and live under 01-Agent-Brain/{Decisions,
+// (managed_by: website-agent) and live under 01-Agent-Brain/{Decisions,
 // Lessons,Observations}/. They are NOT compiled into the policy guard.
 
 function isMemoryFile(filePath) {
@@ -653,7 +653,7 @@ function renderMemoryNoteMarkdown(memory) {
     `memory_type: ${type}`,
     'status: active',
     // managed_by lets the Outbox write-guard accept this file into 01-Agent-Brain.
-    'managed_by: client-agent',
+    'managed_by: website-agent',
     `created_at: ${created}`,
   ];
   if (memory.session) fm.push(`session: ${memory.session}`);
@@ -676,7 +676,7 @@ function renderMemoryNoteMarkdown(memory) {
     for (const link of links) body.push(`- [[${String(link).replace(/^\[\[|\]\]$/g, '')}]]`);
     body.push('');
   }
-  body.push('---', `*Recorded by {{SITE_NAME}} agent at ${created}. Episodic memory â€” not authoritative state (SQLite wins for live status).*`, '');
+  body.push('---', `*Recorded by Website Operations agent at ${created}. Episodic memory Ã¢â‚¬â€ not authoritative state (SQLite wins for live status).*`, '');
   return `${fm.join('\n')}${body.join('\n')}`;
 }
 

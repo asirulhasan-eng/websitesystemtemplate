@@ -12,7 +12,7 @@ USAGE
   v2 brain compile --vault <path> [options]
 
 OPTIONS
-  --vault <path>        Obsidian vault root. Defaults to CLIENT_BRAIN_VAULT.
+  --vault <path>        Obsidian vault root. Defaults to WEBSITE_AGENT_BRAIN_VAULT.
   --brain-vault <path>  Alias for --vault.
   --json                JSON output.
   --table               Table output.

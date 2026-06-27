@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * crawl.js â€” Technical site audit using local HTML file scanning
+ * crawl.js Ã¢â‚¬â€ Technical site audit using local HTML file scanning
  *
  * Scans the local website repo for common SEO issues:
  * - Missing/duplicate titles
@@ -23,7 +23,7 @@ function main() {
   if (args.help) { printHelp(); return; }
 
   try {
-    const siteRoot = args['site-root'] || process.env.CLIENT_SITE_ROOT || '/opt/client-site';
+    const siteRoot = args['site-root'] || process.env.WEBSITE_AGENT_SITE_ROOT || '/opt/website-site';
     if (!fs.existsSync(siteRoot)) throw new Error(`Site root not found: ${siteRoot}`);
 
     const htmlFiles = walkDir(siteRoot)
@@ -76,7 +76,7 @@ function main() {
         const db = openStateDb(resolveDbPath(args));
         const crawlResult = recordCrawlAtomic(db, {
           site_root: siteRoot,
-          base_url: 'https://{{DOMAIN}}',
+          base_url: 'https://example.com',
           page_count: pages.length,
           issue_count: issues.length,
           issues,
@@ -108,7 +108,7 @@ function auditPage(html, relativePath, siteRoot) {
   if (!title) {
     issues.push({ type: 'missing_title', severity: pageType === 'utility' ? 'minor' : 'critical', page: relativePath, url, detail: 'No <title> tag found' });
   } else if (title.length > 70) {
-    issues.push({ type: 'long_title', severity: 'minor', page: relativePath, url, detail: `Title is ${title.length} chars (recommended: â‰¤60)`, value: title });
+    issues.push({ type: 'long_title', severity: 'minor', page: relativePath, url, detail: `Title is ${title.length} chars (recommended: Ã¢â€°Â¤60)`, value: title });
   } else if (title.length < 10) {
     issues.push({ type: 'short_title', severity: 'important', page: relativePath, url, detail: `Title is only ${title.length} chars`, value: title });
   }
@@ -118,7 +118,7 @@ function auditPage(html, relativePath, siteRoot) {
   if (!metaDesc) {
     issues.push({ type: 'missing_meta_description', severity: pageType === 'utility' ? 'minor' : 'important', page: relativePath, url, detail: 'No meta description found' });
   } else if (metaDesc.length > 170) {
-    issues.push({ type: 'long_meta_description', severity: 'minor', page: relativePath, url, detail: `Meta description is ${metaDesc.length} chars (recommended: â‰¤160)` });
+    issues.push({ type: 'long_meta_description', severity: 'minor', page: relativePath, url, detail: `Meta description is ${metaDesc.length} chars (recommended: Ã¢â€°Â¤160)` });
   }
 
   // H1 tags
@@ -167,7 +167,7 @@ function auditPage(html, relativePath, siteRoot) {
     const targetIndex = path.join(siteRoot, targetRelative, 'index.html');
 
     if (!fs.existsSync(targetPath) && !fs.existsSync(targetIndex)) {
-      issues.push({ type: 'broken_internal_link', severity: 'important', page: relativePath, url, detail: `Link to "${href}" â€” file not found`, value: href });
+      issues.push({ type: 'broken_internal_link', severity: 'important', page: relativePath, url, detail: `Link to "${href}" Ã¢â‚¬â€ file not found`, value: href });
     }
   }
 
@@ -185,7 +185,7 @@ function classifyPageType(relativePath) {
 
 function fileToUrl(relativePath) {
   const clean = relativePath.replace(/\.html$/i, '').replace(/\/index$/i, '');
-  return `https://{{DOMAIN}}/${clean || ''}`;
+  return `https://example.com/${clean || ''}`;
 }
 
 function extractTag(html, tag) {
@@ -228,13 +228,13 @@ function walkDir(dir) {
 
 function printHelp() {
   console.log(`
-crawl â€” Technical SEO site audit (local files)
+crawl Ã¢â‚¬â€ Technical SEO site audit (local files)
 
 Usage:
   v2 crawl [options]
 
 Options:
-  --site-root <path>       Website repo root (default: /opt/client-site)
+  --site-root <path>       Website repo root (default: /opt/website-site)
   --summary-only           Only show issue counts, not individual issues
   --issues-only            Only show issues, not page list
 
@@ -265,7 +265,7 @@ Issue severities:
 Examples:
   v2 crawl --json
   v2 crawl --summary-only --table
-  v2 crawl --db /path/to/seo-agent.db --json
+  v2 crawl --db /path/to/website-agent.db --json
   v2 crawl --issues-only --json
 `);
 }

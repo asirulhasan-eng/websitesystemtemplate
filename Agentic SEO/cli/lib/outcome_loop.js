@@ -1,4 +1,4 @@
-// outcome_loop.js — business-outcome (clicks-primary) evaluation + remediation policy.
+// outcome_loop.js â€” business-outcome (clicks-primary) evaluation + remediation policy.
 //
 // The follow-up / experiment machinery measures whether a deployed change actually
 // helped. The owner's success metric is GSC CLICKS (not SERP position): a change
@@ -50,7 +50,7 @@ function toNum(value) {
 }
 
 // Merge guardrails.outcome_loop over DEFAULTS, then apply env overrides (the
-// operator escape hatch — they win over file + defaults). Never throws.
+// operator escape hatch â€” they win over file + defaults). Never throws.
 function loadOutcomeConfig(options = {}) {
   let fromFile = {};
   try {
@@ -66,17 +66,17 @@ function loadOutcomeConfig(options = {}) {
     confirm: { ...DEFAULTS.confirm, ...(fromFile.confirm || {}) },
   };
 
-  const clickDrop = numEnv("CLIENT_CLICK_DROP_RATIO");
+  const clickDrop = numEnv("WEBSITE_AGENT_CLICK_DROP_RATIO");
   if (clickDrop !== null) cfg.click_drop_ratio = clickDrop;
-  const minClicks = numEnv("CLIENT_MIN_BASELINE_CLICKS");
+  const minClicks = numEnv("WEBSITE_AGENT_MIN_BASELINE_CLICKS");
   if (minClicks !== null) cfg.min_baseline_clicks = minClicks;
-  const windowDays = numEnv("CLIENT_FOLLOWUP_DAYS");
+  const windowDays = numEnv("WEBSITE_AGENT_FOLLOWUP_DAYS");
   if (windowDays !== null) cfg.window_days = windowDays;
-  const recheck = numEnv("CLIENT_RECHECK_DAYS");
+  const recheck = numEnv("WEBSITE_AGENT_RECHECK_DAYS");
   if (recheck !== null) cfg.confirm.recheck_days = recheck;
-  const consec = numEnv("CLIENT_REQUIRED_CONSECUTIVE_DEGRADED");
+  const consec = numEnv("WEBSITE_AGENT_REQUIRED_CONSECUTIVE_DEGRADED");
   if (consec !== null) cfg.confirm.required_consecutive_degraded = consec;
-  const watch = numEnv("CLIENT_MAX_WATCH_DAYS");
+  const watch = numEnv("WEBSITE_AGENT_MAX_WATCH_DAYS");
   if (watch !== null) cfg.confirm.max_watch_days = watch;
 
   return cfg;
@@ -100,7 +100,7 @@ function evaluateOutcome({ baselineClicks, currentClicks, positionEval, config }
   const cur = toNum(currentClicks);
   const pos = positionEval || { regressed: false, improvements: [], rows: [] };
 
-  // Primary path: clicks — but only when the baseline is above the noise floor.
+  // Primary path: clicks â€” but only when the baseline is above the noise floor.
   if (base !== null && base >= cfg.min_baseline_clicks) {
     const curClicks = cur === null ? 0 : cur; // no data at check time = zero clicks
     const dropRatio = (base - curClicks) / base; // positive = clicks fell

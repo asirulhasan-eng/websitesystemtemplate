@@ -2,11 +2,11 @@
 const { parseArgs, numberArg, boolArg, resolveDbPath, getOutputFormat } = require("../lib/cli");
 const { printOutput, envelope, errorEnvelope } = require("../lib/output");
 const { openStateDb } = require("../lib/state_db");
+const { loadToolEnv } = require("../lib/env");
 const {
   compactDeployment,
   listDeployments,
   listProjects,
-  loadCloudflareConfig,
 } = require("../lib/cloudflare");
 
 const TOOL = "deploy-status";
@@ -28,6 +28,8 @@ DB OPTIONS
 CLOUDFLARE OPTIONS
   --live                Query Cloudflare Pages API.
   --project <name>      Cloudflare Pages project. Defaults to CLOUDFLARE_PROJECT_NAME.
+  --domain <domain>     Custom domain used to resolve the Pages project if --project/env is stale.
+  --strict-domain       Fail instead of falling back to a single verified status-path candidate when domain mapping is absent.
   --account-id <id>     Cloudflare account ID. Defaults to CLOUDFLARE_ACCOUNT_ID.
   --list-projects       List Cloudflare Pages projects.
   --environment <name>  Filter live deployments by environment.
@@ -86,10 +88,10 @@ function shouldUseCloudflare(args) {
 
 async function printCloudflareStatus(args) {
   const limit = numberArg(args, "limit", 10);
-  const { accountId, projectName, token } = loadCloudflareConfig(args);
+  const access = loadCloudflareAccess(args);
 
   if (boolArg(args, "list-projects")) {
-    const projects = await listProjects({ accountId, token, limit });
+    const projects = await listProjects({ accountId: access.accountId, token: access.token, limit });
     printOutput(envelope({
       source: "cloudflare",
       mode: "list_projects",
@@ -100,8 +102,37 @@ async function printCloudflareStatus(args) {
     return;
   }
 
-  let rows = (await listDeployments({ accountId, projectName, token, limit }))
-    .map(compactDeployment);
+  const initialProject = access.projectName;
+  let resolution = initialProject
+    ? configuredProjectResolution(initialProject, access.domain)
+    : null;
+  if (!resolution) resolution = await resolveProjectByDomain({ ...access, limit });
+
+  let rows;
+  try {
+    rows = (await listDeployments({
+      accountId: access.accountId,
+      projectName: resolution.projectName,
+      token: access.token,
+      limit,
+    })).map(compactDeployment);
+  } catch (error) {
+    if (!isProjectNotFoundError(error) || !access.domain) throw error;
+    const fallback = await resolveProjectByDomain({
+      ...access,
+      requestedProjectName: resolution.projectName,
+      limit,
+      cause: error,
+      allowSingleCandidate: !boolArg(args, "strict-domain"),
+    });
+    rows = (await listDeployments({
+      accountId: access.accountId,
+      projectName: fallback.projectName,
+      token: access.token,
+      limit,
+    })).map(compactDeployment);
+    resolution = fallback;
+  }
 
   if (args.branch) rows = rows.filter((row) => row.branch === args.branch);
   if (args.environment) rows = rows.filter((row) => row.environment === args.environment);
@@ -109,17 +140,148 @@ async function printCloudflareStatus(args) {
 
   const output = {
     source: "cloudflare",
-    project_name: projectName,
+    project_name: resolution.projectName,
+    project_resolution: resolution.output,
     count: rows.length,
     latest: rows[0] || null,
     rows,
   };
 
   if (boolArg(args, "latest") && rows[0]) {
-    printOutput(envelope({ source: "cloudflare", project_name: projectName, ...rows[0] }, { tool: TOOL }), getOutputFormat(args));
+    printOutput(envelope({
+      source: "cloudflare",
+      project_name: resolution.projectName,
+      project_resolution: resolution.output,
+      ...rows[0],
+    }, { tool: TOOL }), getOutputFormat(args));
     return;
   }
   printOutput(envelope(output, { tool: TOOL }), getOutputFormat(args));
+}
+
+function loadCloudflareAccess(args) {
+  const config = loadToolEnv({ envPath: args.env, cwd: args.cwd });
+  const domain = normalizeDomain(
+    args.domain
+      || args["site-domain"]
+      || domainFromUrl(args.url || args["production-url"])
+      || domainFromUrl(config.get("GSC_SITE_URL"))
+      || "example.com",
+  );
+  return {
+    accountId: args["account-id"] || config.require("CLOUDFLARE_ACCOUNT_ID"),
+    projectName: args.project || config.get("CLOUDFLARE_PROJECT_NAME"),
+    token: args.token || config.require("CLOUDFLARE_API_TOKEN"),
+    domain,
+  };
+}
+
+function configuredProjectResolution(projectName, domain) {
+  return {
+    projectName,
+    output: {
+      requested_project_name: projectName,
+      resolved_project_name: projectName,
+      resolved_by: "configured",
+      domain: domain || null,
+    },
+  };
+}
+
+async function resolveProjectByDomain({
+  accountId,
+  token,
+  domain,
+  requestedProjectName = null,
+  limit = 25,
+  cause = null,
+  allowSingleCandidate = true,
+}) {
+  if (!domain) {
+    throw new Error("Cloudflare Pages project could not be resolved: provide --project or --domain.");
+  }
+  const projects = await listProjects({ accountId, token, limit: Math.min(Math.max(limit, 10), 20) });
+  const match = projects.find((project) => projectMatchesDomain(project, domain));
+  if (match) {
+    return {
+      projectName: match.name,
+      output: {
+        requested_project_name: requestedProjectName,
+        resolved_project_name: match.name,
+        resolved_by: "domain",
+        domain,
+        domain_verified: true,
+        status_path_verified: true,
+        matched_project: match,
+        prior_error: cause ? cause.message : null,
+      },
+    };
+  }
+
+  if (allowSingleCandidate && projects.length === 1) {
+    const only = projects[0];
+    return {
+      projectName: only.name,
+      output: {
+        requested_project_name: requestedProjectName,
+        resolved_project_name: only.name,
+        resolved_by: "single_candidate_status_path",
+        domain,
+        domain_verified: false,
+        status_path_verified: true,
+        matched_project: only,
+        prior_error: cause ? cause.message : null,
+        human_action: `Cloudflare listed only one accessible Pages project (${only.name}) but did not expose ${domain} in its custom domains. Verify this is the example.com Pages project, then update CLOUDFLARE_PROJECT_NAME or Cloudflare custom-domain/API-token access so future checks can verify the domain mapping directly.`,
+      },
+    };
+  }
+
+  const candidates = projects.map(projectEvidence).join("; ") || "no projects returned";
+  const causeText = cause ? ` Prior project lookup failed: ${cause.message}.` : "";
+  throw new Error(
+    `Cloudflare Pages project could not be resolved for domain ${domain}.${causeText} `
+    + `Requested project: ${requestedProjectName || "(none)"}. Candidate projects: ${candidates}. `
+    + `Human action: set CLOUDFLARE_PROJECT_NAME to the actual Pages project for ${domain}, `
+    + `or grant the Cloudflare API token/account access to list that project and its custom domains/deployments.`,
+  );
+}
+
+function projectMatchesDomain(project, domain) {
+  const wanted = normalizeDomain(domain);
+  if (!wanted) return false;
+  const candidates = [project.subdomain, ...(project.domains || [])]
+    .map(normalizeDomain)
+    .filter(Boolean);
+  return candidates.includes(wanted);
+}
+
+function normalizeDomain(value) {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (!raw) return "";
+  try {
+    return new URL(raw.includes("://") ? raw : `https://${raw}`).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return raw.toLowerCase().replace(/^https?:\/\//, "").split("/")[0].replace(/^www\./, "");
+  }
+}
+
+function domainFromUrl(value) {
+  if (!value) return "";
+  try {
+    return new URL(value).hostname;
+  } catch {
+    return "";
+  }
+}
+
+function projectEvidence(project) {
+  const domains = [project.subdomain, ...(project.domains || [])].filter(Boolean).join(", ") || "no domains";
+  return `${project.name} [${domains}] production_branch=${project.production_branch || "unknown"}`;
+}
+
+function isProjectNotFoundError(error) {
+  return /Project not found|8000007|not found/i.test(error?.message || "");
 }
 
 function printDbStatus(args) {

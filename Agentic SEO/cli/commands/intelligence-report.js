@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * intelligence-report â€” Save an intelligence module's analysis report.
+ * intelligence-report Ã¢â‚¬â€ Save an intelligence module's analysis report.
  *
  * Called by each module at the end of its run. Persists the report three ways
  * in one shot:
@@ -36,7 +36,7 @@ const {
 const TOOL = "intelligence-report";
 
 const HELP = `
-intelligence-report â€” Save an intelligence module's analysis report (report-only).
+intelligence-report Ã¢â‚¬â€ Save an intelligence module's analysis report (report-only).
 
 USAGE
   v2 intelligence report --module <id> --session <morning|evening|manual> \\
@@ -58,7 +58,7 @@ OPTIONS
   --error <text>          Error message (use with --status failed).
   --no-brain              Do not write a Brain observation note.
   --reports-root <dir>    Base dir for markdown reports (default: cwd or
-                          CLIENT_AGENT_ROOT). File goes under
+                          WEBSITE_AGENT_ROOT). File goes under
                           <root>/cron/intelligence/{date}/{HHMM}-{module}.md
   --db <path>             SQLite DB path.
   --json | --table        Output format.
@@ -137,7 +137,7 @@ module.exports = function intelligenceReport() {
     // 1. Render + write the Markdown report (skip for failed runs).
     let mdWritten = null;
     if (status !== "failed") {
-      const reportsRoot = path.resolve(process.cwd(), args["reports-root"] || process.env.CLIENT_AGENT_ROOT || ".");
+      const reportsRoot = path.resolve(process.cwd(), args["reports-root"] || process.env.WEBSITE_AGENT_ROOT || ".");
       const absPath = path.join(reportsRoot, mdRelPath);
       ensureDir(path.dirname(absPath));
       fs.writeFileSync(absPath, renderReportMarkdown(reportObj), "utf8");

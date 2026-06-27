@@ -30,9 +30,10 @@ function compactDateTime(date = new Date()) {
   return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
 
-function localDateOnly(date = new Date(), timeZone = process.env.SEO_AGENT_TIMEZONE || "{{TIMEZONE}}") {
+function localDateOnly(date = new Date(), timeZone = process.env.SEO_AGENT_TIMEZONE || "Asia/Dhaka") {
+  const tz = String(timeZone).includes("{{") ? "UTC" : timeZone;
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
+    timeZone: tz,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -43,10 +44,11 @@ function localDateOnly(date = new Date(), timeZone = process.env.SEO_AGENT_TIMEZ
 
 // Calendar parts in the configured local timezone. Used by the intelligence
 // pipeline to date-stamp report folders/files and to evaluate weekday/monthly
-// cadence rules consistently with how the crons fire ({{TIMEZONE_ABBR}}, not UTC).
-function localCalendar(date = new Date(), timeZone = process.env.SEO_AGENT_TIMEZONE || "{{TIMEZONE}}") {
+// cadence rules consistently with how the crons fire (BST, not UTC).
+function localCalendar(date = new Date(), timeZone = process.env.SEO_AGENT_TIMEZONE || "Asia/Dhaka") {
+  const tz = String(timeZone).includes("{{") ? "UTC" : timeZone;
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
+    timeZone: tz,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

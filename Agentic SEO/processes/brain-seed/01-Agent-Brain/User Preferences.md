@@ -4,7 +4,7 @@ type: brain
 brain_domain: user_preferences
 status: active
 priority: high
-owner: {{OWNER_NAME}}
+owner: Site Owner
 source_of_truth: Obsidian Brain
 ---
 

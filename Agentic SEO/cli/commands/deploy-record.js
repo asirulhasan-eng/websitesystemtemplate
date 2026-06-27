@@ -14,7 +14,7 @@ function main() {
   }
 
   const action = args._positional[0] || args.action || "list";
-  const db = openStateDb(args.db || process.env.CLIENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/client-sqlite/seo-agent.db");
+  const db = openStateDb(args.db || process.env.WEBSITE_AGENT_DB_PATH || process.env.SEO_AGENT_DB || "/opt/website-state/website-agent.db");
   let output;
 
   try {

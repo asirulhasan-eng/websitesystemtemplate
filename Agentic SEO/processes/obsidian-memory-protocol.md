@@ -12,13 +12,13 @@ The Obsidian Brain (`01-Agent-Brain/`) is the agent's **human-readable memory**:
 before deciding, write to it as work happens, curate it over time. This file defines the
 rules; other playbooks reference it.
 
-> **Cardinal rule:** the Brain stores *reasoning, policy, and lessons* â€” never live state.
+> **Cardinal rule:** the Brain stores *reasoning, policy, and lessons* Ã¢â‚¬â€ never live state.
 > Task status, positions, metrics, and deploy state live in SQLite/mirror notes. A position
 > number or task status written into a Brain note is a bug.
 
 ---
 
-## A. RECALL â€” read before you decide
+## A. RECALL Ã¢â‚¬â€ read before you decide
 
 Run **before** generating, prioritizing, recommending, or executing work:
 
@@ -28,16 +28,16 @@ v2 brain recall --query "<keyword or topic>" --markdown   # prior decisions/less
 ```
 
 Recall by what you're about to touch:
-- About to work a keyword/page â†’ `v2 brain recall --query "<keyword>"`
-- Picking a tactic â†’ `v2 brain recall --type lesson --query "<tactic>"` (did we try this? did it work?)
-- Acting on a task â†’ `v2 brain recall --task <task-id>`
+- About to work a keyword/page Ã¢â€ â€™ `v2 brain recall --query "<keyword>"`
+- Picking a tactic Ã¢â€ â€™ `v2 brain recall --type lesson --query "<tactic>"` (did we try this? did it work?)
+- Acting on a task Ã¢â€ â€™ `v2 brain recall --task <task-id>`
 
 Use what you recall: don't repeat a tactic a Lesson says backfired; respect a prior Decision
 unless conditions changed; honor policy/no-go from the summary.
 
-## B. RECORD â€” write as work happens (event-driven, not on a timer)
+## B. RECORD Ã¢â‚¬â€ write as work happens (event-driven, not on a timer)
 
-Use `v2 brain note add --type <decision|lesson|observation>`. Writes go through SQLiteâ†’Outbox
+Use `v2 brain note add --type <decision|lesson|observation>`. Writes go through SQLiteÃ¢â€ â€™Outbox
 and land in `01-Agent-Brain/{Decisions,Lessons,Observations}/`.
 
 | Type | When | Cadence |
@@ -51,14 +51,14 @@ the task (`--task`) and related notes (`--links`). Example:
 
 ```bash
 v2 brain note add --type lesson \
-  --title "Title-tag rewrite lifted 'SEO for {{AUDIENCE}}' 7->3" \
+  --title "Title-tag rewrite lifted 'SEO for small business owners' 7->3" \
   --body "Rewrote the service-page title tag on 2026-05-20; GSC avg position moved 7.1 -> 3.2 over 9 days. Repeatable for money pages with weak CTR." \
   --task TSK-2026-05-20-XXXX --tags "serp,title-tag,money-page" --links "SEO Strategy"
 ```
 
 ### Do NOT record
 - Live metrics/status (use SQLite/mirror).
-- One note per task per run â€” write **one** rollup per session, not per action (mirror notes
+- One note per task per run Ã¢â‚¬â€ write **one** rollup per session, not per action (mirror notes
   already capture per-task state). Dedupe hard.
 - Policy notes are **never** auto-written. Promotion of a recurring lesson into policy
   (No-Go / Operating Rules / Strategy) happens only in weekly review on owner confirmation.
@@ -67,23 +67,23 @@ v2 brain note add --type lesson \
 
 | Trigger | Recall | Record |
 |---------|--------|--------|
-| Outbox worker (10m) | â€” | â€” (it is the write *mechanism*) |
-| Health monitor (15m) | â€” | â€” (alerts already mirror to System-Logs) |
-| **Intelligence modules** (pre-planner) | recall per keyword/topic being analyzed | **Observations** â€” auto-written by `v2 intelligence report` when a report is noteworthy (interpretation, not raw metrics) |
-| **Daily planner Ã—2** | summary + **intelligence summary** + recall per keyword (Step 0/2) | **one Decision rollup / session** (Step 8) |
+| Outbox worker (10m) | Ã¢â‚¬â€ | Ã¢â‚¬â€ (it is the write *mechanism*) |
+| Health monitor (15m) | Ã¢â‚¬â€ | Ã¢â‚¬â€ (alerts already mirror to System-Logs) |
+| **Intelligence modules** (pre-planner) | recall per keyword/topic being analyzed | **Observations** Ã¢â‚¬â€ auto-written by `v2 intelligence report` when a report is noteworthy (interpretation, not raw metrics) |
+| **Daily planner Ãƒâ€”2** | summary + **intelligence summary** + recall per keyword (Step 0/2) | **one Decision rollup / session** (Step 8) |
 | **Analyst (2-hourly)** | recall per watched keyword | **Lessons** on attributable outcomes |
 | Opportunity scan | summary + recall | Observations (gaps, competitor moves) |
-| Task triage | recall per task | â€” (mirror updates only) |
+| Task triage | recall per task | Ã¢â‚¬â€ (mirror updates only) |
 | Weekly review | full recall + `v2 intelligence search --days 7` | **consolidate + propose policy promotions** |
 
-**Where NOT:** never add recall/record to the mechanical loops (outbox, monitor) â€” they make
+**Where NOT:** never add recall/record to the mechanical loops (outbox, monitor) Ã¢â‚¬â€ they make
 no strategic decision, and coupling them to the Brain risks taking down sync/monitoring if the
 Brain is briefly unavailable.
 
 ## D. Curation (keep memory updated, not just appended)
 
 In weekly review: skim the week's Decisions + Lessons, merge duplicates, archive stale episodic
-notes (set `status: archived` â€” the compiler and recall skip archived), and surface recurring
+notes (set `status: archived` Ã¢â‚¬â€ the compiler and recall skip archived), and surface recurring
 Lessons as **proposed** policy edits in the plan email (opt-out). Promote on owner confirmation.
 
-Rhythm: **append continuously â†’ learn on outcomes â†’ consolidate weekly â†’ promote deliberately.**
+Rhythm: **append continuously Ã¢â€ â€™ learn on outcomes Ã¢â€ â€™ consolidate weekly Ã¢â€ â€™ promote deliberately.**

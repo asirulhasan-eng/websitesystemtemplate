@@ -23,7 +23,7 @@ async function main() {
   if (args.help || args.h) { printHelp(); return; }
 
   try {
-    const baseUrl = args['base-url'] || process.env.CLIENT_BASE_URL || DEFAULT_BASE_URL;
+    const baseUrl = args['base-url'] || process.env.WEBSITE_AGENT_BASE_URL || DEFAULT_BASE_URL;
     const sitemapUrl = args.url || `${normalizeBaseUrl(baseUrl)}/sitemap.xml`;
     const timeoutMs = numberArg(args, 'timeout-ms', 20000);
     const limit = numberArg(args, 'limit', 250);
@@ -295,7 +295,7 @@ async function fetchRaw(url, options = {}) {
     const response = await fetch(url, {
       method: 'GET',
       redirect: options.redirect || 'follow',
-      headers: { 'user-agent': '{{SITE_NAME}}Agent/2.0 (+https://{{DOMAIN}})' },
+      headers: { 'user-agent': 'Website OperationsAgent/2.0 (+https://example.com)' },
       signal: controller.signal,
     });
     const body = await response.text();
@@ -373,13 +373,13 @@ function printHelp() {
 sitemap-audit - Validate sitemap XML and listed URLs
 
 Usage:
-  v2 sitemap-audit --url https://{{DOMAIN}}/sitemap.xml --json
+  v2 sitemap-audit --url https://example.com/sitemap.xml --json
   v2 sitemap-audit --from-file ./sitemap.xml --no-fetch --json
 
 Inputs:
   --url <url>              Sitemap URL (default: <base-url>/sitemap.xml).
   --from-file <path>       Read sitemap XML from a local file.
-  --base-url <url>         Site base URL (default: https://{{DOMAIN}}).
+  --base-url <url>         Site base URL (default: https://example.com).
 
 Checks:
   --contains <text[,text]> Require at least one sitemap URL containing each value.

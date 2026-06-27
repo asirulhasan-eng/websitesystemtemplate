@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * v2.js â€” Unified CLI entry point for {{SITE_NAME}} v2
+ * v2.js Ã¢â‚¬â€ Unified CLI entry point for Website Operations v2
  *
  * Routes subcommands to their handler modules. Every command outputs
  * structured JSON by default so the AI brain can parse results.
@@ -12,7 +12,7 @@
  *   v2 gsc-fetch --days 7 --json
  *   v2 task create --title "..." --priority 800
  *   v2 db snapshot --json
- *   v2 serp-check --keywords "{{NICHE}} seo" --json
+ *   v2 serp-check --keywords "website seo" --json
  */
 
 const path = require('node:path');
@@ -33,14 +33,14 @@ const ALIASES = {
   'pagespeed':  'speed-audit',
   'cwv':        'speed-audit',
   'cwv-check':  'speed-audit',
-  // Execution-lane aliases â€” the AI invokes a pipeline directly per task it
+  // Execution-lane aliases Ã¢â‚¬â€ the AI invokes a pipeline directly per task it
   // decides to run (pure AI-brain; there is no autonomous queue auto-picker).
   'safe-fix':   'task-execute-safe',
   'semi-safe':  'task-execute-semi',
   'high-risk':  'task-execute-high',
 };
 
-// Compound commands: "v2 task create" â†’ "task-create"
+// Compound commands: "v2 task create" Ã¢â€ â€™ "task-create"
 const COMPOUND_PREFIXES = new Set([
   'task', 'db', 'lock', 'deploy', 'email',
   'gsc', 'serp', 'keyword', 'report', 'site',
@@ -72,7 +72,7 @@ function main() {
   let commandName = args[0];
   let commandArgs = args.slice(1);
 
-  // Handle compound commands: "v2 task create" â†’ "task-create"
+  // Handle compound commands: "v2 task create" Ã¢â€ â€™ "task-create"
   if (COMPOUND_PREFIXES.has(commandName) && commandArgs.length > 0 && !commandArgs[0].startsWith('-')) {
     const compound = `${commandName}-${commandArgs[0]}`;
     const compoundPath = path.join(COMMANDS_DIR, `${compound}.js`);
@@ -145,14 +145,14 @@ function listCommands() {
   if (Object.keys(ALIASES).length > 0) {
     console.log('Aliases:');
     for (const [alias, target] of Object.entries(ALIASES)) {
-      console.log(`  v2 ${alias}  â†’  v2 ${target}`);
+      console.log(`  v2 ${alias}  Ã¢â€ â€™  v2 ${target}`);
     }
   }
 }
 
 function printUsage() {
   console.log(`
-{{SITE_NAME}} v2 CLI â€” AI-Brain Data Tools
+Website Operations v2 CLI Ã¢â‚¬â€ AI-Brain Data Tools
 
 Usage:
   v2 <command> [subcommand] [options]
@@ -187,6 +187,7 @@ Task Management:
   v2 task audit              Audit task lanes, queues, and duplicates
   v2 task next               Pick next ready task in a lane (pipeline worker)
   v2 task dedupe             Cancel duplicate active tasks
+  v2 self-improve            Execute approved self_improvement repair tasks
 
 Keyword Intelligence:
   v2 keyword track           Add/update tracked keywords
@@ -230,7 +231,7 @@ Intelligence Pipeline:
 
 Social Distribution:
   v2 social post             Queue a blog's infographics (spec or simple mode)
-  v2 social send             Drain the pipeline (cron ~90±11 min, batch drip)
+  v2 social send             Drain the pipeline (cron ~90Â±11 min, batch drip)
   v2 social status           Inspect the social pipeline queue
 
 Reporting:

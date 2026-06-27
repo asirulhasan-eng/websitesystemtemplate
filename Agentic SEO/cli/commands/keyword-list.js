@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * keyword-list.js â€” List tracked keywords from the {{SITE_NAME}} SQLite state DB.
+ * keyword-list.js Ã¢â‚¬â€ List tracked keywords from the Website Operations SQLite state DB.
  *
  * Supports filtering, sorting, and optional JOINs with serp_checks and gsc_snapshots
  * for enriched output showing latest positions and search metrics.
@@ -14,7 +14,7 @@ const { printOutput, envelope, errorEnvelope } = require('../lib/output');
 const { openStateDb } = require('../lib/state_db');
 
 const HELP = `
-keyword-list â€” List tracked keywords with optional SERP and GSC data.
+keyword-list Ã¢â‚¬â€ List tracked keywords with optional SERP and GSC data.
 
 USAGE
   node keyword-list.js [options]
@@ -53,7 +53,7 @@ EXAMPLES
   node keyword-list.js --cluster "core services" --with-latest --table
   node keyword-list.js --priority high --with-gsc --sort clicks --desc
   node keyword-list.js --with-latest --with-gsc --csv
-  node keyword-list.js --keyword "{{AUDIENCE}}" --limit 10
+  node keyword-list.js --keyword "small business owners" --limit 10
 `.trim();
 
 const SORT_MAP = {
@@ -76,21 +76,21 @@ async function main() {
     return;
   }
 
-  // â”€â”€ Sample mode â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sample mode Ã¢â€â‚¬Ã¢â€â‚¬
   if (args.sample) {
     const sample = {
       results: [
         {
           keyword_id: 'KW-2026-06-03-A1B2C3D4',
-          keyword: '{{AUDIENCE}} near me',
+          keyword: 'small business owners near me',
           cluster: 'core services',
           priority: 'high',
-          target_url: 'https://client.com/{{AUDIENCE}}',
+          target_url: 'https://client.com/small business owners',
           current_position: 8,
           best_position: 5,
           last_checked_at: '2026-06-03T04:00:00.000Z',
           latest_serp_position: 8,
-          latest_serp_url: 'https://client.com/{{AUDIENCE}}',
+          latest_serp_url: 'https://client.com/small business owners',
           gsc_clicks: 45,
           gsc_impressions: 890,
           gsc_ctr: 0.051,
@@ -98,15 +98,15 @@ async function main() {
         },
         {
           keyword_id: 'KW-2026-06-03-E5F6G7H8',
-          keyword: 'emergency {{AUDIENCE}}',
+          keyword: 'emergency small business owners',
           cluster: 'core services',
           priority: 'high',
-          target_url: 'https://client.com/emergency-{{AUDIENCE}}',
+          target_url: 'https://client.com/emergency-small business owners',
           current_position: 15,
           best_position: 12,
           last_checked_at: '2026-06-03T04:00:00.000Z',
           latest_serp_position: 15,
-          latest_serp_url: 'https://client.com/emergency-{{AUDIENCE}}',
+          latest_serp_url: 'https://client.com/emergency-small business owners',
           gsc_clicks: 12,
           gsc_impressions: 340,
           gsc_ctr: 0.035,
@@ -128,7 +128,7 @@ async function main() {
     const limit = numberArg(args, 'limit', 100);
     const offset = numberArg(args, 'offset', 0);
 
-    // â”€â”€ Build SELECT clause â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Build SELECT clause Ã¢â€â‚¬Ã¢â€â‚¬
     let selectFields = [
       'k.keyword_id', 'k.keyword', 'k.cluster', 'k.priority',
       'k.target_url', 'k.current_position', 'k.best_position',
@@ -140,7 +140,7 @@ async function main() {
     const conditions = [];
     const params = [];
 
-    // â”€â”€ Optional SERP JOIN â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Optional SERP JOIN Ã¢â€â‚¬Ã¢â€â‚¬
     if (withLatest) {
       // Use a correlated subquery to get the latest serp_check per keyword
       joins.push(`
@@ -164,7 +164,7 @@ async function main() {
       );
     }
 
-    // â”€â”€ Optional GSC JOIN â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Optional GSC JOIN Ã¢â€â‚¬Ã¢â€â‚¬
     if (withGsc) {
       // Get the latest GSC snapshot per keyword (query field)
       joins.push(`
@@ -193,7 +193,7 @@ async function main() {
       );
     }
 
-    // â”€â”€ WHERE conditions â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ WHERE conditions Ã¢â€â‚¬Ã¢â€â‚¬
     if (args.cluster) {
       conditions.push('k.cluster = ?');
       params.push(args.cluster);
@@ -237,7 +237,7 @@ async function main() {
       ? `WHERE ${conditions.join(' AND ')}`
       : '';
 
-    // â”€â”€ Sort â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Sort Ã¢â€â‚¬Ã¢â€â‚¬
     const VALID_SORT_FIELDS = new Set(Object.keys(SORT_MAP));
     const sortField = VALID_SORT_FIELDS.has(args.sort) ? args.sort : 'keyword';
     const sortExpr = SORT_MAP[sortField];
@@ -256,7 +256,7 @@ async function main() {
     // Handle NULL positioning for sort
     const nullHandling = sortDir === 'ASC' ? 'NULLS LAST' : 'NULLS LAST';
 
-    // â”€â”€ Build final SQL â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Build final SQL Ã¢â€â‚¬Ã¢â€â‚¬
     const sql = `
       SELECT ${selectFields.join(', ')}
       FROM keywords k
