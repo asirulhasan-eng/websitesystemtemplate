@@ -24,16 +24,16 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/check-health-status.sh"
 source "$SCRIPT_DIR/lib/site-repo-safety.sh"
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
-SITE_ROOT="/opt/website-site"
+SITE_ROOT="${WEBSITE_AGENT_SITE_ROOT:-/opt/website-site}"
 LOG_DIR="${AGENT_ROOT}/cron/logs"
 LANE="general_operational"
 
 # Pin the authoritative DB and agent root so this worker (and the executors it
 # invokes) always resolve the same state, independent of cron's working dir.
 export WEBSITE_AGENT_ROOT="$AGENT_ROOT"
-export WEBSITE_AGENT_DB_PATH="/opt/website-state/website-agent.db"
+export WEBSITE_AGENT_DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 JOB="ops-pipeline"
 RUN_LOCK="ops-pipeline"
 LOCK_TTL_MINUTES=30

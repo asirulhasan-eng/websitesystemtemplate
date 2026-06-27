@@ -4,13 +4,13 @@
 
 set -euo pipefail
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
 LOG_DIR="${AGENT_ROOT}/cron/logs"
 JOB="db-prune"
 
 export WEBSITE_AGENT_ROOT="$AGENT_ROOT"
-export WEBSITE_AGENT_DB_PATH="/opt/website-state/website-agent.db"
+export WEBSITE_AGENT_DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 
 mkdir -p "$LOG_DIR"
 

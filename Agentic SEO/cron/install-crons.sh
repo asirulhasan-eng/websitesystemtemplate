@@ -179,6 +179,11 @@ V2_CRONS=$(cat <<'CRONTAB'
 CRONTAB
 )
 
+# Render the installed crontab for the configured agent root. The template keeps
+# /opt/website-agent as the canonical placeholder in the heredoc, but installs
+# to WEBSITE_AGENT_ROOT (or this script's parent) when customized.
+V2_CRONS="${V2_CRONS//\/opt\/website-agent/${AGENT_ROOT}}"
+
 next_expected_utc() {
   local utc_hm="$1"
   local today_utc now_epoch candidate_epoch

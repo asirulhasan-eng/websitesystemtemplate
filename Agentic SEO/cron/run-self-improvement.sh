@@ -8,7 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/check-health-status.sh"
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
 LOG_DIR="${AGENT_ROOT}/cron/logs"
 JOB="self-improvement"
@@ -19,7 +19,7 @@ MAX_ATTEMPTS=3
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 export WEBSITE_AGENT_ROOT="$AGENT_ROOT"
-export WEBSITE_AGENT_DB_PATH="/opt/website-state/website-agent.db"
+export WEBSITE_AGENT_DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 export NODE_NO_WARNINGS=1
 
 mkdir -p "$LOG_DIR"

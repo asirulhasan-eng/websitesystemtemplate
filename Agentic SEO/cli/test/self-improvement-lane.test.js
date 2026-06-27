@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const repoRoot = path.resolve(__dirname, '../../..');
 
@@ -19,4 +20,21 @@ test('cron installer includes AI review and self-improvement lanes', () => {
   assert.match(installer, /run-self-improvement\.sh/);
   assert.match(installer, /run-blog-pipeline\.sh/);
   assert.match(installer, /run-ops-pipeline\.sh/);
+});
+
+test('cron installer renders configured agent root instead of hardcoded template path', () => {
+  const installer = path.join(repoRoot, 'Agentic SEO/cron/install-crons.sh');
+  const cronDir = path.join(repoRoot, 'Agentic SEO/cron');
+  const renderedRoot = '/opt/acme-agent';
+  const result = spawnSync('bash', [installer, '--dry-run'], {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      WEBSITE_AGENT_ROOT: renderedRoot,
+      WEBSITE_AGENT_CRON_DIR: cronDir,
+    },
+  });
+  assert.strictEqual(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, new RegExp(`${renderedRoot}/cron/run-self-improvement\\.sh`));
+  assert.doesNotMatch(result.stdout, /\/opt\/website-agent\/cron\/run-self-improvement\.sh/);
 });

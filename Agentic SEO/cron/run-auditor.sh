@@ -13,14 +13,14 @@
 
 set -euo pipefail
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
 
 # Pin the authoritative DB + agent root so this job and the Hermes session it spawns
 # resolve the same state DB and the agent's .env (Telegram token/chat id for the
 # notify step), independent of cron's working directory.
 export WEBSITE_AGENT_ROOT="$AGENT_ROOT"
-export WEBSITE_AGENT_DB_PATH="/opt/website-state/website-agent.db"
+export WEBSITE_AGENT_DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 
 PROCESS_FILE="${AGENT_ROOT}/processes/self-evaluation.md"
 MEMORY_PROTOCOL="${AGENT_ROOT}/processes/obsidian-memory-protocol.md"

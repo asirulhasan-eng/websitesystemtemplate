@@ -6,13 +6,13 @@
 
 set -euo pipefail
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
 
 # Pin the authoritative DB and agent root for every CLI invocation below
 # (and anything they spawn), independent of cron's working directory.
 export WEBSITE_AGENT_ROOT="$AGENT_ROOT"
-export WEBSITE_AGENT_DB_PATH="/opt/website-state/website-agent.db"
+export WEBSITE_AGENT_DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 
 # Load .env so SMTP/IMAP credentials reach the CLI. Parse line-by-line and export
 # literally (no shell eval) so values containing spaces Ã¢â‚¬â€ e.g. EMAIL_FROM_NAME Ã¢â‚¬â€

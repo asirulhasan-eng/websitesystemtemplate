@@ -23,10 +23,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/check-health-status.sh"
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
-DB_PATH="/opt/website-state/website-agent.db"
-SITE_ROOT="/opt/website-site"
+DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
+SITE_ROOT="${WEBSITE_AGENT_SITE_ROOT:-/opt/website-site}"
 
 PROCESS_FILE="${AGENT_ROOT}/processes/industry-radar.md"
 GUARDRAILS_FILE="${AGENT_ROOT}/config/guardrails.json"

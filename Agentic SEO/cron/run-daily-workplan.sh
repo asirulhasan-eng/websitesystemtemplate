@@ -16,9 +16,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/check-health-status.sh"
 
 SESSION="${1:-morning}"
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
-DB_PATH="/opt/website-state/website-agent.db"
+DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 
 # Pin the authoritative DB and agent root so the planner and the Hermes session
 # it spawns resolve the same state DB and the agent's .env (SMTP creds for the

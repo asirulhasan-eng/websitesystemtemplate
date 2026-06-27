@@ -30,15 +30,15 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/check-health-status.sh"
 source "$SCRIPT_DIR/lib/site-repo-safety.sh"
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
-SITE_ROOT="/opt/website-site"
+SITE_ROOT="${WEBSITE_AGENT_SITE_ROOT:-/opt/website-site}"
 
 # Pin the authoritative DB and agent root so this worker and the Hermes content
 # session it spawns resolve the same state DB and the agent's .env (SMTP creds)
 # regardless of their working directory.
 export WEBSITE_AGENT_ROOT="$AGENT_ROOT"
-export WEBSITE_AGENT_DB_PATH="/opt/website-state/website-agent.db"
+export WEBSITE_AGENT_DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 
 PROCESS_FILE="${AGENT_ROOT}/processes/new-blog-creation.md"
 GUARDRAILS_FILE="${AGENT_ROOT}/config/guardrails.json"

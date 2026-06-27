@@ -7,9 +7,9 @@
 
 set -euo pipefail
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
-SITE_ROOT="/opt/website-site"
+SITE_ROOT="${WEBSITE_AGENT_SITE_ROOT:-/opt/website-site}"
 DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 LOG_DIR="${AGENT_ROOT}/cron/logs"
 JOB="ai-review"

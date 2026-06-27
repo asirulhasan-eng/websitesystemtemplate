@@ -22,9 +22,9 @@ if [ "${2:-}" = "--force-all" ] || [ "${1:-}" = "--force-all" ]; then
   [ "${1:-}" = "--force-all" ] && SESSION="morning"
 fi
 
-AGENT_ROOT="/opt/website-agent"
+AGENT_ROOT="${WEBSITE_AGENT_ROOT:-/opt/website-agent}"
 V2_CLI="${AGENT_ROOT}/cli/bin/v2.js"
-DB_PATH="/opt/website-state/website-agent.db"
+DB_PATH="${WEBSITE_AGENT_DB_PATH:-/opt/website-state/website-agent.db}"
 PROCESS_DIR="${AGENT_ROOT}/processes/intelligence"
 INTEL_SKILL="${AGENT_ROOT}/hermes/skills/client/intelligence/skill.md"
 MEMORY_PROTOCOL="${AGENT_ROOT}/processes/obsidian-memory-protocol.md"
