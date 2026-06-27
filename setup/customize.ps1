@@ -4,9 +4,9 @@
 
 .DESCRIPTION
   Reads site.config.json and replaces the template placeholders ({{DOMAIN}},
-  {{SITE_NAME}}, {{NICHE}}, {{AUDIENCE}}, ...) and the structural slug ('client',
-  'CLIENT_', '/opt/client-*') with the values from the profile, across the engine,
-  website, and brain.
+  {{SITE_NAME}}, {{NICHE}}, {{AUDIENCE}}, ...) plus runtime path defaults
+  (/opt/website-* and legacy /opt/client-* references) with the values from the
+  profile, across the engine, website, and brain.
 
   This is the DETERMINISTIC layer. After it runs, the only judgment work left is
   whatever niche prose you want Hermes to polish (the placeholders give it clean
@@ -49,13 +49,19 @@ $pairs = @(
   @('{{TIMEZONE}}',        $cfg.timezone)
 )
 
-# --- Structural slug rename (only if the client wants a non-'client' stem) ---
+# --- Runtime path normalization ---
 $slug = $cfg.slug
+$pairs += ,@('/opt/website-agent',   $cfg.paths.agent_root)
+$pairs += ,@('/opt/website-site',    $cfg.paths.site_root)
+$pairs += ,@('/opt/website-obsidian',$cfg.paths.obsidian_root)
+$pairs += ,@('/opt/website-state',   (Split-Path -Parent $cfg.paths.db_path))
+$pairs += ,@('/opt/client-agent',    $cfg.paths.agent_root)
+$pairs += ,@('/opt/client-site',     $cfg.paths.site_root)
+$pairs += ,@('/opt/client-obsidian', $cfg.paths.obsidian_root)
+$pairs += ,@('/opt/client-sqlite',   (Split-Path -Parent $cfg.paths.db_path))
+
+# --- Structural slug rename (only if the operator wants a non-'client' stem) ---
 if ($slug -and $slug -ne 'client') {
-  $pairs += ,@('/opt/client-agent',    $cfg.paths.agent_root)
-  $pairs += ,@('/opt/client-site',     $cfg.paths.site_root)
-  $pairs += ,@('/opt/client-obsidian', $cfg.paths.obsidian_root)
-  $pairs += ,@('/opt/client-sqlite',   (Split-Path -Parent $cfg.paths.db_path))
   $pairs += ,@('CLIENT_',              ($slug.ToUpper() + '_'))
   $pairs += ,@('client-agent',         ($slug + '-agent'))
   $pairs += ,@('client-site',          ($slug + '-site'))
@@ -146,7 +152,7 @@ foreach ($file in $files) {
   # Ignore the meta-words used to *describe* the token system in prose/docs
   # ({{TOKEN}}, {{TOKENS}}, {{PLACEHOLDER}}, {{PLACEHOLDERS}}) -- these are never
   # real fillable tokens, so they are not residue.
-  $metaWords = @('{{TOKEN}}','{{TOKENS}}','{{PLACEHOLDER}}','{{PLACEHOLDERS}}')
+  $metaWords = @('{{TOKEN}}','{{TOKENS}}','{{PLACEHOLDER}}','{{PLACEHOLDERS}}','{{TELEGRAM_CHAT_ID}}')
   foreach ($m in [regex]::Matches($text, '\{\{[A-Z_]+\}\}')) {
     if ($metaWords -contains $m.Value) { continue }
     if (-not $leftover.ContainsKey($m.Value)) { $leftover[$m.Value] = 0 }

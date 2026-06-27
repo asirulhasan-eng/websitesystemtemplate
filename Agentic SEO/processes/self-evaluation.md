@@ -16,7 +16,7 @@ guardrails:
 notify_on_complete:
   enabled: true
   channel: telegram                   # NOT email - a Telegram message every 6h, not 4 emails/day
-  to: "{{TELEGRAM_CHAT_ID}}"
+  to: "$TELEGRAM_CHAT_ID"
   include_grade: true
   include_findings: true
   verbosity: grade_aware              # A/B -> one-line; C or below -> full structured report

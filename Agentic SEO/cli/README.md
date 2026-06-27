@@ -227,8 +227,8 @@ The SQLite database contains 21 tables. Key ones:
 |----------|---------|---------|
 | `WEBSITE_AGENT_DB_PATH` or `SEO_AGENT_DB` | SQLite database path | `/opt/website-state/website-agent.db` |
 | `WEBSITE_AGENT_SITE_ROOT` | Website repo root | `/opt/website-site` |
-| `GSC_WEBSITE_AGENT_ID` | Google OAuth client ID | - |
-| `GSC_WEBSITE_AGENT_SECRET` | Google OAuth client secret | - |
+| `GSC_CLIENT_ID` | Google OAuth client ID | - |
+| `GSC_CLIENT_SECRET` | Google OAuth client secret | - |
 | `GSC_REFRESH_TOKEN` | Google OAuth refresh token | - |
 | `SERPER_API_KEY` | Serper.dev API key | - |
 | `DATAFORSEO_LOGIN` | DataForSEO login | - |

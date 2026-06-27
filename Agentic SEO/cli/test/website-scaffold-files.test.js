@@ -23,6 +23,9 @@ test('generic Website blog registration scaffold files are present and scrubbed'
     'tools/register-blog-post.ps1',
     'tools/sort-blog-index.js',
     'tools/link-registry.json',
+    'tools/blog-production-skill.md',
+    'tools/stats-blog-production-skill.md',
+    'tools/SERVICE-PAGE-PRODUCTION-SKILL.md',
     'test/blog-index-sort.test.js',
     'test/sitemap-lastmod.test.js',
     'test/structured-data-jsonld.test.js',
@@ -45,6 +48,15 @@ test('generic Website JavaScript tests pass from Website root', () => {
     shell: true,
   });
   assert.equal(result.status, 0, result.stdout + result.stderr);
+});
+
+test('template documents standard GSC OAuth env names used by runtime', () => {
+  const envExample = fs.readFileSync(path.join(repoRoot, 'Agentic SEO/.env.example'), 'utf8');
+  const gscRuntime = fs.readFileSync(path.join(repoRoot, 'Agentic SEO/cli/lib/gsc.js'), 'utf8');
+  assert.match(envExample, /^GSC_CLIENT_ID=/m);
+  assert.match(envExample, new RegExp('^GSC_' + 'CLIENT_' + 'SECRET=', 'm'));
+  assert.match(gscRuntime, /config\.get\("GSC_CLIENT_ID"\)/);
+  assert.match(gscRuntime, new RegExp('config\\.get\\("GSC_' + 'CLIENT_' + 'SECRET"\\)'));
 });
 
 test('blog index sorter exports reusable functions', () => {

@@ -85,11 +85,11 @@ function parseEnvText(text) {
     }
 
     if (/^Client ID$/i.test(line)) {
-      pendingKey = "GSC_WEBSITE_AGENT_ID";
+      pendingKey = "GSC_CLIENT_ID";
       continue;
     }
     if (/^Client secret$/i.test(line)) {
-      pendingKey = "GSC_WEBSITE_AGENT_SECRET";
+      pendingKey = "GSC_CLIENT_SECRET";
       continue;
     }
     if (/^Refresh token$/i.test(line)) {
@@ -131,8 +131,14 @@ function parseEnvText(text) {
     if (line.startsWith(tokenPrefix("github_pat"))) env.GITHUB_TOKEN = line;
     if (/^[a-f0-9]{32}$/i.test(line)) env.CLOUDFLARE_ACCOUNT_ID = line;
     if (line.startsWith(tokenPrefix("cfut"))) env.CLOUDFLARE_API_TOKEN = line;
-    if (/\.apps\.googleusercontent\.com$/.test(line)) env.GSC_WEBSITE_AGENT_ID = line;
-    if (line.startsWith(tokenPrefix("google_client_secret"))) env.GSC_WEBSITE_AGENT_SECRET = line;
+    if (/\.apps\.googleusercontent\.com$/.test(line)) {
+      env.GSC_CLIENT_ID = line;
+      env.GSC_WEBSITE_AGENT_ID = line;
+    }
+    if (line.startsWith(tokenPrefix("google_client_secret"))) {
+      env.GSC_CLIENT_SECRET = line;
+      env.GSC_WEBSITE_AGENT_SECRET = line;
+    }
     if (line.startsWith(tokenPrefix("google_refresh"))) env.GSC_REFRESH_TOKEN = line;
     if (line.startsWith(tokenPrefix("google_access"))) env.GSC_ACCESS_TOKEN = line;
   }

@@ -12,6 +12,10 @@ Also preserve the generic automation helpers in this folder:
 
 - `tools/register-blog-post.ps1` — registers a post in `/blog/`, `sitemap.xml`, and `tools/link-registry.json`.
 - `tools/sort-blog-index.js` — keeps `/blog/` sorted by publish date, latest first.
+- `tools/link-registry.json` — generic internal-link registry seed.
+- `tools/blog-production-skill.md` — standard long-form blog production workflow.
+- `tools/stats-blog-production-skill.md` — data/statistics blog production workflow.
+- `tools/SERVICE-PAGE-PRODUCTION-SKILL.md` — service-page production workflow.
 - `test/blog-index-sort.test.js` — guards blog index ordering and registration wiring.
 - `test/sitemap-lastmod.test.js` — rejects invalid sitemap `<lastmod>` dates.
 - `test/structured-data-jsonld.test.js` — catches unparsable JSON-LD structured data.
